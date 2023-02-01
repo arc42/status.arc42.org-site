@@ -1,0 +1,15 @@
+# You need to set the environment-variable SITE_DIR
+# to map the appropriate directory to /srv/jekyll
+# (that's where the jekyll/jekyll image expects the site!)
+#
+# Example (bash): export SITE_DIR="arc42.org-site"
+
+
+jekyll:
+    image: jekyll/jekyll:pages
+    container_name: arc42-jekyll-container
+    command: jekyll serve --watch --incremental
+    ports:
+        - 4000:4000
+    volumes:
+        - ./${SITE_DIR}:/srv/jekyll
