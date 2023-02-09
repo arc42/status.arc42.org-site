@@ -1,8 +1,9 @@
 "use strict";
 
-const PLTOKEN = 'CdmiPgsOg4V4roUa1wsDZG0nRzcEowMjot2zkBNV8PhcEI93gZtNLrfjzBQHyXgc';
+const PLTOKEN = "CdmiPgsOg4V4roUa1wsDZG0nRzcEowMjot2zkBNV8PhcEI93gZtNLrfjzBQHyXgc";
 
-let table = document.getElementsByTagName("table");
+let body = document.getElementsByTagName("body")[0];
+let table = document.createElement("table");
 
 
 const sites = ["arc42.org", "arc42.de", "docs.arc42.org", "faq.arc42.org", "quality.arc42.org"];
@@ -40,16 +41,14 @@ function generateStatisticsColumns(row, siteName) {
     generatePeriodStats( row, siteName, "12mo");
 }
 
-function generatePeriodStats( row, siteName, period) {
-    let periodStats = callPlausibleForTesting(period, siteName);
 
-    let cellVisitors = row.insertCell();
-    cellVisitors.appendChild(document.createTextNode(periodStats.visitors.toString()));
-    let cellViews = row.insertCell();
-    cellViews.appendChild(document.createTextNode(periodStats.pageviews.toString()));
+async function generatePeriodStats(row, siteName, period) {
+    console.log( "generatePeriodStats:" + siteName + ":" + period);
 
-}
-async function callPlausibleForTesting(urlString, siteName) {
+
+    let token = constructToken(42).replaceAll('!','');
+
+    let urlString = constructURL(period, siteName);
     const response = await fetch(urlString, {
         headers: {
             "Content-Type": "application/json",
@@ -58,10 +57,14 @@ async function callPlausibleForTesting(urlString, siteName) {
             "Authorization": "Bearer " + PLTOKEN
         }
     });
+    const body = await response.json();
+    console.log(body);
 
-    let visitors = 1;
-    let pageviews = 42;
-    return {visitors, pageviews};
+    let cellVisitors = row.insertCell();
+    cellVisitors.appendChild(document.createTextNode(body.results.visitors.value));
+    let cellViews = row.insertCell();
+    cellViews.appendChild(document.createTextNode(body.results.pageviews.value));
+
 }
 
 function constructURL(period, site) {
@@ -70,34 +73,7 @@ function constructURL(period, site) {
     const periodBase = "&period=";
     return plausibleBaseURL + metrics + periodBase + period + "&site_id=" + site;
 }
-async function callPlausible(period, siteName) {
-    console.log( "callPlausible(" + period + ", " + siteName + ")");
 
-    let urlString = constructURL( period, siteName);
-    console.log( urlString);
-
-    let token = constructToken(42).replaceAll('!','');
-
-
-    const response = await fetch(urlString, {
-        headers: {
-
-            "Content-Type": "application/json",
-            "accept": "application/json",
-            "origin": "https://status.arc42.org",
-            "Authorization": "Bearer " + PLTOKEN
-        }
-    });
-
-    const body = await response.json();
-    console.log(body);
-
-    const pageviews = body.results.pageviews.value;
-    const visitors = body.results.visitors.value;
-
-    return {visitors, pageviews};
-
-};
 
 function constructToken(param) {
  let t1 = '!!!!' + 'CdmiPgsOg4V4ro';
@@ -112,5 +88,7 @@ function constructToken(param) {
 
 generateTableHead(table, headers);
 generateTableBody(table, sites);
+
+body.appendChild(table);
 
 
