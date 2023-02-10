@@ -51,20 +51,13 @@ doc-faq-quality:
 ---
 
 <script async src="https://plausible.io/js/embed.host.js"></script>
+<script async src="https://status.arc42.org/assets/js/buildTable.min.js"></script>
 
-<h2 id="beforeTable"></h2>
+<h2 id="beforeTable">All arc42 Sites</h2>
 
 
 <div style="font-size: 14px; padding-bottom: 14px;">All stats powered by <a target="_blank" style="color: #4F46E5; text-decoration: underline;" href="https://plausible.io">Plausible Analytics</a></div>
 
-
-| Site | pageviews/30days | pageviews/year | visitors/30days | visitors/year | Uptime |
-|--|--|--|--|--|--|
-| arc42.org | | | | |![](https://badgen.net/uptime-robot/month/m780461503-c09b35fea9efdbdf7048c4b6) |
-| arc42.de || | | | ![](https://badgen.net/uptime-robot/month/m778709372-640fbdf765be9486dbffe066) |
-| [docs.arc42.org](/#subdomains) | | | | | ![](https://badgen.net/uptime-robot/month/m778709179-389bb41fb5c8fac4d604dad8)|
-| [faq.arc42.org](/#subdomains) | | | | | ![](https://badgen.net/uptime-robot/month/m778709367-5428866421c72e956fd06062) |
-| [quality.arc42.org](/#subdomains) | | | | | ![](https://badgen.net/uptime-robot/month/m793617113-2dae820b32b51b0419711950) |
 
 
 {% include feature_row id="all-de-org" %}
@@ -74,7 +67,6 @@ doc-faq-quality:
 ## Subdomain Sites
 {% include feature_row id="doc-faq-quality" %}
 
-<script src="https://status.arc42.org/assets/js/buildTable.min.js"></script>
 
 
 
