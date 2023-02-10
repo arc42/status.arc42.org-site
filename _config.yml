@@ -37,6 +37,7 @@ include:
   - .htaccess
   - _pages
   - robots.txt
+  - assets/js
 
 exclude:
   - vendor
@@ -67,6 +68,7 @@ keep_files:
   - .git
   - robots.txt
   - sitemap.xml
+  - assets/js/buildTable.min.js
   
 encoding: "utf-8"
 markdown_ext: "markdown,mkdown,mkdn,mkd,md"
@@ -135,20 +137,6 @@ whitelist:
 category_archive:
   type: liquid
   path: /categories/
-tag_archive:
-  type: liquid
-  path: /tags/
-# https://github.com/jekyll/jekyll-archives
-# jekyll-archives:
-#   enabled:
-#     - categories
-#     - tags
-#   layouts:
-#     category: archive-taxonomy
-#     tag: archive-taxonomy
-#   permalinks:
-#     category: /categories/:name/
-#     tag: /tags/:name/
 
 
 # HTML Compression
@@ -167,8 +155,8 @@ defaults:
       type: posts
     values:
       layout: single
-      author_profile: true
-      read_time: true
+      author_profile: false
+      read_time: false
       comments: false
-      share: true
-      related: true
+      share: false
+      related: false
