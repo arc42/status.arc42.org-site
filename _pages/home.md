@@ -55,6 +55,8 @@ doc-faq-quality:
 
 <h2 id="beforeTable">All arc42 Sites</h2>
 
+<h2 id="beforeTable"></h2>
+
 
 <div style="font-size: 14px; padding-bottom: 14px;">All stats powered by <a target="_blank" style="color: #4F46E5; text-decoration: underline;" href="https://plausible.io">Plausible Analytics</a></div>
 
@@ -66,6 +68,8 @@ doc-faq-quality:
 <a id="subdomains"/>
 ## Subdomain Sites
 {% include feature_row id="doc-faq-quality" %}
+
+<script src="https://status.arc42.org/assets/js/buildTable.min.js"></script>
 
 
 
