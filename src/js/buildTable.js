@@ -1,14 +1,15 @@
 "use strict";
 
-const PLTOKEN = "CdmiPgsOg4V4roUa1wsDZG0nRzcEowMjot2zkBNV8PhcEI93gZtNLrfjzBQHyXgc";
-
-let body = document.getElementsByTagName("body")[0];
+let body = document.getElementsByTagName("h2")[0];
 let table = document.createElement("table");
 
 
 const sites = ["arc42.org", "arc42.de", "docs.arc42.org", "faq.arc42.org", "quality.arc42.org"];
 const headers = ["Site", "Visitors 30d",  "Pageviews 30d", "Visitors 12mo", "Pageviews 12mo", "Uptime"];
+const periods = ["30d", "12mo"];
+const metrics = ["Visitors", "Pageviews"];
 const uptimeBadges = [];
+
 
 function generateTableHead(table, headers) {
     let thead = table.createTHead();
@@ -16,7 +17,6 @@ function generateTableHead(table, headers) {
     for (const element of headers) {
         let th = document.createElement("th");
         let text = document.createTextNode(element);
-        console.log(text)
         th.appendChild(text);
         row.appendChild(th);
     }
@@ -43,7 +43,6 @@ function generateStatisticsColumns(row, siteName) {
 
 
 async function generatePeriodStats(row, siteName, period) {
-    console.log( "generatePeriodStats:" + siteName + ":" + period);
 
 
     let token = constructToken(42).replaceAll('!','');
@@ -54,11 +53,10 @@ async function generatePeriodStats(row, siteName, period) {
             "Content-Type": "application/json",
             "accept": "application/json",
             "origin": "https://status.arc42.org",
-            "Authorization": "Bearer " + PLTOKEN
+            "Authorization": "Bearer " + constructToken(42).replaceAll("!","")
         }
     });
     const body = await response.json();
-    console.log(body);
 
     let cellVisitors = row.insertCell();
     cellVisitors.appendChild(document.createTextNode(body.results.visitors.value));
