@@ -10,22 +10,37 @@ function createKey( site, period){
     return key
 }
 
-function createMapEntry(site, period, value){
+async function createValue( site, period){
+    const rndInt = Math.floor(Math.random() * 1000) + 1
+    console.log( "sleeping for ", rndInt);
+    await sleep( rndInt);
+    const val = await site.length * period.length;
+    return val;
+}
+ function createMapEntry(site, period, value){
+
     results[createKey(site, period)] = value;
 }
 
-function createMap(){
+async function createMap(){
     for (const site of sites){
         for (const period of periods){
-            const value = site.length * period.length
-            createMapEntry(site, period, value)
+            const value = await createValue(site, period);
+            console.log( "created value for ",site, ":", period, "=", value);
+            await createMapEntry(site, period, value)
         }
     }
 }
-function main(){
-    createMap();
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+async function main(){
+    await createMap();
     console.log(results);
-    deStructureResults();
+    await deStructureResults();
 }
 
 function deStructureResults(){
