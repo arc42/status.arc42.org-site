@@ -61,7 +61,7 @@ doc-faq-quality:
 
 <div style="font-size: 14px; padding-bottom: 14px;">All stats powered by <a target="_blank" style="color: #4F46E5; text-decoration: underline;" href="https://plausible.io">Plausible Analytics</a></div>
 
-<a id="combined>
+<a id="combined">
 ## Summary of all arc42 sites
 
 {% include feature_row id="summary" %}
