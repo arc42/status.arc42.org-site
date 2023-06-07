@@ -54,9 +54,6 @@ doc-faq-quality:
 ---
 
 <script async src="https://plausible.io/js/embed.host.js"></script>
-<script async src="https://status.arc42.org/assets/js/buildTable.min.js"></script>
-
-<h2 id="beforeTable">Overview</h2>
 
 
 <div style="font-size: 14px; padding-bottom: 14px;">All stats powered by <a target="_blank" style="color: #4F46E5; text-decoration: underline;" href="https://plausible.io">Plausible Analytics</a></div>
