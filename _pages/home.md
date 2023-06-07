@@ -14,14 +14,14 @@ header:
       url: "https://www.arc42.de"
 
    
-
-
-all-de-org:
+summary:
 - title: "arc42-complete"
   excerpt: '
   <iframe plausible-embed src="https://plausible.io/share/rollup.arc42.com?auth=H_2ArEfjjP25OdRumQluH&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
   '
 
+
+de-org-canvas:
 - title: "arc42.de"
   excerpt: '
   <iframe plausible-embed src="https://plausible.io/share/arc42.de?auth=IYzUmMI8s2PYKgggJhO7q&embed=true&theme=light" height="600" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%;" ></iframe>
@@ -30,6 +30,10 @@ all-de-org:
 - title: "arc42.org"
   excerpt: '
 <iframe plausible-embed src="https://plausible.io/share/arc42.org?auth=tNNpNN0VqPh9xbjkaEPrx&embed=true&theme=light" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 600px;"></iframe>
+'
+- title: "canvas.arc42.org"
+  excerpt: '
+<iframe plausible-embed src="https://plausible.io/share/canvas.arc42.org?auth=sAJkIzBTeFg-a5ndJenA4&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
 '
 
   
@@ -42,7 +46,6 @@ doc-faq-quality:
 - title: "faq.arc42.org"
   excerpt: '<iframe plausible-embed src="https://plausible.io/share/faq.arc42.org?auth=wc065ryr-3YNoYFluaqGh&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
   '
-
 - title: "quality.arc42.org"
   excerpt: '
 <iframe plausible-embed src="https://plausible.io/share/quality.arc42.org?auth=cjoKlapPdw3czFugGy6jM&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
@@ -58,9 +61,15 @@ doc-faq-quality:
 
 <div style="font-size: 14px; padding-bottom: 14px;">All stats powered by <a target="_blank" style="color: #4F46E5; text-decoration: underline;" href="https://plausible.io">Plausible Analytics</a></div>
 
+<a id="combined>
+## Summary of all arc42 sites
+
+{% include feature_row id="summary" %}
 
 
-{% include feature_row id="all-de-org" %}
+<a id="arc42.de, arc42.org, canvas.arc42.org">
+## German and International Site, canvas
+{% include feature_row id="de-org-canvas" %}
 
 
 <a id="subdomains"/>
