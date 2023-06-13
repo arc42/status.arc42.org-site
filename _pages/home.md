@@ -47,8 +47,7 @@ doc-faq-quality:
   excerpt: '<iframe plausible-embed src="https://plausible.io/share/faq.arc42.org?auth=wc065ryr-3YNoYFluaqGh&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
   '
 - title: "quality.arc42.org"
-  excerpt: '
-<iframe plausible-embed src="https://plausible.io/share/quality.arc42.org?auth=cjoKlapPdw3czFugGy6jM&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
+  excerpt: '<iframe plausible-embed src="https://plausible.io/share/quality.arc42.org?auth=cjoKlapPdw3czFugGy6jM&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
 '
 
 ---
@@ -64,17 +63,20 @@ doc-faq-quality:
 {% include feature_row id="summary" %}
 
 
-<a id="arc42.de, arc42.org, canvas.arc42.org">
+<a id="de-org-canvas">
 ## German and International Site, canvas
+
 {% include feature_row id="de-org-canvas" %}
 
 
-<a id="subdomains"/>
+<a id="doc-faq-quality"/>
 ## Subdomain Sites
 {% include feature_row id="doc-faq-quality" %}
 
+<!--
+the script that is currently not working :-(
 <script src="https://status.arc42.org/assets/js/buildTable.min.js"></script>
-
+-->
 
 
 

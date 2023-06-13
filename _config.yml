@@ -5,7 +5,7 @@
 # For technical reasons, this file is *NOT* reloaded automatically when you use
 # `jekyll serve`. If you change this file, please restart the server process.
 
-remote_theme: "mmistakes/minimal-mistakes@4.24.0"
+remote_theme: "mmistakes/minimal-mistakes"
 github: metadata
 
 minimal_mistakes_skin    : "default" 
@@ -18,7 +18,7 @@ name                     : "Dr. Gernot Starke"
 description              : "Status of arc42 websites."
 url                      : "https://status.arc42.org"
 baseurl                  : # the subpath of your site, e.g. "/blog"
-imageurl: /images
+imageurl:      /images
 
 repository               : "arc42/status.arc42.org-site" # GitHub username/repo-name
 breadcrumbs            : false # true, false (default)
@@ -28,9 +28,6 @@ comments:
 
 atom_feed                : false  
 
-
-
-# Site Author
 
 # Reading Files
 include:
