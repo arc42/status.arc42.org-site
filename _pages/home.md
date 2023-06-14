@@ -64,14 +64,18 @@ doc-faq-quality:
 
 
 <a id="de-org-canvas">
+<!--
 ## German and International Site, canvas
 
 {% include feature_row id="de-org-canvas" %}
 
+-->
 
 <a id="doc-faq-quality"/>
+<!--
 ## Subdomain Sites
 {% include feature_row id="doc-faq-quality" %}
+-->
 
 <!--
 the script that is currently not working :-(
