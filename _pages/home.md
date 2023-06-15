@@ -15,7 +15,7 @@ header:
 
    
 summary:
-- title: "arc42-complete"
+- title: "Summary of all arc42 sites"
   excerpt: '
   <iframe plausible-embed src="https://plausible.io/share/rollup.arc42.com?auth=H_2ArEfjjP25OdRumQluH&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%;"></iframe>
   '
@@ -26,7 +26,6 @@ de-org-canvas:
   excerpt: '
   <iframe plausible-embed src="https://plausible.io/share/arc42.de?auth=IYzUmMI8s2PYKgggJhO7q&embed=true&theme=light" height="600" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%;" ></iframe>
   '
-
 - title: "arc42.org"
   excerpt: '
 <iframe plausible-embed src="https://plausible.io/share/arc42.org?auth=tNNpNN0VqPh9xbjkaEPrx&embed=true&theme=light" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 600px;"></iframe>
@@ -72,8 +71,6 @@ Detailed statistics for:
 
 
 <a id="combined">
-## Summary of all arc42 sites
-
 {% include feature_row id="summary" %}
 
 

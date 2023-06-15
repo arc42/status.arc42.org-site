@@ -1,43 +1,62 @@
-# Welcome to Jekyll!
+# Jekyll technical configuration!
 #
-# This config file is meant for settings that affect your entire site, values
-# which you are expected to set up once and rarely need to edit after that.
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# `jekyll serve`. If you change this file, please restart the server process.
 
-remote_theme: "mmistakes/minimal-mistakes"
+remote_theme: mmistakes/minimal-mistakes
 github: metadata
 
 minimal_mistakes_skin    : "default" 
 
 # Site Settings
-locale                   : "en"
-title                    : "status.arc42"
-title_separator          : "-"
-name                     : "Dr. Gernot Starke"
-description              : "Status of arc42 websites."
-url                      : "https://status.arc42.org"
-baseurl                  : # the subpath of your site, e.g. "/blog"
-imageurl:      /images
+locale          : "en"
+title           : "Status and Statistics of arc42 Sites"
+title_separator : "-"
+name            : ""
+description     : ""
+url             : "https://status.arc42.org" # the base hostname & protocol for your site
+baseurl         : ""  # the subpath of your site, e.g. "/blog"
+repository      : "arc42/status.arc42.org-site" # GitHub username/repo-name
+teaser          :  # path of fallback teaser image, e.g. "/assets/images/500x300.png"
+breadcrumbs     : false # true, false (default)
+words_per_minute : 200
+permalink       : none
 
-repository               : "arc42/status.arc42.org-site" # GitHub username/repo-name
-breadcrumbs            : false # true, false (default)
-words_per_minute         : 200
-comments:
-  provider               : false 
+# Social Sharing
+  # For specifying social profiles
+# - https://developers.google.com/structured-data/customize/social-profiles
+social:
+  type                   : Organization # Person or Organization (defaults to Person)
+  name                   : # If the user or organization name differs from the site's name
+  links: # An array of links to social media profiles
 
-atom_feed                : false  
+# Analytics
+analytics:
+  provider               : false
 
+# Site Author
+author:
+  name             : "Dr. Gernot Starke"
+  avatar           :
+  bio              :
+  location         : "Cologne"
+  email            : gernotstarke@mailbox.org
+  uri              :
+  github           : 
+  stack_overflow   :
+  twitter          :
+  xing             : 
 
 # Reading Files
 include:
   - .htaccess
   - _pages
   - robots.txt
-  - assets/js
+  - _downloads
 
 exclude:
-  - vendor
+  - Dockerfile
+  - _the-canvas*
+  - _docker-compose*
+  - _develop-site.sh
   - .asset-cache
   - .bundle
   - .jekyll-assets-cache
@@ -49,31 +68,29 @@ exclude:
   - CHANGELOG
   - config
   - Gemfile
+  - Gruntfile.js
+  - gulpfile.js
   - LICENSE
   - log
-  - package.json
-  - README.*
+  - README
   - tmp
-  - Dockerfile
-  - _manage-site.sh
-  - _docker*
-  - _site/
-  - _includes/subtle-ads/logo
-  - _includes/subtle-ads/*.sh
-
+ 
 keep_files:
   - .git
-  - robots.txt
   - sitemap.xml
-  - assets/js/buildTable.min.js
+  - robots.txt
   
 encoding: "utf-8"
 markdown_ext: "markdown,mkdown,mkdn,mkd,md"
 
+# Liquid
+strict_front_matter: true
+liquid:
+  error_mode: strict
 
 # Conversion
 markdown: kramdown
-highlighter: rouge
+highlighter: 
 lsi: false
 excerpt_separator: "\n\n"
 incremental: false
@@ -88,7 +105,7 @@ kramdown:
   entity_output: as_char
   toc_levels: 1..6
   smart_quotes: lsquo,rsquo,ldquo,rdquo
-  enable_coderay: false
+  syntax_highlighter: 
 
 
 # Sass/SCSS
@@ -99,41 +116,34 @@ sass:
 
 # Outputting
 permalink: /:categories/:title/
+paginate:  # amount of posts to show
+paginate_path: #/page:num/
 timezone: # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 
 # Plugins
 plugins:
-  - jekyll-include-cache
+  - jekyll-paginate
   - jekyll-sitemap
-  - jekyll-gist
-  - jekyll-feed
+  - jekyll-numbered-headings
+  - jekyll-include-cache
   - jemoji
-  - jekyll-seo-tag
 
 
 # mimic GitHub Pages with --safe
 whitelist:
-  - jekyll-include-cache
+  - jekyll-paginate
   - jekyll-sitemap
-  - jekyll-gist
-  - jekyll-feed
-  - jemoji
+  - jekyll-numbered-headings
+  
 
 
-# Archives
-#  Type
-#  - GitHub Pages compatible archive pages built with Liquid ~> type: liquid (default)
-#  - Jekyll Archives plugin archive pages ~> type: jekyll-archives
-#  Path (examples)
-#  - Archive page should exist at path when using Liquid method or you can
-#    expect broken links (especially with breadcrumbs enabled)
-#  - <base_path>/tags/my-awesome-tag/index.html ~> path: /tags/
-#  - <base_path/categories/my-awesome-category/index.html ~> path: /categories/
-#  - <base_path/my-awesome-category/index.html ~> path: /
 category_archive:
   type: liquid
   path: /categories/
+tag_archive:
+  type: liquid
+  path: /tags/
 
 
 # HTML Compression
@@ -146,14 +156,10 @@ compress_html:
 
 # Defaults
 defaults:
-  # _posts
+  # _pages
   - scope:
       path: ""
-      type: posts
+      type: pages
     values:
       layout: single
       author_profile: false
-      read_time: false
-      comments: false
-      share: false
-      related: false
