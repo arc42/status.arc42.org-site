@@ -17,7 +17,7 @@ header:
 summary:
 - title: "arc42-complete"
   excerpt: '
-  <iframe plausible-embed src="https://plausible.io/share/rollup.arc42.com?auth=H_2ArEfjjP25OdRumQluH&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 400px;"></iframe>
+  <iframe plausible-embed src="https://plausible.io/share/rollup.arc42.com?auth=H_2ArEfjjP25OdRumQluH&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%;"></iframe>
   '
 
 
@@ -56,6 +56,19 @@ doc-faq-quality:
 
 
 <div style="font-size: 14px; padding-bottom: 14px;">All stats powered by <a target="_blank" style="color: #4F46E5; text-decoration: underline;" href="https://plausible.io">Plausible Analytics</a></div>
+
+
+
+Detailed statistics for:
+
+* all [arc42 sites combined](#combined)
+* [arc42.org](#de-org-canvas)
+* [arc42.de](#de-org-canvas)
+* [docs.arc42.org](#doc-faq-quality)
+* [faq.arc42.org](#doc-faq-quality)
+* [quality.arc42.org](#doc-faq-quality)
+* [canvas.arc42.org](#de-org-canvas)
+
 
 
 <a id="combined">
