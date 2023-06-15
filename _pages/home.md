@@ -17,7 +17,7 @@ header:
 summary:
 - title: "arc42-complete"
   excerpt: '
-  <iframe plausible-embed src="https://plausible.io/share/rollup.arc42.com?auth=H_2ArEfjjP25OdRumQluH&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
+  <iframe plausible-embed src="https://plausible.io/share/rollup.arc42.com?auth=H_2ArEfjjP25OdRumQluH&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 400px;"></iframe>
   '
 
 
@@ -65,18 +65,15 @@ doc-faq-quality:
 
 
 <a id="de-org-canvas">
-<!--
 ## German and International Site, canvas
 
 {% include feature_row id="de-org-canvas" %}
 
--->
 
 <a id="doc-faq-quality"/>
-<!--
 ## Subdomain Sites
 {% include feature_row id="doc-faq-quality" %}
--->
+
 
 <!--
 the script that is currently not working :-(
