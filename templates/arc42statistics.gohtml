@@ -1,0 +1,28 @@
+<!-- golang template for arc42 usage statistics table -->
+
+<h3>Welcome to the awesome arc42 usage statistics</h3>
+
+<small>{{.AppVersion}}, generated at {{.Timestamp}}</small>
+
+<table>
+    <tr>
+        <th>Site</th>
+        <th>Visitors-7d</th>
+        <th>PageViews-7d</th>
+        <th>Visitors-30d</th>
+        <th>PageViews-30d</th>
+        <th>Visitors-12m</th>
+        <th>PageViews-12m</th>
+    </tr>
+
+    <tr>
+        <td>{{ .Stats4Site.Site }}</td>
+        <td>{{ .Stats4Site.Visitors7d}}</td>
+        <td>{{ .Stats4Site.Pageviews7d}}</td>
+        <td>{{ .Stats4Site.Visitors30d}}</td>
+        <td>{{ .Stats4Site.Pageviews30d}}</td>
+        <td>{{ .Stats4Site.Visitors12m}}</td>
+        <td>{{ .Stats4Site.Pageviews12m}}</td>
+    </tr>
+
+</table>
