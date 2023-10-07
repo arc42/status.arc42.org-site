@@ -1,10 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
+	"math/rand"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -12,6 +15,15 @@ const APPVERSION = "0.0.2"
 const PORTNR = ":8000"
 
 const TEMPLATENAME = "arc42statistics.gohtml"
+
+var arc42sites = [6]string{
+	"arc42.org",
+	"arc42.de",
+	"docs.arc42.org",
+	"faq.arc42.org",
+	"canvas.arc42.org",
+	"quality.arc42.org",
+}
 
 type SiteStats struct {
 	Site         string
@@ -26,10 +38,23 @@ type SiteStats struct {
 type Arc42Statistics struct {
 	AppVersion string
 	Timestamp  string
-	Stats4Site SiteStats
+	Stats4Site [len(arc42sites)]SiteStats
 }
 
 var arcStats Arc42Statistics
+
+func populateOneSite(siteName string) SiteStats {
+
+	return SiteStats{
+		Site:         siteName,
+		Visitors7d:   strconv.Itoa(rand.Intn(10001)),
+		Pageviews7d:  strconv.Itoa(rand.Intn(10001)),
+		Visitors30d:  strconv.Itoa(rand.Intn(10001)),
+		Pageviews30d: strconv.Itoa(rand.Intn(10001)),
+		Visitors12m:  strconv.Itoa(rand.Intn(10001)),
+		Pageviews12m: strconv.Itoa(rand.Intn(10001)),
+	}
+}
 
 func executeTemplate(w http.ResponseWriter, filepath string) {
 	tpl, err := template.ParseFiles(filepath)
@@ -51,23 +76,21 @@ func statsHandler(w http.ResponseWriter, r *http.Request) {
 	executeTemplate(w, tplPath)
 }
 
-func stats4Site(siteName string) SiteStats {
-	return SiteStats{
-		Site:         siteName,
-		Visitors7d:   "v7d",
-		Pageviews7d:  "pv7d",
-		Visitors30d:  "v30d",
-		Pageviews30d: "pv30d",
-		Visitors12m:  "v12m",
-		Pageviews12m: "pv12m",
+func loadStats4AllSites() Arc42Statistics {
+	a42s := Arc42Statistics{
+		AppVersion: APPVERSION,
+		Timestamp:  time.Now().Format("Mon Jan 2 15:04:05 MST 2006")}
+	for index, site := range arc42sites {
+		fmt.Print("index:", index)
+		a42s.Stats4Site[index] = populateOneSite(site)
 	}
+
+	return a42s
 }
 
 func main() {
 
-	arcStats.AppVersion = APPVERSION
-	arcStats.Timestamp = time.Now().Format("Mon Jan 2 15:04:05 MST 2006")
-	arcStats.Stats4Site = stats4Site("docs.arc42.org")
+	arcStats = loadStats4AllSites()
 
 	http.HandleFunc("/", statsHandler)
 

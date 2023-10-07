@@ -14,7 +14,7 @@
         <th>Visitors-12m</th>
         <th>PageViews-12m</th>
     </tr>
-
+{{ range .Stats4Site}}
     <tr>
         <td>{{ .Stats4Site.Site }}</td>
         <td>{{ .Stats4Site.Visitors7d}}</td>
@@ -24,5 +24,5 @@
         <td>{{ .Stats4Site.Visitors12m}}</td>
         <td>{{ .Stats4Site.Pageviews12m}}</td>
     </tr>
-
+{{ end }}
 </table>
