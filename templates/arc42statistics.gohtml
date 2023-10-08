@@ -16,13 +16,13 @@
     </tr>
 {{ range .Stats4Site}}
     <tr>
-        <td>{{ .Stats4Site.Site }}</td>
-        <td>{{ .Stats4Site.Visitors7d}}</td>
-        <td>{{ .Stats4Site.Pageviews7d}}</td>
-        <td>{{ .Stats4Site.Visitors30d}}</td>
-        <td>{{ .Stats4Site.Pageviews30d}}</td>
-        <td>{{ .Stats4Site.Visitors12m}}</td>
-        <td>{{ .Stats4Site.Pageviews12m}}</td>
+        <td>{{ .Site }}</td>
+        <td>{{ .Visitors7d}}</td>
+        <td>{{ .Pageviews7d}}</td>
+        <td>{{ .Visitors30d}}</td>
+        <td>{{ .Pageviews30d}}</td>
+        <td>{{ .Visitors12m}}</td>
+        <td>{{ .Pageviews12m}}</td>
     </tr>
 {{ end }}
 </table>

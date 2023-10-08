@@ -92,6 +92,7 @@ func main() {
 
 	arcStats = loadStats4AllSites()
 
+	fmt.Print(arcStats)
 	http.HandleFunc("/", statsHandler)
 
 	log.Fatal(http.ListenAndServe(PORTNR, nil))
