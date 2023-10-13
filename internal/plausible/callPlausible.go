@@ -2,6 +2,8 @@ package plausible
 
 // thanx and credits to Andre
 // https://github.com/andrerfcsantos/go-plausible
+// wrapping https://plausible.io/docs
+// ==============================================
 
 import (
 	"github.com/andrerfcsantos/go-plausible/plausible"
@@ -13,6 +15,7 @@ import (
 // APIKEY is Gernot's personal key for https://plausible.io.
 // one day I will find a better way to keep this key secret,
 // but for now it's good enough to have in the private Github repo.
+// TODO: handle secret in appropriate way
 const APIKEY = "1-eu-hRPPmR6MJ28oGkc8cye3I5dgBUCE4jWvoSXtMj8zN2kmuwUaABcE2gO0MST"
 
 var plausibleClient = plausible.NewClient(APIKEY)
@@ -21,9 +24,11 @@ var plausibleClient = plausible.NewClient(APIKEY)
 // (currently 7D, 30D and 12M)
 func StatsForSite(thisSite string) types.SiteStats {
 
-	var stats7D types.VisitorsAndViews = SiteMetrics(thisSite, plausible.Last7Days())
-	var stats30D = SiteMetrics(thisSite, plausible.Last30Days())
-	var stats12M = SiteMetrics(thisSite, plausible.Last12Months())
+	siteHandler := plausibleClient.Site(thisSite)
+
+	var stats7D types.VisitorsAndViews = SiteMetrics(siteHandler, plausible.Last7Days())
+	var stats30D = SiteMetrics(siteHandler, plausible.Last30Days())
+	var stats12M = SiteMetrics(siteHandler, plausible.Last12Months())
 
 	return types.SiteStats{
 		Site:         thisSite,
@@ -38,13 +43,12 @@ func StatsForSite(thisSite string) types.SiteStats {
 
 // SiteMetrics collects statics for given site and period from plausible.io API.
 // return either the numbers or "n/a" in case of API errors
-func SiteMetrics(site string, period plausible.TimePeriod) types.VisitorsAndViews {
+func SiteMetrics(siteHandler *plausible.Site, period plausible.TimePeriod) types.VisitorsAndViews {
 
 	var vAv types.VisitorsAndViews
 
 	// FixMe: move to StatsForSite (for some unknown reason a simple refactoring leads to a type error)
 	// Get an handler to perform queries for a given site
-	siteHandler := plausibleClient.Site(site)
 
 	// Build query
 	siteMetricsQuery := plausible.AggregateQuery{
@@ -58,7 +62,7 @@ func SiteMetrics(site string, period plausible.TimePeriod) types.VisitorsAndView
 	// Perform query
 	result, err := siteHandler.Aggregate(siteMetricsQuery)
 	if err != nil {
-		log.Println("Error performing query to plausible.io for {#site}, %v", err)
+		log.Println("Error performing query to plausible.io: %v", err)
 		vAv.Pageviews = "n/a"
 		vAv.Visitors = "n/a"
 	} else {
@@ -68,8 +72,4 @@ func SiteMetrics(site string, period plausible.TimePeriod) types.VisitorsAndView
 
 	//log.Println("statistics of %s for period %d: %v\n", site, period, result)
 	return vAv
-}
-
-func CheckPlausibleModule() string {
-	return "here's a string from module <plausible>"
 }

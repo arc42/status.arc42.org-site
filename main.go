@@ -103,12 +103,13 @@ func main() {
 	// addressing CORS, see
 	// https://github.com/rs/cors
 
+	realPortNr := getPort()
 	mux := http.NewServeMux()
-	var realPortNr = getPort()
 
 	// define some routes
 	mux.HandleFunc("/statsTable", statsHTMLTableHandler)
 	mux.HandleFunc("/ping", pingHandler)
+	mux.HandleFunc("/", homeHandler)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://*", "https://*"},
