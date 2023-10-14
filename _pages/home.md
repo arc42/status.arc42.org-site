@@ -19,7 +19,18 @@ summary:
   excerpt: '
   <iframe plausible-embed src="https://plausible.io/share/rollup.arc42.com?auth=H_2ArEfjjP25OdRumQluH&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%;"></iframe>
   '
+- title: ""
+  excerpt: '
+  Detailed statistics for:
 
+* all [arc42 sites combined](#combined)
+* [arc42.org](#de-org-canvas)
+* [arc42.de](#de-org-canvas)
+* [docs.arc42.org](#doc-faq-quality)
+* [faq.arc42.org](#doc-faq-quality)
+* [quality.arc42.org](#doc-faq-quality)
+* [canvas.arc42.org](#de-org-canvas)
+'
 
 de-org-canvas:
 - title: "arc42.de"
@@ -52,8 +63,47 @@ doc-faq-quality:
 ---
 
 <script async src="https://plausible.io/js/embed.host.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.6"
+            integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
+            crossorigin="anonymous"></script>
+ 
 
+## Details
 
+<div id="version"
+     hx-get="https://arc42-stats.fly.dev/statsTable"
+     hx-trigger="load delay"
+     hx-swap="outerHTML">
+    <table>
+        <tr>
+            <th>Site</th>
+            <th>Visitors-7d</th>
+            <th>PageViews-7d</th>
+            <th>Visitors-30d</th>
+            <th>PageViews-30d</th>
+            <th>Visitors-12m</th>
+            <th>PageViews-12m</th>
+        </tr>
+
+        <tr>
+            <td>arc42.org</td>
+            <td>2149</td>
+            <td>2614</td>
+            <td>7967</td>
+            <td>708</td>
+            <td>5741</td>
+            <td>520</td>
+        </tr>
+    </table>
+</div>
+<p></p>
+<button class='btn' hx-get="https://arc42-stats.fly.dev/statsTable"
+        hx-target="#version"
+        hx-swap="outerHTML">
+    Reload
+</button>
+
+## Breakdown for Sites
 <div style="font-size: 14px; padding-bottom: 14px;">All stats powered by <a target="_blank" style="color: #4F46E5; text-decoration: underline;" href="https://plausible.io">Plausible Analytics</a></div>
 
 
@@ -91,4 +141,4 @@ the script that is currently not working :-(
 -->
 
 
-The html code for this page was generated on {{ site.time}}
+The page was generated on {{ site.time }}.
