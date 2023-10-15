@@ -19,18 +19,6 @@ summary:
   excerpt: '
   <iframe plausible-embed src="https://plausible.io/share/rollup.arc42.com?auth=H_2ArEfjjP25OdRumQluH&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%;"></iframe>
   '
-- title: ""
-  excerpt: '
-  Detailed statistics for:
-
-* all [arc42 sites combined](#combined)
-* [arc42.org](#de-org-canvas)
-* [arc42.de](#de-org-canvas)
-* [docs.arc42.org](#doc-faq-quality)
-* [faq.arc42.org](#doc-faq-quality)
-* [quality.arc42.org](#doc-faq-quality)
-* [canvas.arc42.org](#de-org-canvas)
-'
 
 de-org-canvas:
 - title: "arc42.de"
