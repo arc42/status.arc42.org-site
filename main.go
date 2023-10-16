@@ -3,7 +3,6 @@ package main
 import (
 	"embed"
 	"fmt"
-	"github.com/rs/cors"
 	"html/template"
 	"log"
 	"net/http"
@@ -14,9 +13,11 @@ import (
 	"time"
 )
 
-const AppVersion = "0.0.2"
-const PortNr = ":8042"
-const HomeURL = "http://127.0.0.1"
+const AppVersion = "0.0.4d"
+const PortNr = ":8043"
+
+// HomeIP is needed to deploy on fly.io
+const HomeIP = "0.0.0.0"
 
 var Arc42sites = [6]string{
 	"arc42.org",
@@ -45,8 +46,21 @@ const PingTmpl = "ping.gohtml"
 //go:embed web/*.gohtml
 var embeddedTplsFolder embed.FS // embeds the templates folder into variable embeddedTplsFolder
 
+// enableCORS sets specific headers
+// * calls from the "official" URL status.arc42.org are allowed
+// * calls from localhost or "null" are also allowed
+func enableCORS(w *http.ResponseWriter, r *http.Request) {
+
+	var origin string
+	origin = r.Host
+	fmt.Printf("received request from host: %s\n", origin)
+
+	// TODO: don't always allow origin, restrict to known hosts
+	(*w).Header().Set("Access-Control-Allow-Origin", origin)
+}
+
+// executeTemplate handles the common stuff needed to process templates
 func executeTemplate(w http.ResponseWriter, templatePath string) {
-	//tpl, err := template.ParseFiles(filepath)
 
 	tpl, err := template.ParseFS(embeddedTplsFolder, templatePath)
 	if err != nil {
@@ -64,15 +78,25 @@ func executeTemplate(w http.ResponseWriter, templatePath string) {
 
 // statsHTMLTableHandler returns the usage statistics as html table
 func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "https://status.arc42.org")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, hx-target, hx-current-url, hx-request, hx-trigger")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 	executeTemplate(w, filepath.Join(TemplatesDir, HtmlTableTmpl))
 }
 
-// pingHandler returns the a message and the time
+// pingHandler returns a message and the time
 func pingHandler(w http.ResponseWriter, r *http.Request) {
+	// need to set specific headers, depending on request origin
+	enableCORS(&w, r)
+
 	executeTemplate(w, filepath.Join(TemplatesDir, PingTmpl))
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "https://status.arc42.org")
+
 	executeTemplate(w, filepath.Join(TemplatesDir, "home.gohtml"))
 }
 
@@ -84,6 +108,8 @@ func getPort() string {
 	return httpPort
 }
 
+// loadStats4AllSites calls the plausible.io API to retrieve all statistics
+// than
 func loadStats4AllSites() Arc42Statistics {
 	a42s := Arc42Statistics{
 		AppVersion: AppVersion,
@@ -92,16 +118,12 @@ func loadStats4AllSites() Arc42Statistics {
 	for index, site := range Arc42sites {
 		a42s.Stats4Site[index] = plausible.StatsForSite(site)
 	}
-
 	return a42s
 }
 
 func main() {
 
 	ArcStats = loadStats4AllSites()
-
-	// addressing CORS, see
-	// https://github.com/rs/cors
 
 	realPortNr := getPort()
 	mux := http.NewServeMux()
@@ -111,16 +133,8 @@ func main() {
 	mux.HandleFunc("/ping", pingHandler)
 	mux.HandleFunc("/", homeHandler)
 
-	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://*", "https://*"},
-		AllowedMethods: []string{http.MethodGet},
-	})
+	fmt.Printf("Starting server version %s on Port %s\n", AppVersion, realPortNr)
 
-	handler := cors.Default().Handler(mux)
-	handler = c.Handler(handler)
-
-	fmt.Println("Starting server on Port", realPortNr)
-
-	log.Fatal(http.ListenAndServe(realPortNr, handler))
+	log.Fatal(http.ListenAndServe(HomeIP+realPortNr, mux))
 
 }
