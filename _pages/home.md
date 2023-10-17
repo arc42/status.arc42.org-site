@@ -56,40 +56,14 @@ doc-faq-quality:
             crossorigin="anonymous"></script>
  
 
-## Details
 
 <div id="version"
      hx-get="https://arc42-stats.fly.dev/statsTable"
      hx-trigger="load delay"
      hx-swap="outerHTML">
-    <table>
-        <tr>
-            <th>Site</th>
-            <th>Visitors-7d</th>
-            <th>PageViews-7d</th>
-            <th>Visitors-30d</th>
-            <th>PageViews-30d</th>
-            <th>Visitors-12m</th>
-            <th>PageViews-12m</th>
-        </tr>
-
-        <tr>
-            <td>arc42.org</td>
-            <td>2149</td>
-            <td>2614</td>
-            <td>7967</td>
-            <td>708</td>
-            <td>5741</td>
-            <td>520</td>
-        </tr>
-    </table>
+    
 </div>
-<p></p>
-<button class='btn' hx-get="https://arc42-stats.fly.dev/statsTable"
-        hx-target="#version"
-        hx-swap="outerHTML">
-    Reload
-</button>
+
 
 ## Breakdown for Sites
 <div style="font-size: 14px; padding-bottom: 14px;">All stats powered by <a target="_blank" style="color: #4F46E5; text-decoration: underline;" href="https://plausible.io">Plausible Analytics</a></div>
