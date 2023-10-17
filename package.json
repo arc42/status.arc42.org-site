@@ -1,8 +1,0 @@
-{
-  "name": "Gernot Starke",
-  "description": "get statistics about pageviews of the arc42 sites and display those in a nice table",
-  "version": "0.0.2",
-  "url": "https://www.gernotstarke.de",
-  "devDependencies": {
-    "eslint": "^8.34.0"}
-}
