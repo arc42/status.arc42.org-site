@@ -50,19 +50,47 @@ doc-faq-quality:
 
 ---
 
-<script async src="https://plausible.io/js/embed.host.js"></script>
+
 <script src="https://unpkg.com/htmx.org@1.9.6"
             integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
             crossorigin="anonymous"></script>
  
-
+## Welcome to the awesome arc42 sites statistics
 
 <div id="version"
      hx-get="https://arc42-stats.fly.dev/statsTable"
      hx-trigger="load delay"
      hx-swap="outerHTML">
-    
-</div>
+
+     <table border="1">
+        <tr>
+            <th rowspan="2">Site</th>
+            <th colspan="2" style="border-left: 2px solid black;">7 Days</th>
+            <th colspan="2" style="border-left: 2px solid black;">30 Days</th>
+            <th colspan="2" style="border-left: 2px solid black;">12 Month</th>
+            <th rowspan="2" style="border-left: 2px solid black;">Issues</th>
+            </tr>
+        <tr>
+            <th style="border-left: 2px solid black;">Visitors</th>
+            <th>PageViews</th>
+            <th style="border-left: 2px solid black;">Visitors</th>
+            <th>PageViews</th>
+            <th style="border-left: 2px solid black;">Visitors</th>
+            <th>PageViews</th>
+        </tr>
+        <tr>
+            <td>arc42.org</td>
+            <td style="border-left: 2px solid black;">n/a</td>
+            <td>n/a</td>
+            <td style="border-left: 2px solid black;">n/a</td>
+            <td>n/a</td>
+            <td style="border-left: 2px solid black;">n/a</td>
+            <td>n/a</td>
+            <td>n/a</td>
+        </tr>
+</table>
+
+<div>
 
 
 ## Breakdown for Sites
