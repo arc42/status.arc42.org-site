@@ -89,7 +89,6 @@ doc-faq-quality:
             <td>n/a</td>
         </tr>
 </table>
-
 <div>
 
 ![](/images/minion-logo-100px.png){: .align-left}
@@ -128,11 +127,6 @@ Detailed statistics for:
 ## Subdomain Sites
 {% include feature_row id="doc-faq-quality" %}
 
-
-<!--
-the script that is currently not working :-(
-<script src="https://status.arc42.org/assets/js/buildTable.min.js"></script>
--->
 
 
 The page was generated on {{ site.time }}.
