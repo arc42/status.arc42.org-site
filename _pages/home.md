@@ -92,6 +92,10 @@ doc-faq-quality:
 
 <div>
 
+![](/images/minion-logo-100px.png){: .align-left}
+
+Data provided by [Plausible Analytics](https://plausible.io) and prepared by an arc42 backend API.
+
 
 ## Breakdown for Sites
 <div style="font-size: 14px; padding-bottom: 14px;">All stats powered by <a target="_blank" style="color: #4F46E5; text-decoration: underline;" href="https://plausible.io">Plausible Analytics</a></div>
