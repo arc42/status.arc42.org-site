@@ -41,10 +41,11 @@ author:
 # Reading Files
 include:
   - _pages
+  - images
   
 exclude:
   - Dockerfile
-  - _docker-compose*
+  - docker-compose*
   - .asset-cache
   - .bundle
   - .jekyll-assets-cache
@@ -55,11 +56,12 @@ exclude:
   - assets/js/vendor
   - config
   - Gemfile
+  - Gemfile.lock
   - Gruntfile.js
   - gulpfile.js
   - LICENSE
   - log
-  - README
+  - README.md
   - tmp
  
 keep_files:
