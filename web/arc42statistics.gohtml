@@ -1,28 +1,38 @@
 <!-- golang template for arc42 usage statistics table -->
-
-<h3>Welcome to the awesome arc42 usage statistics</h3>
-
-<small>{{.AppVersion}}, generated at {{.Timestamp}}</small>
-
 <table>
     <tr>
-        <th>Site</th>
-        <th>Visitors-7d</th>
-        <th>PageViews-7d</th>
-        <th>Visitors-30d</th>
-        <th>PageViews-30d</th>
-        <th>Visitors-12m</th>
-        <th>PageViews-12m</th>
+        <th rowspan="2">Site</th>
+        <th colspan="2" style="border-left: 2px solid black;">7 Days</th>
+        <th colspan="2" style="border-left: 2px solid black;">30 Days</th>
+        <th colspan="2" style="border-left: 2px solid black;">12 Month</th>
+        <th rowspan="2" style="border-left: 2px solid black;">Issues</th>
     </tr>
+    <tr>
+        <th style="border-left: 2px solid black;">Visitors</th>
+        <th>PageViews</th>
+        <th style="border-left: 2px solid black;">Visitors</th>
+        <th>PageViews</th>
+        <th style="border-left: 2px solid black;">Visitors</th>
+        <th>PageViews</th>
+    </tr>
+
+
+
 {{ range .Stats4Site}}
     <tr>
-        <td>{{ .Site }}</td>
-        <td>{{ .Visitors7d}}</td>
+        <td><a href="https://{{.Site }}">{{.Site}}</a></td>
+        <td style="border-left: 2px solid black;">{{ .Visitors7d}}</td>
         <td>{{ .Pageviews7d}}</td>
-        <td>{{ .Visitors30d}}</td>
+        <td style="border-left: 2px solid black;">{{ .Visitors30d}}</td>
         <td>{{ .Pageviews30d}}</td>
-        <td>{{ .Visitors12m}}</td>
+        <td style="border-left: 2px solid black;">{{ .Visitors12m}}</td>
         <td>{{ .Pageviews12m}}</td>
+        <td style="border-left: 2px solid black;"><a href="{{.Repo}}/issues">
+           <img alt="GitHub issues" src="{{.IssueBadgeURL}}"></a></td>
     </tr>
 {{ end }}
 </table>
+
+<br>
+<small>data collected by arc42 site statistics service (v. {{.AppVersion}}),
+    at {{.Timestamp}}</small>

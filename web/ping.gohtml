@@ -1,1 +1,7 @@
 Hello from arc42 statistics server, it is now {{.Timestamp}}.
+
+
+{{ range .Stats4Site}}
+   {{.Site }} lives in repository {{.Repo}},
+      issue-badge from {{.IssueBadgeURL}}
+{{ end }}

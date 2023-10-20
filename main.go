@@ -13,28 +13,16 @@ import (
 	"time"
 )
 
-const AppVersion = "0.0.4d"
+const AppVersion = "0.0.5b"
 const PortNr = ":8043"
+
+const GithubArc42URL = "https://github.com/arc42/"
+const ShieldsGithubIssuesURL = "https://img.shields.io/github/issues-raw/arc42/"
 
 // HomeIP is needed to deploy on fly.io
 const HomeIP = "0.0.0.0"
 
-var Arc42sites = [6]string{
-	"arc42.org",
-	"arc42.de",
-	"docs.arc42.org",
-	"faq.arc42.org",
-	"canvas.arc42.org",
-	"quality.arc42.org",
-}
-
-type Arc42Statistics struct {
-	AppVersion string
-	Timestamp  string
-	Stats4Site [len(Arc42sites)]types.SiteStats
-}
-
-var ArcStats Arc42Statistics
+var ArcStats types.Arc42Statistics
 
 const TemplatesDir = "./web"
 
@@ -108,15 +96,39 @@ func getPort() string {
 	return httpPort
 }
 
-// loadStats4AllSites calls the plausible.io API to retrieve all statistics
-// than
-func loadStats4AllSites() Arc42Statistics {
-	a42s := Arc42Statistics{
-		AppVersion: AppVersion,
-		Timestamp:  time.Now().Format("2. January 2006, 15:04h")}
+// setURLsForSite sets some constants for use within the templates
+// (to avoid overly long string constants within these templates)
+func setURLsForSite(stats *types.SiteStats) {
 
-	for index, site := range Arc42sites {
-		a42s.Stats4Site[index] = plausible.StatsForSite(site)
+	// all arc42 website repos follow this naming convention, e.g. arc42.org-site
+	stats.Repo = GithubArc42URL + stats.Site + "-site"
+
+	// shields.io issues URLS look like that: https://img.shields.io/github/issues-raw/arc42/arc42.org-site
+	stats.IssueBadgeURL = ShieldsGithubIssuesURL + stats.Site + "-site"
+}
+
+// loadStats4AllSites calls the plausible.io API to retrieve all statistics
+// and sets several site constants (URLs)
+func loadStats4AllSites() types.Arc42Statistics {
+
+	location, _ := time.LoadLocation("Europe/Berlin")
+
+	// Get the current time in Bielefeld, the town that presumably does not exist
+	bielefeldTime := time.Now().In(location).Format("2. January 2006, 15:04h")
+
+	a42s := types.Arc42Statistics{
+		AppVersion: AppVersion,
+		Timestamp:  bielefeldTime + " (@Cologne)",
+	}
+
+	for index, site := range types.Arc42sites {
+		a42s.Stats4Site[index].Site = site
+
+		// set the statistic data from plausible.io
+		plausible.StatsForSite(site, &a42s.Stats4Site[index])
+
+		// set some URLs so the templates get smaller
+		setURLsForSite(&a42s.Stats4Site[index])
 	}
 	return a42s
 }
