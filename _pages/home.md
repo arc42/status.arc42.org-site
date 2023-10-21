@@ -97,21 +97,11 @@ doc-faq-quality:
 </div>
 
 
-<div style="font-size: 14px; padding-bottom: 14px;">
-Data provided by [Plausible Analytics](https://plausible.io) and prepared by an arc42 backend API.
-</div>
-
-<br>
-<hr>
-
 ## Breakdown for Sites
-<div style="font-size: 14px; padding-bottom: 14px;">All stats powered by <a target="_blank" style="color: #4F46E5; text-decoration: underline;" href="https://plausible.io">Plausible Analytics</a></div>
 
+Details for:
 
-
-Detailed statistics for:
-
-* all [arc42 sites combined](#combined)
+* all [sites combined](#combined)
 * [arc42.org](#de-org-canvas)
 * [arc42.de](#de-org-canvas)
 * [docs.arc42.org](#doc-faq-quality)
