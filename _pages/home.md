@@ -17,13 +17,13 @@ header:
 summary:
 - title: "Summary of all arc42 sites"
   excerpt: '
-  <iframe plausible-embed src="https://plausible.io/share/rollup.arc42.com?auth=H_2ArEfjjP25OdRumQluH&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%;"></iframe>
+  <iframe plausible-embed src="https://plausible.io/share/rollup.arc42.com?auth=H_2ArEfjjP25OdRumQluH&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
   '
 
 de-org-canvas:
 - title: "arc42.de"
   excerpt: '
-  <iframe plausible-embed src="https://plausible.io/share/arc42.de?auth=IYzUmMI8s2PYKgggJhO7q&embed=true&theme=light" height="1600" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%;" ></iframe>
+  <iframe plausible-embed src="https://plausible.io/share/arc42.de?auth=IYzUmMI8s2PYKgggJhO7q&embed=true&theme=light" height="1600" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;" ></iframe>
   '
 - title: "arc42.org"
   excerpt: '
