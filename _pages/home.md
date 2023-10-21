@@ -23,11 +23,11 @@ summary:
 de-org-canvas:
 - title: "arc42.de"
   excerpt: '
-  <iframe plausible-embed src="https://plausible.io/share/arc42.de?auth=IYzUmMI8s2PYKgggJhO7q&embed=true&theme=light" height="600" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%;" ></iframe>
+  <iframe plausible-embed src="https://plausible.io/share/arc42.de?auth=IYzUmMI8s2PYKgggJhO7q&embed=true&theme=light" height="1600" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%;" ></iframe>
   '
 - title: "arc42.org"
   excerpt: '
-<iframe plausible-embed src="https://plausible.io/share/arc42.org?auth=tNNpNN0VqPh9xbjkaEPrx&embed=true&theme=light" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 600px;"></iframe>
+<iframe plausible-embed src="https://plausible.io/share/arc42.org?auth=tNNpNN0VqPh9xbjkaEPrx&embed=true&theme=light" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
 '
 - title: "canvas.arc42.org"
   excerpt: '
@@ -39,7 +39,7 @@ de-org-canvas:
 doc-faq-quality:
 - title: "docs.arc42.org"
   excerpt: '
-  <iframe plausible-embed src="https://plausible.io/share/docs.arc42.org?auth=D_6pSvlKkq_hTlttpTOtz&embed=true&theme=light" heigth="600" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%;"></iframe>
+  <iframe plausible-embed src="https://plausible.io/share/docs.arc42.org?auth=D_6pSvlKkq_hTlttpTOtz&embed=true&theme=light" heigth="1600" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%;height: 1600px;"></iframe>
   '
 - title: "faq.arc42.org"
   excerpt: '<iframe plausible-embed src="https://plausible.io/share/faq.arc42.org?auth=wc065ryr-3YNoYFluaqGh&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
