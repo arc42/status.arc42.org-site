@@ -42,18 +42,17 @@ author:
 include:
   - _pages
   - images
+  - assets
   
 exclude:
   - Dockerfile
   - docker-compose*
   - .asset-cache
+  - docs/
   - .bundle
   - .jekyll-assets-cache
   - .sass-cache
   - _manage-site.sh
-  - assets/js/plugins
-  - assets/js/_main.js
-  - assets/js/vendor
   - config
   - Gemfile
   - Gemfile.lock
