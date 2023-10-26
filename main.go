@@ -18,6 +18,8 @@ const PortNr = ":8043"
 
 const GithubArc42URL = "https://github.com/arc42/"
 const ShieldsGithubIssuesURL = "https://img.shields.io/github/issues-raw/arc42/"
+const ShieldsGithubBugsURLPrefix = "https://img.shields.io/github/issues-search/arc42/"
+const ShieldsBugSuffix = "?query=label%3Abug%20is%3Aopen&label=bugs&color=red"
 
 // HomeIP is needed to deploy on fly.io
 const HomeIP = "0.0.0.0"
@@ -67,7 +69,8 @@ func executeTemplate(w http.ResponseWriter, templatePath string) {
 // statsHTMLTableHandler returns the usage statistics as html table
 func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Access-Control-Allow-Origin", "https://status.arc42.org")
+	//	w.Header().Set("Access-Control-Allow-Origin", "https://status.arc42.org")
+	w.Header().Set("Access-Control-Allow-Origin", "http://0.0.0.0:4000")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization, hx-target, hx-current-url, hx-request, hx-trigger")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 	executeTemplate(w, filepath.Join(TemplatesDir, HtmlTableTmpl))
@@ -105,6 +108,9 @@ func setURLsForSite(stats *types.SiteStats) {
 
 	// shields.io issues URLS look like that: https://img.shields.io/github/issues-raw/arc42/arc42.org-site
 	stats.IssueBadgeURL = ShieldsGithubIssuesURL + stats.Site + "-site"
+
+	// shields.io bug URLS loook like that:https://img.shields.io/github/issues-search/arc42/quality.arc42.org-site?query=label%3Abug%20is%3Aopen&label=bugs&color=red
+	stats.BugBadgeURL = ShieldsGithubBugsURLPrefix + stats.Site + "-site" + ShieldsBugSuffix
 }
 
 // loadStats4AllSites calls the plausible.io API to retrieve all statistics

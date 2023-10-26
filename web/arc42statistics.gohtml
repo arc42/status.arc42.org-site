@@ -1,7 +1,8 @@
 <!-- golang template for arc42 usage statistics table -->
+
 <table>
     <tr>
-        <th rowspan="2">Site</th>
+        <th rowspan="2"><img src="/images/minion-logo-100px.png"></th>
         <th colspan="2" style="border-left: 2px solid black;">7 Days</th>
         <th colspan="2" style="border-left: 2px solid black;">30 Days</th>
         <th colspan="2" style="border-left: 2px solid black;">12 Month</th>
@@ -16,8 +17,6 @@
         <th>PageViews</th>
     </tr>
 
-
-
 {{ range .Stats4Site}}
     <tr>
         <td><a href="https://{{.Site }}">{{.Site}}</a></td>
@@ -28,11 +27,15 @@
         <td style="border-left: 2px solid black;">{{ .Visitors12m}}</td>
         <td>{{ .Pageviews12m}}</td>
         <td style="border-left: 2px solid black;"><a href="{{.Repo}}/issues">
-           <img alt="GitHub issues" src="{{.IssueBadgeURL}}"></a></td>
+           <img alt="GitHub open issues" src="{{.IssueBadgeURL}}">
+           <img alt="GitHub bugs" src="{{.BugBadgeURL}}">
+            </a></td>
     </tr>
 {{ end }}
 </table>
 
 <br>
-<small>data collected by arc42 site statistics service (v. {{.AppVersion}}),
-    at {{.Timestamp}}</small>
+<div style="font-size: 14px; padding-bottom: 14px;">
+Data collected by arc42 site statistics service (v. {{.AppVersion}}) at
+    {{ .Timestamp}}
+</div>
