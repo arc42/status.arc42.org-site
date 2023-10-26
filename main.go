@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const AppVersion = "0.0.5b"
+const AppVersion = "0.1.0"
 const PortNr = ":8043"
 
 const GithubArc42URL = "https://github.com/arc42/"
@@ -69,8 +69,8 @@ func executeTemplate(w http.ResponseWriter, templatePath string) {
 // statsHTMLTableHandler returns the usage statistics as html table
 func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 
-	//	w.Header().Set("Access-Control-Allow-Origin", "https://status.arc42.org")
-	w.Header().Set("Access-Control-Allow-Origin", "http://0.0.0.0:4000")
+	w.Header().Set("Access-Control-Allow-Origin", "https://status.arc42.org")
+	//w.Header().Set("Access-Control-Allow-Origin", "http://0.0.0.0:4000")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization, hx-target, hx-current-url, hx-request, hx-trigger")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 	executeTemplate(w, filepath.Join(TemplatesDir, HtmlTableTmpl))
