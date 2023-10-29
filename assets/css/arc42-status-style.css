@@ -1,3 +1,20 @@
 .center {
     text-align: center;
 }
+
+.supported-by-innoq {
+    margin-bottom: 13px;
+    width: 140px;
+}
+
+@media (max-width: 900px) {
+    .supported-by-innoq {
+        width: 120px;
+    }
+}
+
+@media (max-width: 600px) {
+    .supported-by-innoq {
+        width: 100px;
+    }
+}
