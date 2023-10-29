@@ -7,6 +7,11 @@
     width: 140px;
 }
 
+.supported-by-innoq:hover {
+    opacity: 0.8;
+}
+
+
 @media (max-width: 900px) {
     .supported-by-innoq {
         width: 120px;
