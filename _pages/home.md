@@ -84,14 +84,7 @@ doc-faq-quality:
         <th>PageViews</th>
     </tr>
     <tr>
-        <td>arc42.org</td>
-        <td style="border-left: 2px solid black;">n/a</td>
-        <td>n/a</td>
-        <td style="border-left: 2px solid black;">n/a</td>
-        <td>n/a</td>
-        <td style="border-left: 2px solid black;">n/a</td>
-        <td>n/a</td>
-        <td style="border-left: 2px solid black;">n/a</td>
+         <td colspan="8" > please wait for data to be loaded...</td>
    </tr>
   </table>
 </div>
