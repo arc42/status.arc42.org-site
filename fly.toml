@@ -4,7 +4,7 @@
 #
 
 app = "arc42-stats"
-primary_region = "mad"
+primary_region = "fra"
 
 [build]
 
