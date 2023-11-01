@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const AppVersion = "0.1.0"
+const AppVersion = "0.1.3"
 const PortNr = ":8043"
 
 const GithubArc42URL = "https://github.com/arc42/"
@@ -50,7 +50,7 @@ func enableCORS(w *http.ResponseWriter, r *http.Request) {
 }
 
 // executeTemplate handles the common stuff needed to process templates
-func executeTemplate(w http.ResponseWriter, templatePath string) {
+func executeTemplate(w http.ResponseWriter, templatePath string, data any) {
 
 	tpl, err := template.ParseFS(embeddedTplsFolder, templatePath)
 	if err != nil {
@@ -58,7 +58,7 @@ func executeTemplate(w http.ResponseWriter, templatePath string) {
 		http.Error(w, "There was an error parsing the template {#err}.", http.StatusInternalServerError)
 		return
 	}
-	err = tpl.Execute(w, ArcStats)
+	err = tpl.Execute(w, data)
 	if err != nil {
 		log.Printf("executing template: %v", err)
 		http.Error(w, "There was an error executing the template {#err}.", http.StatusInternalServerError)
@@ -69,26 +69,36 @@ func executeTemplate(w http.ResponseWriter, templatePath string) {
 // statsHTMLTableHandler returns the usage statistics as html table
 func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Access-Control-Allow-Origin", "https://status.arc42.org")
+	fmt.Printf("Host: %s\n", r.Host)
+	fmt.Printf("RemoteAddr: %s\n", r.RemoteAddr)
+
+	//w.Header().Set("Access-Control-Allow-Origin", "https://status.arc42.org")
 	//w.Header().Set("Access-Control-Allow-Origin", "http://0.0.0.0:4000")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization, hx-target, hx-current-url, hx-request, hx-trigger")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
-	executeTemplate(w, filepath.Join(TemplatesDir, HtmlTableTmpl))
+	executeTemplate(w, filepath.Join(TemplatesDir, HtmlTableTmpl), ArcStats)
 }
 
 // pingHandler returns a message and the time
 func pingHandler(w http.ResponseWriter, r *http.Request) {
+
 	// need to set specific headers, depending on request origin
 	enableCORS(&w, r)
 
-	executeTemplate(w, filepath.Join(TemplatesDir, PingTmpl))
+	var Host string = r.Host
+	var RequestURI string = r.RequestURI
+
+	fmt.Printf("Host = %s\n", Host)
+	fmt.Printf("RequestURI = %s\n", RequestURI)
+	executeTemplate(w, filepath.Join(TemplatesDir, PingTmpl), r)
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "https://status.arc42.org")
 
-	executeTemplate(w, filepath.Join(TemplatesDir, "home.gohtml"))
+	executeTemplate(w, filepath.Join(TemplatesDir, "home.gohtml"), ArcStats)
 }
 
 func getPort() string {
