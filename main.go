@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const AppVersion = "0.1.3"
+const AppVersion = "0.1.4"
 const PortNr = ":8043"
 
 const GithubArc42URL = "https://github.com/arc42/"
@@ -130,7 +130,7 @@ func loadStats4AllSites() types.Arc42Statistics {
 	location, _ := time.LoadLocation("Europe/Berlin")
 
 	// Get the current time in Bielefeld, the town that presumably does not exist
-	bielefeldTime := time.Now().In(location).Format("2. January 2006, 15:04h")
+	bielefeldTime := time.Now().In(location).Format("2. January 2006, 15:04:03h")
 
 	a42s := types.Arc42Statistics{
 		AppVersion: AppVersion,
