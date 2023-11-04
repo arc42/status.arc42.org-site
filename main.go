@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const AppVersion = "0.1.4"
+const AppVersion = "0.1.5"
 const PortNr = ":8043"
 
 const GithubArc42URL = "https://github.com/arc42/"
@@ -68,9 +68,6 @@ func executeTemplate(w http.ResponseWriter, templatePath string, data any) {
 
 // statsHTMLTableHandler returns the usage statistics as html table
 func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Printf("Host: %s\n", r.Host)
-	fmt.Printf("RemoteAddr: %s\n", r.RemoteAddr)
 
 	//w.Header().Set("Access-Control-Allow-Origin", "https://status.arc42.org")
 	//w.Header().Set("Access-Control-Allow-Origin", "http://0.0.0.0:4000")
@@ -127,6 +124,8 @@ func setURLsForSite(stats *types.SiteStats) {
 // and sets several site constants (URLs)
 func loadStats4AllSites() types.Arc42Statistics {
 
+	fmt.Printf("loading statistics...\n")
+
 	location, _ := time.LoadLocation("Europe/Berlin")
 
 	// Get the current time in Bielefeld, the town that presumably does not exist
@@ -139,6 +138,9 @@ func loadStats4AllSites() types.Arc42Statistics {
 
 	for index, site := range types.Arc42sites {
 		a42s.Stats4Site[index].Site = site
+
+		// query the number of open bugs from Github
+		a42s.Stats4Site[index].NrOfBugs = 1
 
 		// set the statistic data from plausible.io
 		plausible.StatsForSite(site, &a42s.Stats4Site[index])

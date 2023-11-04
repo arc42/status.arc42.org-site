@@ -24,16 +24,19 @@ var plausibleClient = plausible.NewClient(APIKEY)
 // (currently 7D, 30D and 12M)
 func StatsForSite(thisSite string, stats *types.SiteStats) {
 
+	// Get a handler to perform queries for a given site
 	siteHandler := plausibleClient.Site(thisSite)
 
+	// Get the different metrics
 	var stats7D types.VisitorsAndViews = SiteMetrics(siteHandler, plausible.Last7Days())
-	var stats30D = SiteMetrics(siteHandler, plausible.Last30Days())
-	var stats12M = SiteMetrics(siteHandler, plausible.Last12Months())
-
 	stats.Visitors7d = stats7D.Visitors
 	stats.Pageviews7d = stats7D.Pageviews
+
+	var stats30D = SiteMetrics(siteHandler, plausible.Last30Days())
 	stats.Visitors30d = stats30D.Visitors
 	stats.Pageviews30d = stats30D.Pageviews
+
+	var stats12M = SiteMetrics(siteHandler, plausible.Last12Months())
 	stats.Visitors12m = stats12M.Visitors
 	stats.Pageviews12m = stats12M.Pageviews
 
@@ -45,9 +48,6 @@ func SiteMetrics(siteHandler *plausible.Site, period plausible.TimePeriod) types
 
 	var vAv types.VisitorsAndViews
 
-	// FixMe: move to StatsForSite (for some unknown reason a simple refactoring leads to a type error)
-	// Get an handler to perform queries for a given site
-
 	// Build query
 	siteMetricsQuery := plausible.AggregateQuery{
 		Period: period,
@@ -57,7 +57,7 @@ func SiteMetrics(siteHandler *plausible.Site, period plausible.TimePeriod) types
 		},
 	}
 
-	// Perform query
+	// Execute query to plausible.io
 	result, err := siteHandler.Aggregate(siteMetricsQuery)
 	if err != nil {
 		log.Println("Error performing query to plausible.io: %v", err)

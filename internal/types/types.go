@@ -13,6 +13,7 @@ var Arc42sites = [7]string{
 type SiteStats struct {
 	Site          string // site name
 	Repo          string // the URL of the Github repository
+	NrOfBugs      int    // the number of open bugs in that repo
 	IssueBadgeURL string // URL of the shields.io issues badge
 	BugBadgeURL   string // URL of the shields.io bugs issue
 	Visitors7d    string
