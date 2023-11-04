@@ -87,6 +87,9 @@ doc-faq-quality:
          <td colspan="8" > please wait for data to be loaded...</td>
    </tr>
   </table>
+
+Data collected by arc42 statistics service running on 
+ <a href="https://fly.io" target="_blank"><img src="/images/fly-logo-landscape.svg" width="60px"></a>
 </div>
 
 
