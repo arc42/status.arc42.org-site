@@ -46,11 +46,6 @@ doc-faq-quality:
 ---
 
 
-<script src="https://unpkg.com/htmx.org@1.9.6"
-            integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
-            crossorigin="anonymous"></script>
- 
-
 <div hx-get="https://arc42-stats.fly.dev/statsTable"
      hx-trigger="load delay"
      hx-swap="outerHTML"
@@ -80,14 +75,12 @@ doc-faq-quality:
    </tr>
   </table>
 
-Data collected by arc42 statistics service running on 
+Data will be collected by arc42 statistics service running on 
  <a href="https://fly.io" target="_blank"><img src="/images/fly-logo-landscape.svg" width="60px"></a>
 </div>
 
 
 ## Breakdown for Sites
-
-Details for:
 
 * [arc42.org](#de-org-canvas)
 * [arc42.de](#de-org-canvas)
