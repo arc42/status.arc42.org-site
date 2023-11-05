@@ -2,7 +2,7 @@
 
 <table>
     <tr>
-        <th rowspan="2"><img src="/images/minion-logo-100px.png"></th>
+        <th rowspan="2"><img src="/images/minion-logo-100px.png" alt="Gopher logo"></th>
         <th colspan="2" style="border-left: 2px solid black;">7 Days</th>
         <th colspan="2" style="border-left: 2px solid black;">30 Days</th>
         <th colspan="2" style="border-left: 2px solid black;">12 Month</th>
@@ -35,9 +35,10 @@
 
 <br>
 <div style="font-size: 14px; padding-bottom: 14px;">
-    Data collected by arc42 statistics service (v. {{.AppVersion}})  at {{ .Timestamp }} running on
+    Data collected in {{ .HowLongDidItTake }} msecs by arc42 statistics service
+    (v. {{.AppVersion}}) at {{.LastUpdatedString }} running on
     <a href="https://fly.io" target="_blank">
-        <img src="/images/fly-logo-landscape.svg" width="65px">
+        <img src="/images/fly-logo-landscape.svg" width="65px" alt="fly.io">
     </a>
 
 </div>

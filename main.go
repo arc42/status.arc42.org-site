@@ -10,10 +10,11 @@ import (
 	"path/filepath"
 	"site-usage-statistics/internal/plausible"
 	"site-usage-statistics/internal/types"
+	"strconv"
 	"time"
 )
 
-const AppVersion = "0.1.5"
+const AppVersion = "0.1.6"
 const PortNr = ":8043"
 
 const GithubArc42URL = "https://github.com/arc42/"
@@ -32,9 +33,11 @@ const HtmlTableTmpl = "arc42statistics.gohtml"
 const PingTmpl = "ping.gohtml"
 
 // embed templates into compiled binary, so we don't need to read from file system
+// embeds the templates folder into variable embeddedTemplatesFolder
+// === DON'T REMOVE THE COMMENT BELOW
 //
 //go:embed web/*.gohtml
-var embeddedTplsFolder embed.FS // embeds the templates folder into variable embeddedTplsFolder
+var embeddedTemplatesFolder embed.FS
 
 // enableCORS sets specific headers
 // * calls from the "official" URL status.arc42.org are allowed
@@ -52,7 +55,7 @@ func enableCORS(w *http.ResponseWriter, r *http.Request) {
 // executeTemplate handles the common stuff needed to process templates
 func executeTemplate(w http.ResponseWriter, templatePath string, data any) {
 
-	tpl, err := template.ParseFS(embeddedTplsFolder, templatePath)
+	tpl, err := template.ParseFS(embeddedTemplatesFolder, templatePath)
 	if err != nil {
 		log.Printf("parsing template: %v", err)
 		http.Error(w, "There was an error parsing the template {#err}.", http.StatusInternalServerError)
@@ -67,13 +70,28 @@ func executeTemplate(w http.ResponseWriter, templatePath string, data any) {
 }
 
 // statsHTMLTableHandler returns the usage statistics as html table
+// 1. updates ArcStats
+// 2. sets required http headers needed for CORS
+// 3. renders the output via HtmlTableTmpl
 func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 
+	// set timer
+	var startOfProcessing = time.Now()
+
+	// update ArcStats
+	ArcStats = loadStats4AllSites()
+
+	// remember how long it took to update statistics
+	ArcStats.HowLongDidItTake = strconv.FormatInt(time.Since(startOfProcessing).Milliseconds(), 10)
+
+	// handle the CORS stuff
 	//w.Header().Set("Access-Control-Allow-Origin", "https://status.arc42.org")
 	//w.Header().Set("Access-Control-Allow-Origin", "http://0.0.0.0:4000")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization, hx-target, hx-current-url, hx-request, hx-trigger")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+
+	// finally, render the template
 	executeTemplate(w, filepath.Join(TemplatesDir, HtmlTableTmpl), ArcStats)
 }
 
@@ -116,7 +134,7 @@ func setURLsForSite(stats *types.SiteStats) {
 	// shields.io issues URLS look like that: https://img.shields.io/github/issues-raw/arc42/arc42.org-site
 	stats.IssueBadgeURL = ShieldsGithubIssuesURL + stats.Site + "-site"
 
-	// shields.io bug URLS loook like that:https://img.shields.io/github/issues-search/arc42/quality.arc42.org-site?query=label%3Abug%20is%3Aopen&label=bugs&color=red
+	// shields.io bug URLS look like that:https://img.shields.io/github/issues-search/arc42/quality.arc42.org-site?query=label%3Abug%20is%3Aopen&label=bugs&color=red
 	stats.BugBadgeURL = ShieldsGithubBugsURLPrefix + stats.Site + "-site" + ShieldsBugSuffix
 }
 
@@ -129,18 +147,19 @@ func loadStats4AllSites() types.Arc42Statistics {
 	location, _ := time.LoadLocation("Europe/Berlin")
 
 	// Get the current time in Bielefeld, the town that presumably does not exist
-	bielefeldTime := time.Now().In(location).Format("2. January 2006, 15:04:03h")
+	bielefeldTime := time.Now().In(location)
 
 	a42s := types.Arc42Statistics{
-		AppVersion: AppVersion,
-		Timestamp:  bielefeldTime + " (@Cologne)",
+		AppVersion:        AppVersion,
+		LastUpdated:       bielefeldTime,
+		LastUpdatedString: bielefeldTime.Format("2. January 2006, 15:04:03h"),
 	}
 
 	for index, site := range types.Arc42sites {
 		a42s.Stats4Site[index].Site = site
 
-		// query the number of open bugs from Github
-		a42s.Stats4Site[index].NrOfBugs = 1
+		// query the number of open bugs from GitHub
+		a42s.Stats4Site[index].NrOfOpenBugs = 1
 
 		// set the statistic data from plausible.io
 		plausible.StatsForSite(site, &a42s.Stats4Site[index])
@@ -153,7 +172,7 @@ func loadStats4AllSites() types.Arc42Statistics {
 
 func main() {
 
-	ArcStats = loadStats4AllSites()
+	//ArcStats = loadStats4AllSites()
 
 	realPortNr := getPort()
 	mux := http.NewServeMux()
