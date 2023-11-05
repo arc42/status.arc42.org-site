@@ -14,11 +14,6 @@ header:
       url: "https://www.arc42.de"
 
    
-summary:
-- title: "Summary of all arc42 sites"
-  excerpt: '
-  <iframe plausible-embed src="https://plausible.io/share/rollup.arc42.com?auth=H_2ArEfjjP25OdRumQluH&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
-  '
 
 de-org-canvas:
 - title: "arc42.de"
@@ -97,7 +92,6 @@ Data collected by arc42 statistics service running on
 
 Details for:
 
-* all [sites combined](#combined)
 * [arc42.org](#de-org-canvas)
 * [arc42.de](#de-org-canvas)
 * [docs.arc42.org](#doc-faq-quality)
@@ -105,10 +99,6 @@ Details for:
 * [quality.arc42.org](#doc-faq-quality)
 * [canvas.arc42.org](#de-org-canvas)
 
-
-
-<a id="combined">
-{% include feature_row id="summary" %}
 
 
 <a id="de-org-canvas">
