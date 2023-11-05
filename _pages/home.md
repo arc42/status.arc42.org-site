@@ -51,9 +51,6 @@ doc-faq-quality:
             crossorigin="anonymous"></script>
  
 
-## Welcome to the awesome arc42 sites statistics
-
-
 <div hx-get="https://arc42-stats.fly.dev/statsTable"
      hx-trigger="load delay"
      hx-swap="outerHTML"
