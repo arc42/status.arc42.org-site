@@ -4,6 +4,11 @@ import (
 	"site-usage-statistics/internal/types"
 )
 
+func NrOfBugsURL() string {
+	// TODO how to construct the GitHub Bugs URL?
+	return "XXX"
+}
+
 func BugCountForSite(thisSite string, stats *types.SiteStats) {
 
 }
