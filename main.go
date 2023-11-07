@@ -164,7 +164,7 @@ func loadStats4AllSites() types.Arc42Statistics {
 
 		// TODO: let StatsForSite update the Stats4Site and the Sums struct
 		// set the statistic data from plausible.io
-		plausible.StatsForSite(site, &a42s.Stats4Site[index], &a42s.Sums)
+		plausible.StatsForSite(site, &a42s.Stats4Site[index], &a42s.Totals)
 
 		// set some URLs so the templates get smaller
 		setURLsForSite(&a42s.Stats4Site[index])

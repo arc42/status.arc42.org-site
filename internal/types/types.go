@@ -60,8 +60,8 @@ type Arc42Statistics struct {
 	// Stats4Site contains the statistics per site or subdomain
 	Stats4Site [len(Arc42sites)]SiteStats
 
-	// Sums contains the sum of all the statistics over all sites
-	Sums SumOfAllSites
+	// Totals contains the sum of all the statistics over all sites
+	Totals SumOfAllSites
 }
 
 // VisitorsAndViews is a temporarily-used struct.

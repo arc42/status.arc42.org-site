@@ -22,7 +22,7 @@ var plausibleClient = plausible.NewClient(APIKEY)
 
 // StatsForSite collects all relevant statistics for a given site
 // (currently 7D, 30D and 12M), and updates the Sums accordingly
-func StatsForSite(thisSite string, stats *types.SiteStats, sums *types.SumOfAllSites) {
+func StatsForSite(thisSite string, stats *types.SiteStats, totals *types.SumOfAllSites) {
 
 	// Get a handler to perform queries for a given site
 	siteHandler := plausibleClient.Site(thisSite)
@@ -31,20 +31,20 @@ func StatsForSite(thisSite string, stats *types.SiteStats, sums *types.SumOfAllS
 	var stats7D types.VisitorsAndViews = SiteMetrics(siteHandler, plausible.Last7Days())
 	stats.Visitors7d = stats7D.Visitors
 	stats.Pageviews7d = stats7D.Pageviews
-	sums.SumOfVisitors7d += stats7D.VisitorNr
-	sums.SumOfPageviews7d += stats7D.PageViewNr
+	totals.SumOfVisitors7d += stats7D.VisitorNr
+	totals.SumOfPageviews7d += stats7D.PageViewNr
 
 	var stats30D = SiteMetrics(siteHandler, plausible.Last30Days())
 	stats.Visitors30d = stats30D.Visitors
 	stats.Pageviews30d = stats30D.Pageviews
-	sums.SumOfVisitors30d += stats30D.VisitorNr
-	sums.SumOfPageviews30d += stats30D.PageViewNr
+	totals.SumOfVisitors30d += stats30D.VisitorNr
+	totals.SumOfPageviews30d += stats30D.PageViewNr
 
 	var stats12M = SiteMetrics(siteHandler, plausible.Last12Months())
 	stats.Visitors12m = stats12M.Visitors
 	stats.Pageviews12m = stats12M.Pageviews
-	sums.SumOfVisitors12m += stats12M.VisitorNr
-	sums.SumOfPageviews12m += stats12M.PageViewNr
+	totals.SumOfVisitors12m += stats12M.VisitorNr
+	totals.SumOfPageviews12m += stats12M.PageViewNr
 
 }
 
