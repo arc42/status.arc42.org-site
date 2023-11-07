@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for arc42-stats on 2023-11-07T21:38:50+01:00
+# fly.toml app configuration file generated for arc42-stats on 2023-10-20T21:23:53+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
 app = "arc42-stats"
-primary_region = "ams"
+primary_region = "fra"
 
 [build]
 
