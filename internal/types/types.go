@@ -27,19 +27,21 @@ type SiteStats struct {
 	Pageviews30d  string
 	Visitors12m   string
 	Pageviews12m  string
+
+	SumOfAllCounters SumOfAllSites
 }
 
 // SumOfAllSites contains the sum of all the distinct statistics,
 // currently for 7d, 30d and 12m.
-// The elements are of type string to handle "n/a" (not available) results
-// of single values.
+// If certain values are "n/a" (when the external API sends errors),
+// we let these values count 0.
 type SumOfAllSites struct {
-	SumOfVisitors7d   string
-	SumOfPageviews7d  string
-	SumOfVisitors30d  string
-	SumOfPageviews30d string
-	SumOfVisitors12m  string
-	SumOfPageviews12m string
+	SumOfVisitors7d   int
+	SumOfPageviews7d  int
+	SumOfVisitors30d  int
+	SumOfPageviews30d int
+	SumOfVisitors12m  int
+	SumOfPageviews12m int
 }
 
 // Arc42Statistics collects information about the sites and subdomains
@@ -58,14 +60,16 @@ type Arc42Statistics struct {
 	// Stats4Site contains the statistics per site or subdomain
 	Stats4Site [len(Arc42sites)]SiteStats
 
-	// SumOfAllSites sums up all sites
-	Sum4AllSites SumOfAllSites
+	// Sums contains the sum of all the statistics over all sites
+	Sums SumOfAllSites
 }
 
 // VisitorsAndViews is a temporarily-used struct.
 // Note the 'string' type: most often it will be a number,
 // but in case of errors it should be NotAvailable
 type VisitorsAndViews struct {
-	Visitors  string
-	Pageviews string
+	Visitors   string
+	VisitorNr  int
+	Pageviews  string
+	PageViewNr int
 }
