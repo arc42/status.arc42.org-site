@@ -2,6 +2,8 @@
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
+## WHEN MOVING to another region, you have to update
+## the fly.io token... otherwise the github action will fail.
 
 app = "arc42-stats"
 primary_region = "ams"
