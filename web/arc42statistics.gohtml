@@ -17,20 +17,21 @@
         <th>PageViews</th>
     </tr>
 
-{{ range .Stats4Site}}
-    <tr>
-        <td><a href="https://{{.Site }}">{{.Site}}</a></td>
-        <td style="border-left: 2px solid black;">{{ .Visitors7d}}</td>
-        <td>{{ .Pageviews7d}}</td>
-        <td style="border-left: 2px solid black;">{{ .Visitors30d}}</td>
-        <td>{{ .Pageviews30d}}</td>
-        <td style="border-left: 2px solid black;">{{ .Visitors12m}}</td>
-        <td>{{ .Pageviews12m}}</td>
-        <td style="border-left: 2px solid black;"><a href="{{.Repo}}/issues">
-           <img alt="GitHub open issues" src="{{.IssueBadgeURL}}"><img alt="GitHub bugs" src="{{.BugBadgeURL}}">
-            </a></td>
-    </tr>
-{{ end }}
+    {{ range .Stats4Site}}
+        <tr>
+            <td><a href="https://{{.Site }}">{{.Site}}</a></td>
+            <td style="border-left: 2px solid black;">{{ .Visitors7d}}</td>
+            <td>{{ .Pageviews7d}}</td>
+            <td style="border-left: 2px solid black;">{{ .Visitors30d}}</td>
+            <td>{{ .Pageviews30d}}</td>
+            <td style="border-left: 2px solid black;">{{ .Visitors12m}}</td>
+            <td>{{ .Pageviews12m}}</td>
+            <td style="border-left: 2px solid black;"><a href="{{.Repo}}/issues">
+                    <img alt="GitHub open issues" src="{{.IssueBadgeURL}}"><img alt="GitHub bugs"
+                                                                                src="{{.BugBadgeURL}}">
+                </a></td>
+        </tr>
+    {{ end }}
     <tr>
         <td style="border-top: 2px solid black;">Totals:</td>
         <td style="border-top: 2px solid black;border-left: 2px solid black;">{{ .Totals.SumOfVisitors7d}}</td>
@@ -48,6 +49,9 @@
     Data collected in {{ .HowLongDidItTake }} msecs by arc42 statistics service
     (v. {{.AppVersion}}) at {{.LastUpdatedString }} running on
     <a href="https://fly.io" target="_blank">
-        <img src="/images/fly-logo-landscape.svg" width="65px" alt="fly.io">
+        <img src="/images/fly-logo-landscape.svg" width="60px" alt="fly.io">
     </a>
+    {{if .WhereDoesItRun}}
+    in region .WhereDoesItRun.
+    {{end }}
 </div>

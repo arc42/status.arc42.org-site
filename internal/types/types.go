@@ -57,6 +57,9 @@ type Arc42Statistics struct {
 	// this data (from both plausible and GitHub)
 	HowLongDidItTake string
 
+	// WhereDoesItRun stores the fly.io region code
+	WhereDoesItRun string
+
 	// Stats4Site contains the statistics per site or subdomain
 	Stats4Site [len(Arc42sites)]SiteStats
 

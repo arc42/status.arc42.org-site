@@ -96,6 +96,9 @@ func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 	// remember how long it took to update statistics
 	ArcStats.HowLongDidItTake = strconv.FormatInt(time.Since(startOfProcessing).Milliseconds(), 10)
 
+	// try go get the fly.io region where this service is running
+	ArcStats.WhereDoesItRun = os.Getenv("FLY_REGION")
+
 	// 3. handle the CORS stuff
 	sendCORSHeaders(&w, r)
 
