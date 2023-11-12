@@ -6,19 +6,36 @@ package plausible
 // ==============================================
 
 import (
+	"fmt"
 	"github.com/andrerfcsantos/go-plausible/plausible"
 	"log"
+	"os"
 	"site-usage-statistics/internal/types"
 	"strconv"
 )
 
-// APIKEY is Gernot's personal key for https://plausible.io.
-// one day I will find a better way to keep this key secret,
-// but for now it's good enough to have in the private Github repo.
-// TODO: handle secret in appropriate way
-const APIKEY = "1-eu-hRPPmR6MJ28oGkc8cye3I5dgBUCE4jWvoSXtMj8zN2kmuwUaABcE2gO0MST"
+// plausibleClient wraps the plausible API.
+// The required (secret) API key is set within the initialization.
+var plausibleClient = initPlausibleHandler()
 
-var plausibleClient = plausible.NewClient(APIKEY)
+// initPlausibleHandler gets the plausible API key
+// and creates a handler (NewClient) to perform queries upon
+func initPlausibleHandler() *plausible.Client {
+
+	// APIKEY is Gernot's personal key for https://plausible.io.
+	// It needs to be set via environment variable
+	var APIKEY string = os.Getenv("PLAUSIBLE_API_KEY")
+
+	if APIKEY == "" {
+		// no value, no API calls, no results.
+		// we exit here, as we have no chance of recovery
+		fmt.Printf("CRITICAL ERROR: required plausible API key not set.\n")
+		fmt.Printf("You need to set the 'PLAUSIBLE_API_KEY' environment variable prior to launching this application.\n")
+
+		os.Exit(13)
+	}
+	return plausible.NewClient(APIKEY)
+}
 
 // StatsForSite collects all relevant statistics for a given site
 // (currently 7D, 30D and 12M), and updates the Sums accordingly

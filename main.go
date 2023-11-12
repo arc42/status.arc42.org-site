@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-const AppVersion = "0.1.7"
+const AppVersion = "0.2.1"
 const PortNr = ":8043"
 
 const GithubArc42URL = "https://github.com/arc42/"
