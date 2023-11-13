@@ -27,8 +27,7 @@
             <td style="border-left: 2px solid black;">{{ .Visitors12m}}</td>
             <td>{{ .Pageviews12m}}</td>
             <td style="border-left: 2px solid black;"><a href="{{.Repo}}/issues">
-                    <img alt="GitHub open issues" src="{{.IssueBadgeURL}}"><img alt="GitHub bugs"
-                                                                                src="{{.BugBadgeURL}}">
+                    <img alt="GitHub open issues" src="{{.IssueBadgeURL}}"><img alt="GitHub bugs" src="{{.BugBadgeURL}}">
                 </a></td>
         </tr>
     {{ end }}
@@ -48,10 +47,8 @@
 <div style="font-size: 12px; padding-bottom: 14px;">
     Data collected in {{ .HowLongDidItTake }} msecs by arc42 statistics service
     (v. {{.AppVersion}}) at {{.LastUpdatedString }} running on
-    <a href="https://fly.io" target="_blank">
-        <img src="/images/fly-logo-landscape.svg" width="60px" alt="fly.io">
-    </a>
-    {{if .WhereDoesItRun}}
-    in region {{.WhereDoesItRun}}.
+    <a href="https://fly.io" target="_blank"> fly.io </a>
+    {{if .FlyRegion}}
+    in {{.WhereDoesItRun}} (region {{.FlyRegion}})
     {{end }}
 </div>

@@ -8,13 +8,14 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"site-usage-statistics/internal/fly"
 	"site-usage-statistics/internal/plausible"
 	"site-usage-statistics/internal/types"
 	"strconv"
 	"time"
 )
 
-const AppVersion = "0.2.1"
+const AppVersion = "0.2.2"
 const PortNr = ":8043"
 
 const GithubArc42URL = "https://github.com/arc42/"
@@ -96,8 +97,8 @@ func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 	// remember how long it took to update statistics
 	ArcStats.HowLongDidItTake = strconv.FormatInt(time.Since(startOfProcessing).Milliseconds(), 10)
 
-	// try go get the fly.io region where this service is running
-	ArcStats.WhereDoesItRun = os.Getenv("FLY_REGION")
+	//find out  where this service is running
+	ArcStats.FlyRegion, ArcStats.WhereDoesItRun = fly.RegionAndLocation()
 
 	// 3. handle the CORS stuff
 	sendCORSHeaders(&w, r)

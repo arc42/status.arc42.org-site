@@ -1,6 +1,8 @@
 package types
 
-import "time"
+import (
+	"time"
+)
 
 var Arc42sites = [7]string{
 	"arc42.org",
@@ -57,7 +59,9 @@ type Arc42Statistics struct {
 	// this data (from both plausible and GitHub)
 	HowLongDidItTake string
 
-	// WhereDoesItRun stores the fly.io region code
+	// FlyRegion stores the fly.io region code
+	FlyRegion string
+	// WhereDoesItRun contains the name of the location corresponding to FlyRegion
 	WhereDoesItRun string
 
 	// Stats4Site contains the statistics per site or subdomain
