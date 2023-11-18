@@ -16,3 +16,8 @@ like all cool websites we need a status-subdomain with some statistics.
 | Turso DB | in planning: A distributed, self-replicating SQLite database in the cloud. |
 
 API calls are handled via the site-usage-statistics service, located in its own [repository](https://github.com/arc42/site-usage-statistics).
+
+## Development Status + Planning
+
+Upcoming features and current development are planned with a [GitHub project](https://github.com/orgs/arc42/projects/5/views/1)
+
