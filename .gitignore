@@ -5,3 +5,7 @@ _site
 .idea
 node_modules
 Gemfile.lock
+*.bkp
+*.bkp
+.*bkp
+*.dtmp
