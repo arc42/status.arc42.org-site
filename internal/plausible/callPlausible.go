@@ -22,7 +22,7 @@ var plausibleClient = initPlausibleHandler()
 // and creates a handler (NewClient) to perform queries upon
 func initPlausibleHandler() *plausible.Client {
 
-	// APIKEY is Gernot's personal key for https://plausible.io.
+	// APIKEY is a personal key for https://plausible.io
 	// It needs to be set via environment variable
 	var APIKEY string = os.Getenv("PLAUSIBLE_API_KEY")
 
