@@ -13,7 +13,7 @@ RUN go mod download
 # https://docs.docker.com/engine/reference/builder/#copy
 COPY *.go ./
 COPY internal/ ./internal/
-COPY web/ ./web/
+
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o /arc42-stats
