@@ -16,6 +16,7 @@ func main() {
 
 	// Start a server which runs in background and waits for http requests to arrive
 	// on predefined routes.
-	api.StartAPIServer()
+	// THIS IS A BLOCKING CALL!
 	api.PrintServerDetails(AppVersion)
+	api.StartAPIServer()
 }

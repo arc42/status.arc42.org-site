@@ -16,7 +16,7 @@ func RegionAndLocation() (string, string) {
 	return region, flyRegionCodeToLocation(region)
 }
 
-// FlyRegion retrieves the fly.io regiono from the envirionment variable FLY_REGION
+// FlyRegion retrieves the fly.io region from the environment variable FLY_REGION
 func flyRegion() string {
 	region := os.Getenv("FLY_REGION")
 	if region == "" {
