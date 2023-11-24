@@ -2,7 +2,7 @@ package domain
 
 import (
 	"fmt"
-	badges "site-usage-statistics/badge"
+	"site-usage-statistics/internal/badge"
 	"site-usage-statistics/internal/github"
 	"site-usage-statistics/internal/plausible"
 	"site-usage-statistics/internal/types"
@@ -60,8 +60,8 @@ func setURLsForSite(stats *types.SiteStats) {
 	stats.Repo = github.GithubArc42URL + stats.Site + "-site"
 
 	// shields.io issues URLS look like that: https://img.shields.io/github/issues-raw/arc42/arc42.org-site
-	stats.IssueBadgeURL = badges.ShieldsGithubIssuesURL + stats.Site + "-site"
+	stats.IssueBadgeURL = badge.ShieldsGithubIssuesURL + stats.Site + "-site"
 
 	// shields.io bug URLS look like that:https://img.shields.io/github/issues-search/arc42/quality.arc42.org-site?query=label%3Abug%20is%3Aopen&label=bugs&color=red
-	stats.BugBadgeURL = badges.ShieldsGithubBugsURLPrefix + stats.Site + "-site" + badges.ShieldsBugSuffix
+	stats.BugBadgeURL = badge.ShieldsGithubBugsURLPrefix + stats.Site + "-site" + badge.ShieldsBugSuffix
 }

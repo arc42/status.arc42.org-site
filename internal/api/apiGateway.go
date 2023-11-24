@@ -19,7 +19,7 @@ const PortNr = ":8043"
 // HomeIP is needed to deploy on fly.io
 const homeIP = "0.0.0.0"
 
-const TemplatesDir = "./web"
+const TemplatesDir = ""
 const HtmlTableTmpl = "arc42statistics.gohtml"
 const PingTmpl = "ping.gohtml"
 
@@ -106,16 +106,24 @@ func executeTemplate(w http.ResponseWriter, templatePath string, data any) {
 
 	tpl, err := template.ParseFS(embeddedTemplatesFolder, templatePath)
 	if err != nil {
-		log.Printf("parsing template: %v", err)
-		http.Error(w, "There was an error parsing the template {#err}.", http.StatusInternalServerError)
+		log.Printf("Error parsing template: %v", err)
+		http.Error(w, "There was an error parsing the template "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	err = tpl.Execute(w, data)
 	if err != nil {
-		log.Printf("executing template: %v", err)
-		http.Error(w, "There was an error executing the template {#err}.", http.StatusInternalServerError)
+		log.Printf("Error executing template: %v", err)
+		http.Error(w, "There was an error executing the template "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func logRequestHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		h.ServeHTTP(w, r)
+		log.Printf("%s %s %v", r.Method, r.URL, time.Since(start))
+	})
 }
 
 // PrintServerDetails displays a few details about this program,
@@ -123,12 +131,13 @@ func executeTemplate(w http.ResponseWriter, templatePath string, data any) {
 // and where in the fly.io cloud the service is deployed.
 func PrintServerDetails(appVersion string) {
 
-	fmt.Printf("Started API server, version %s on Port %s at %s\n", appVersion, getPort(), time.Now().Format("2. January 2006, 15:04h"))
+	fmt.Printf("Starting API server, version %s on Port %s at %s\n", appVersion, getPort(), time.Now().Format("2. January 2006, 15:04h"))
 
 	// assumes we're running this program within the fly.io cloud.
 	// There, the env variable FLY_REGION should be set.
 	// If this variable is empty, we assume we're running locally
-	fly.RegionAndLocation()
+	region, location := fly.RegionAndLocation()
+	fmt.Printf("Server region is %s/%s", region, location)
 }
 
 // StartAPIServer creates an http ServeMux with a few predefined routes.
@@ -142,7 +151,14 @@ func StartAPIServer() {
 	mux.HandleFunc("/stats", statsHTMLTableHandler)
 	mux.HandleFunc("/ping", pingHandler)
 
+	// wrap ServeMux with logging
+	loggedMux := logRequestHandler(mux)
+
 	// TODO why are we setting HomeIP?
-	log.Fatal(http.ListenAndServe(homeIP+getPort(), mux))
+	err := http.ListenAndServe(homeIP+getPort(), loggedMux)
+
+	if err != nil {
+		log.Fatalf("API server failed to start: %v", err)
+	}
 
 }

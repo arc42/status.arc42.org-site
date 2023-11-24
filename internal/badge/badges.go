@@ -1,4 +1,4 @@
-package badges
+package badge
 
 const ShieldsGithubIssuesURL = "https://img.shields.io/github/issues-raw/arc42/"
 
