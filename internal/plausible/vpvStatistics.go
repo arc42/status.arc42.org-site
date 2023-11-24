@@ -1,3 +1,5 @@
+// plausible interacts with the https://plausible.io web statistics service,
+// that counts visitors and pageviews of the arc42 sites.
 package plausible
 
 // thanx and credits to Andre
@@ -45,7 +47,7 @@ func StatsForSite(thisSite string, stats *types.SiteStats, totals *types.SumOfAl
 	siteHandler := plausibleClient.Site(thisSite)
 
 	// Get the different metrics
-	var stats7D types.VisitorsAndViews = SiteMetrics(siteHandler, plausible.Last7Days())
+	var stats7D types.VisitorsAndPageViews = SiteMetrics(siteHandler, plausible.Last7Days())
 	stats.Visitors7d = stats7D.Visitors
 	stats.Pageviews7d = stats7D.Pageviews
 	totals.SumOfVisitors7d += stats7D.VisitorNr
@@ -68,9 +70,9 @@ func StatsForSite(thisSite string, stats *types.SiteStats, totals *types.SumOfAl
 // SiteMetrics collects statics for given site and period from plausible.io API.
 // Return either the numbers or "n/a" in case of API errors
 // Updates the SumOfAllSites
-func SiteMetrics(siteHandler *plausible.Site, period plausible.TimePeriod) types.VisitorsAndViews {
+func SiteMetrics(siteHandler *plausible.Site, period plausible.TimePeriod) types.VisitorsAndPageViews {
 
-	var vAv types.VisitorsAndViews
+	var vApvs types.VisitorsAndPageViews
 
 	// Build query
 	siteMetricsQuery := plausible.AggregateQuery{
@@ -86,16 +88,16 @@ func SiteMetrics(siteHandler *plausible.Site, period plausible.TimePeriod) types
 	if err != nil {
 		log.Println("Error performing query to plausible.io: %v", err)
 		// in this case, we don't add anything to the Sums
-		vAv.Pageviews = "n/a"
-		vAv.PageViewNr = 0
-		vAv.Visitors = "n/a"
-		vAv.VisitorNr = 0
+		vApvs.Pageviews = "n/a"
+		vApvs.PageViewNr = 0
+		vApvs.Visitors = "n/a"
+		vApvs.VisitorNr = 0
 	} else {
-		vAv.Pageviews = strconv.Itoa(result.Pageviews)
-		vAv.PageViewNr = result.Pageviews
-		vAv.Visitors = strconv.Itoa(result.Visitors)
-		vAv.VisitorNr = result.Visitors
+		vApvs.Pageviews = strconv.Itoa(result.Pageviews)
+		vApvs.PageViewNr = result.Pageviews
+		vApvs.Visitors = strconv.Itoa(result.Visitors)
+		vApvs.VisitorNr = result.Visitors
 	}
 
-	return vAv
+	return vApvs
 }

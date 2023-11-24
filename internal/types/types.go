@@ -71,10 +71,10 @@ type Arc42Statistics struct {
 	Totals SumOfAllSites
 }
 
-// VisitorsAndViews is a temporarily-used struct.
+// VisitorsAndPageViews is a temporarily-used struct.
 // Note the 'string' type: most often it will be a number,
 // but in case of errors it should be NotAvailable
-type VisitorsAndViews struct {
+type VisitorsAndPageViews struct {
 	Visitors   string
 	VisitorNr  int
 	Pageviews  string
