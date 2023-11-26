@@ -5,7 +5,7 @@ import (
 	"site-usage-statistics/internal/domain"
 )
 
-const AppVersion = "0.3.1"
+const AppVersion = "0.3.2"
 
 func main() {
 

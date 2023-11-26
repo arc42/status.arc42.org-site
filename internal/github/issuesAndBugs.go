@@ -43,7 +43,7 @@ func initGitHubGraphQLClient() *githubv4.Client {
 
 }
 
-func BugCountForSite(thisSite string) (nrOfIssues int, nrOfBugs int) {
+func IssuesAndBugsCountForSite(thisSite string) (nrOfIssues int, nrOfBugs int) {
 
 	// Initialize GitHub GraphQL client
 	client := initGitHubGraphQLClient()
@@ -60,7 +60,7 @@ func BugCountForSite(thisSite string) (nrOfIssues int, nrOfBugs int) {
 	// Perform the query
 	err := client.Query(context.Background(), &query, variables)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err, query)
 	}
 
 	nrOfBugs = int(query.Repository.Bugs.TotalCount)

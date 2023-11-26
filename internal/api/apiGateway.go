@@ -37,6 +37,8 @@ var embeddedTemplatesFolder embed.FS
 // 4. renders the output via HtmlTableTmpl
 func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 
+	fmt.Printf("received statsTable request \n")
+
 	// 1. set timer
 	var startOfProcessing = time.Now()
 
@@ -131,7 +133,7 @@ func logRequestHandler(h http.Handler) http.Handler {
 // and where in the fly.io cloud the service is deployed.
 func PrintServerDetails(appVersion string) {
 
-	fmt.Printf("Starting API server, version %s on Port %s at %s\n", appVersion, getPort(), time.Now().Format("2. January 2006, 15:04h"))
+	fmt.Printf("Starting API server, version %s on Port %s at %s\n\n", appVersion, getPort(), time.Now().Format("2. January 2006, 15:04h"))
 
 	// assumes we're running this program within the fly.io cloud.
 	// There, the env variable FLY_REGION should be set.
