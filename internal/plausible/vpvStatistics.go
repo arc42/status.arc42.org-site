@@ -41,7 +41,7 @@ func initPlausibleHandler() *plausible.Client {
 
 // StatsForSite collects all relevant statistics for a given site
 // (currently 7D, 30D and 12M), and updates the Sums accordingly
-func StatsForSite(thisSite string, stats *types.SiteStats, totals *types.SumOfAllSites) {
+func StatsForSite(thisSite string, stats *types.SiteStats, totals *types.TotalsForAllSites) {
 
 	// Get a handler to perform queries for a given site
 	siteHandler := plausibleClient.Site(thisSite)
@@ -69,7 +69,7 @@ func StatsForSite(thisSite string, stats *types.SiteStats, totals *types.SumOfAl
 
 // SiteMetrics collects statics for given site and period from plausible.io API.
 // Return either the numbers or "n/a" in case of API errors
-// Updates the SumOfAllSites
+// Updates the TotalsForAllSites
 func SiteMetrics(siteHandler *plausible.Site, period plausible.TimePeriod) types.VisitorsAndPageViews {
 
 	var vApvs types.VisitorsAndPageViews

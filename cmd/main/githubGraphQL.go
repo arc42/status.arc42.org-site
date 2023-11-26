@@ -4,5 +4,6 @@ import "site-usage-statistics/internal/github"
 
 func main() {
 
-	github.BugCountForSite("faq.arc42.org-site")
+	github.IssuesAndBugsCountForSite("faq.arc42.org-site")
+	github.IssuesAndBugsCountForSite("arc42.org-site")
 }

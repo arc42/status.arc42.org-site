@@ -18,26 +18,27 @@ var Arc42sites = [7]string{
 // To facilitate template processing, site and GitHub repository name plus some other
 // values are contained here too.
 type SiteStats struct {
-	Site          string // site name
-	Repo          string // the URL of the GitHub repository
-	NrOfOpenBugs  int    // the number of open bugs in that repo
-	IssueBadgeURL string // URL of the shields.io issues badge
-	BugBadgeURL   string // URL of the shields.io bugs issue
-	Visitors7d    string
-	Pageviews7d   string
-	Visitors30d   string
-	Pageviews30d  string
-	Visitors12m   string
-	Pageviews12m  string
+	Site           string // site name
+	Repo           string // the URL of the GitHub repository
+	NrOfOpenBugs   int    // the number of open bugs in that repo
+	NrOfOpenIssues int    // number of open issues
+	IssueBadgeURL  string // URL of the shields.io issues badge
+	BugBadgeURL    string // URL of the shields.io bugs issue
+	Visitors7d     string
+	Pageviews7d    string
+	Visitors30d    string
+	Pageviews30d   string
+	Visitors12m    string
+	Pageviews12m   string
 
-	SumOfAllCounters SumOfAllSites
+	//SumOfAllCounters TotalsForAllSites
 }
 
-// SumOfAllSites contains the sum of all the distinct statistics,
+// TotalsForAllSites contains the sum of all the distinct statistics,
 // currently for 7d, 30d and 12m.
 // If certain values are "n/a" (when the external API sends errors),
 // we let these values count 0.
-type SumOfAllSites struct {
+type TotalsForAllSites struct {
 	SumOfVisitors7d   int
 	SumOfPageviews7d  int
 	SumOfVisitors30d  int
@@ -68,7 +69,7 @@ type Arc42Statistics struct {
 	Stats4Site [len(Arc42sites)]SiteStats
 
 	// Totals contains the sum of all the statistics over all sites
-	Totals SumOfAllSites
+	Totals TotalsForAllSites
 }
 
 // VisitorsAndPageViews is a temporarily-used struct.
