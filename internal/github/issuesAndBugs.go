@@ -2,7 +2,6 @@
 package github
 
 import (
-	"fmt"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -66,9 +65,9 @@ func IssuesAndBugsCountForSite(thisSite string) (nrOfIssues int, nrOfBugs int) {
 	nrOfBugs = int(query.Repository.Bugs.TotalCount)
 	nrOfIssues = int(query.Repository.Issues.TotalCount)
 
-	// Output the result
-	fmt.Printf("Number of open issues: %d\n", nrOfIssues)
-	fmt.Printf("Number of open bugs: %d\n", nrOfBugs)
+	// Output the result if running on localhost
+	//fmt.Printf("Number of open issues: %d\n", nrOfIssues)
+	//fmt.Printf("Number of open bugs: %d\n", nrOfBugs)
 
 	// this kind of return takes the named result parameters and returns those...
 	return
