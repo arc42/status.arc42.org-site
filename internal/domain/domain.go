@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"github.com/rs/zerolog/log"
 	"site-usage-statistics/internal/badge"
 	"site-usage-statistics/internal/github"
 	"site-usage-statistics/internal/plausible"
@@ -15,7 +16,7 @@ var SumOfStats types.TotalsForAllSites
 
 func SetAppVersion(appVersion string) {
 	AppVersion = appVersion
-
+	log.Debug().Msg("App version set to " + appVersion)
 }
 
 func setServerMetaInfo(a42s *types.Arc42Statistics) {

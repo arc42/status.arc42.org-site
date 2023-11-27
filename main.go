@@ -1,13 +1,57 @@
 package main
 
 import (
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"os"
 	"site-usage-statistics/internal/api"
 	"site-usage-statistics/internal/domain"
+	"strings"
 )
 
-const AppVersion = "0.3.3"
+const AppVersion = "0.3.4"
+
+// version history
+// 0.3.4 removed all fmt.print*, migrated to zerolog
+// 0.3.3 fixed issue #46
+// 0.3.1 slight refactoring
+// 0.2.0 integrated GitHub issues
+// 0.1.0 made it work
+
+// init is called AFTER all imported packages have been initialized.
+func init() {
+	// Configure the global logger to write to console/stdout and add file and line number
+	output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: zerolog.TimeFormatUnix}
+	log.Logger = zerolog.New(output).With().Timestamp().Caller().Logger()
+
+}
 
 func main() {
+
+	// log levels for zerolog:
+
+	// zerolog allows for logging at the following levels (from highest to lowest):
+
+	// panic (zerolog.PanicLevel, 5)
+	// fatal (zerolog.FatalLevel, 4)
+	// error (zerolog.ErrorLevel, 3)
+	// warn (zerolog.WarnLevel, 2)
+	// info (zerolog.InfoLevel, 1)
+	// debug (zerolog.DebugLevel, 0)
+	// trace (zerolog.TraceLevel, -1)
+
+	// find out runtime environment:
+	// PROD or PRODUCTION -> fly.io, running in the cloud
+	// DEV or DEVELOPMENT -> localhost, running on local machine
+	environment := strings.ToUpper(os.Getenv("ENVIRONMENT"))
+	if strings.HasPrefix(environment, "PROD") {
+		log.Info().Msg("Running on fly.io")
+		// Set the minimum level to WarnLevel to log only warnings and errors
+		zerolog.SetGlobalLevel(zerolog.WarnLevel)
+
+	} else {
+		log.Info().Msg("Running on localhost")
+	}
 
 	// as the main package cannot be imported, constants defined here
 	// cannot directly be used in internal/* packages, therefore we
@@ -16,7 +60,7 @@ func main() {
 
 	// Start a server which runs in background and waits for http requests to arrive
 	// on predefined routes.
-	// THIS IS A BLOCKING CALL!
-	api.PrintServerDetails(AppVersion)
+	// THIS IS A BLOCKING CALL, therefore server details are printed prior to starting the server
+	api.LogServerDetails(AppVersion)
 	api.StartAPIServer()
 }

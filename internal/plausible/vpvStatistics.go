@@ -1,4 +1,4 @@
-// plausible interacts with the https://plausible.io web statistics service,
+// Package plausible interacts with the https://plausible.io web statistics service,
 // that counts visitors and pageviews of the arc42 sites.
 package plausible
 
@@ -8,9 +8,8 @@ package plausible
 // ==============================================
 
 import (
-	"fmt"
 	"github.com/andrerfcsantos/go-plausible/plausible"
-	"log"
+	"github.com/rs/zerolog/log"
 	"os"
 	"site-usage-statistics/internal/types"
 	"strconv"
@@ -18,30 +17,41 @@ import (
 
 // plausibleClient wraps the plausible API.
 // The required (secret) API key is set within the initialization.
-var plausibleClient = initPlausibleHandler()
+var plausibleClient *plausible.Client = nil
 
 // initPlausibleHandler gets the plausible API key
 // and creates a handler (NewClient) to perform queries upon
 func initPlausibleHandler() *plausible.Client {
 
-	// APIKEY is a personal key for https://plausible.io
-	// It needs to be set via environment variable
-	var APIKEY string = os.Getenv("PLAUSIBLE_API_KEY")
+	if plausibleClient == nil {
 
-	if APIKEY == "" {
-		// no value, no API calls, no results.
-		// we exit here, as we have no chance of recovery
-		fmt.Printf("CRITICAL ERROR: required plausible API key not set.\n")
-		fmt.Printf("You need to set the 'PLAUSIBLE_API_KEY' environment variable prior to launching this application.\n")
+		// APIKEY is a personal key for https://plausible.io
+		// It needs to be set via environment variable
+		var APIKEY string = os.Getenv("PLAUSIBLE_API_KEY")
 
-		os.Exit(13)
+		if APIKEY == "" {
+			// no value, no API calls, no results.
+			// we exit here, as we have no chance of recovery
+			log.Error().Msgf("CRITICAL ERROR: required plausible API key not set.\n" +
+				"You need to set the 'PLAUSIBLE_API_KEY' environment variable prior to launching this application.\n")
+
+			os.Exit(13)
+		} else {
+			log.Debug().Msg("PLAUSIBLE_API_KEY set")
+		}
+		return plausible.NewClient(APIKEY)
+	} else {
+		return plausibleClient
 	}
-	return plausible.NewClient(APIKEY)
 }
 
 // StatsForSite collects all relevant statistics for a given site
 // (currently 7D, 30D and 12M), and updates the Sums accordingly
 func StatsForSite(thisSite string, stats *types.SiteStats, totals *types.TotalsForAllSites) {
+
+	// init the required handler
+	// the function ensures it's initialized only once.
+	plausibleClient = initPlausibleHandler()
 
 	// Get a handler to perform queries for a given site
 	siteHandler := plausibleClient.Site(thisSite)
@@ -86,7 +96,7 @@ func SiteMetrics(siteHandler *plausible.Site, period plausible.TimePeriod) types
 	// Execute query to plausible.io
 	result, err := siteHandler.Aggregate(siteMetricsQuery)
 	if err != nil {
-		log.Println("Error performing query to plausible.io: %v", err)
+		log.Error().Msgf("Error performing query to plausible.io: %v", err)
 		// in this case, we don't add anything to the Sums
 		vApvs.Pageviews = "n/a"
 		vApvs.PageViewNr = 0

@@ -2,9 +2,8 @@ package api
 
 import (
 	"embed"
-	"fmt"
+	"github.com/rs/zerolog/log"
 	"html/template"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -23,6 +22,10 @@ const TemplatesDir = ""
 const HtmlTableTmpl = "arc42statistics.gohtml"
 const PingTmpl = "ping.gohtml"
 
+func init() {
+	log.Debug().Msg("apiGateway initialized ")
+}
+
 // embed templates into compiled binary, so we don't need to read from file system
 // embeds the templates folder into variable embeddedTemplatesFolder
 // === DON'T REMOVE THE COMMENT BELOW
@@ -37,7 +40,7 @@ var embeddedTemplatesFolder embed.FS
 // 4. renders the output via HtmlTableTmpl
 func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Printf("received statsTable request \n")
+	log.Debug().Msg("received statsTable request")
 
 	// 1. set timer
 	var startOfProcessing = time.Now()
@@ -67,8 +70,8 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 	var Host string = r.Host
 	var RequestURI string = r.RequestURI
 
-	fmt.Printf("Host = %s\n", Host)
-	fmt.Printf("RequestURI = %s\n", RequestURI)
+	log.Debug().Msgf("Host = %s\n", Host)
+	log.Debug().Msgf("RequestURI = %s\n", RequestURI)
 	executeTemplate(w, filepath.Join(TemplatesDir, PingTmpl), r)
 }
 
@@ -81,7 +84,7 @@ func SendCORSHeaders(w *http.ResponseWriter, r *http.Request) {
 
 	var origin string
 	origin = r.Host
-	fmt.Printf("received request from host: %s\n", origin)
+	log.Debug().Msgf("received request from host: %s\n", origin)
 
 	// TODO: don't always allow origin, restrict to known hosts
 	//(*w).Header().Set("Access-Control-Allow-Origin", origin)
@@ -108,13 +111,13 @@ func executeTemplate(w http.ResponseWriter, templatePath string, data any) {
 
 	tpl, err := template.ParseFS(embeddedTemplatesFolder, templatePath)
 	if err != nil {
-		log.Printf("Error parsing template: %v", err)
+		log.Error().Msgf("Error parsing template: %v", err)
 		http.Error(w, "There was an error parsing the template "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	err = tpl.Execute(w, data)
 	if err != nil {
-		log.Printf("Error executing template: %v", err)
+		log.Error().Msgf("Error executing template: %v", err)
 		http.Error(w, "There was an error executing the template "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -124,22 +127,22 @@ func logRequestHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		h.ServeHTTP(w, r)
-		log.Printf("%s %s %v", r.Method, r.URL, time.Since(start))
+		log.Info().Msgf("%s %s %v", r.Method, r.URL, time.Since(start))
 	})
 }
 
-// PrintServerDetails displays a few details about this program,
+// LogServerDetails displays a few details about this program,
 // mainly to give admins some idea what version is currently running
 // and where in the fly.io cloud the service is deployed.
-func PrintServerDetails(appVersion string) {
+func LogServerDetails(appVersion string) {
 
-	fmt.Printf("Starting API server, version %s on Port %s at %s\n\n", appVersion, getPort(), time.Now().Format("2. January 2006, 15:04h"))
+	log.Info().Msgf("Starting API server, version %s on Port %s at %s", appVersion, getPort(), time.Now().Format("2. January 2006, 15:04h"))
 
 	// assumes we're running this program within the fly.io cloud.
 	// There, the env variable FLY_REGION should be set.
 	// If this variable is empty, we assume we're running locally
 	region, location := fly.RegionAndLocation()
-	fmt.Printf("Server region is %s/%s", region, location)
+	log.Info().Msgf("Server region is %s/%s", region, location)
 }
 
 // StartAPIServer creates an http ServeMux with a few predefined routes.
@@ -160,7 +163,7 @@ func StartAPIServer() {
 	err := http.ListenAndServe(homeIP+getPort(), loggedMux)
 
 	if err != nil {
-		log.Fatalf("API server failed to start: %v", err)
+		log.Fatal().Msgf("API server failed to start: %v", err)
 	}
 
 }

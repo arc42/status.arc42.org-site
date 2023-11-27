@@ -2,10 +2,10 @@
 package github
 
 import (
+	"github.com/rs/zerolog/log"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
-	"log"
 	"os"
 )
 
@@ -59,15 +59,14 @@ func IssuesAndBugsCountForSite(thisSite string) (nrOfIssues int, nrOfBugs int) {
 	// Perform the query
 	err := client.Query(context.Background(), &query, variables)
 	if err != nil {
-		log.Fatal(err, query)
+		log.Error().Msgf(err.Error(), query)
 	}
 
 	nrOfBugs = int(query.Repository.Bugs.TotalCount)
 	nrOfIssues = int(query.Repository.Issues.TotalCount)
 
-	// Output the result if running on localhost
-	//fmt.Printf("Number of open issues: %d\n", nrOfIssues)
-	//fmt.Printf("Number of open bugs: %d\n", nrOfBugs)
+	log.Debug().Msgf("Number of open issues: %d\n", nrOfIssues)
+	log.Debug().Msgf("Number of open bugs: %d\n", nrOfBugs)
 
 	// this kind of return takes the named result parameters and returns those...
 	return
