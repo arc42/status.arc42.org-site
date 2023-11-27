@@ -18,7 +18,8 @@ primary_region = "ams"
   min_machines_running = 0
   processes = ["app"]
 
-## using the environment to differentiate between PRODUCTION (aka fly.io) and DEVELOPMENT (aka localhost)
 
 [env]
+## using the environment to differentiate between PRODUCTION (aka fly.io) and DEVELOPMENT (aka localhost)
   ENVIRONMENT = "PRODUCTION"
+  LOGLEVEL = "DEBUG"

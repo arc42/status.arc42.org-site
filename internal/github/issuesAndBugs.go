@@ -65,8 +65,8 @@ func IssuesAndBugsCountForSite(thisSite string) (nrOfIssues int, nrOfBugs int) {
 	nrOfBugs = int(query.Repository.Bugs.TotalCount)
 	nrOfIssues = int(query.Repository.Issues.TotalCount)
 
-	log.Debug().Msgf("Number of open issues: %d\n", nrOfIssues)
-	log.Debug().Msgf("Number of open bugs: %d\n", nrOfBugs)
+	log.Debug().Msgf("Number of open issues on %s: %d\n", thisSite, nrOfIssues)
+	log.Debug().Msgf("Number of open bugs on %s: %d\n", thisSite, nrOfBugs)
 
 	// this kind of return takes the named result parameters and returns those...
 	return

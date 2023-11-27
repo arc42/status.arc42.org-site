@@ -9,9 +9,10 @@ import (
 	"strings"
 )
 
-const AppVersion = "0.3.4"
+const AppVersion = "0.3.4b"
 
 // version history
+// 0.3.4b take log level from envirionment variable LOGLEVEL
 // 0.3.4 removed all fmt.print*, migrated to zerolog
 // 0.3.3 fixed issue #46
 // 0.3.1 slight refactoring
@@ -24,14 +25,9 @@ func init() {
 	output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: zerolog.TimeFormatUnix}
 	log.Logger = zerolog.New(output).With().Timestamp().Caller().Logger()
 
-}
-
-func main() {
-
-	// log levels for zerolog:
+	// check if LOGLEVEL is configured in environment
 
 	// zerolog allows for logging at the following levels (from highest to lowest):
-
 	// panic (zerolog.PanicLevel, 5)
 	// fatal (zerolog.FatalLevel, 4)
 	// error (zerolog.ErrorLevel, 3)
@@ -40,15 +36,38 @@ func main() {
 	// debug (zerolog.DebugLevel, 0)
 	// trace (zerolog.TraceLevel, -1)
 
+	loglevel := os.Getenv("LOGLEVEL")
+	switch loglevel {
+	case "":
+		// no loglevel has been set, default to warning
+		zerolog.SetGlobalLevel(zerolog.WarnLevel)
+		loglevel = "WARN"
+	case "TRACE":
+		zerolog.SetGlobalLevel(zerolog.TraceLevel)
+	case "DEBUG":
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	case "INFO":
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	case "WARN":
+		zerolog.SetGlobalLevel(zerolog.WarnLevel)
+	case "ERROR":
+		zerolog.SetGlobalLevel(zerolog.ErrorLevel)
+	default:
+		zerolog.SetGlobalLevel(zerolog.WarnLevel)
+		loglevel = "WARN"
+	}
+
+	log.Info().Msgf("log level set to %s", loglevel)
+}
+
+func main() {
+
 	// find out runtime environment:
 	// PROD or PRODUCTION -> fly.io, running in the cloud
 	// DEV or DEVELOPMENT -> localhost, running on local machine
 	environment := strings.ToUpper(os.Getenv("ENVIRONMENT"))
 	if strings.HasPrefix(environment, "PROD") {
 		log.Info().Msg("Running on fly.io")
-		// Set the minimum level to WarnLevel to log only warnings and errors
-		zerolog.SetGlobalLevel(zerolog.WarnLevel)
-
 	} else {
 		log.Info().Msg("Running on localhost")
 	}
