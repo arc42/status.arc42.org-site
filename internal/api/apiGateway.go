@@ -84,7 +84,7 @@ func SendCORSHeaders(w *http.ResponseWriter, r *http.Request) {
 
 	var origin string
 	origin = r.Host
-	log.Debug().Msgf("received request from host: %s\n", origin)
+	log.Debug().Msgf("received request from host: %s", origin)
 
 	// TODO: don't always allow origin, restrict to known hosts
 	//(*w).Header().Set("Access-Control-Allow-Origin", origin)
@@ -142,7 +142,7 @@ func LogServerDetails(appVersion string) {
 	// There, the env variable FLY_REGION should be set.
 	// If this variable is empty, we assume we're running locally
 	region, location := fly.RegionAndLocation()
-	log.Info().Msgf("Server region is %s/%s", region, location)
+	log.Info().Msgf("Server region is%s %s", region, location)
 }
 
 // StartAPIServer creates an http ServeMux with a few predefined routes.

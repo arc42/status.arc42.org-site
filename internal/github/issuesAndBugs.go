@@ -7,6 +7,7 @@ import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"os"
+	"site-usage-statistics/internal/types"
 )
 
 const GithubArc42URL = "https://github.com/arc42/"
@@ -42,7 +43,7 @@ func initGitHubGraphQLClient() *githubv4.Client {
 
 }
 
-func IssuesAndBugsCountForSite(thisSite string) (nrOfIssues int, nrOfBugs int) {
+func StatsForRepo(thisSite string, stats *types.RepoStats) {
 
 	// Initialize GitHub GraphQL client
 	client := initGitHubGraphQLClient()
@@ -62,12 +63,9 @@ func IssuesAndBugsCountForSite(thisSite string) (nrOfIssues int, nrOfBugs int) {
 		log.Error().Msgf(err.Error(), query)
 	}
 
-	nrOfBugs = int(query.Repository.Bugs.TotalCount)
-	nrOfIssues = int(query.Repository.Issues.TotalCount)
+	stats.NrOfOpenBugs = int(query.Repository.Bugs.TotalCount)
+	stats.NrOfOpenIssues = int(query.Repository.Issues.TotalCount)
 
-	log.Debug().Msgf("Number of open issues on %s: %d\n", thisSite, nrOfIssues)
-	log.Debug().Msgf("Number of open bugs on %s: %d\n", thisSite, nrOfBugs)
+	log.Debug().Msgf("%s has %d open issues and %d bugs", thisSite, stats.NrOfOpenIssues, stats.NrOfOpenBugs)
 
-	// this kind of return takes the named result parameters and returns those...
-	return
 }

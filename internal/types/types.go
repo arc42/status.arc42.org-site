@@ -14,24 +14,40 @@ var Arc42sites = [7]string{
 	"status.arc42.org",
 }
 
-// SiteStats contains viewer and issue statistics for a single arc42 site or subdomain.
-// To facilitate template processing, site and GitHub repository name plus some other
-// values are contained here too.
+// SiteStats contains viewer and pageview statistics for a single arc42 site or subdomain.
 type SiteStats struct {
+	Site           string // site name
+	Visitors7d     string
+	Visitors7dNr   int
+	Pageviews7d    string
+	Pageviews7dNr  int
+	Visitors30d    string
+	Visitors30dNr  int
+	Pageviews30d   string
+	Pageviews30dNr int
+	Visitors12m    string
+	Visitors12mNr  int
+	Pageviews12m   string
+	Pageviews12mNr int
+
+	// these are needed for the template to execute properly
+	Repo           string // the URL of the GitHub repository
+	NrOfOpenBugs   int    // the number of open bugs in that repo
+	NrOfOpenIssues int    // number of open issues
+	IssueBadgeURL  string // URL of the shields.io issues badge
+	BugBadgeURL    string // URL of the shields.io bugs issue
+
+}
+
+// RepoStats contains information about the repository underlying the site
+type RepoStats struct {
 	Site           string // site name
 	Repo           string // the URL of the GitHub repository
 	NrOfOpenBugs   int    // the number of open bugs in that repo
 	NrOfOpenIssues int    // number of open issues
 	IssueBadgeURL  string // URL of the shields.io issues badge
 	BugBadgeURL    string // URL of the shields.io bugs issue
-	Visitors7d     string
-	Pageviews7d    string
-	Visitors30d    string
-	Pageviews30d   string
-	Visitors12m    string
-	Pageviews12m   string
 
-	//SumOfAllCounters TotalsForAllSites
 }
 
 // TotalsForAllSites contains the sum of all the distinct statistics,
@@ -66,6 +82,7 @@ type Arc42Statistics struct {
 	WhereDoesItRun string
 
 	// Stats4Site contains the statistics per site or subdomain
+	// it also contains Repo stats, like issues and bugs
 	Stats4Site [len(Arc42sites)]SiteStats
 
 	// Totals contains the sum of all the statistics over all sites
@@ -79,5 +96,11 @@ type VisitorsAndPageViews struct {
 	Visitors   string
 	VisitorNr  int
 	Pageviews  string
-	PageViewNr int
+	PageviewNr int
+}
+
+// IssuesAndBugs is a struct used during the (concurrent) calls to GitHub.
+type IssuesAndBugs struct {
+	NrOfIssues int
+	NrOfBugs   int
 }

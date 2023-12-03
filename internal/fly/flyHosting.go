@@ -20,19 +20,19 @@ func RegionAndLocation() (string, string) {
 func flyRegion() string {
 	region := os.Getenv("FLY_REGION")
 	if region == "" {
-		return "???"
+		return ""
 	} else {
 		return region
 	}
 }
 
 // flyRegionCodeToLocation converts a 3-letter fly.io region
-// code to a location name, hopefully beeing compatible
+// code to a location name, hopefully being compatible
 // with https://fly.io/docs/reference/regions/
 // e.g. ams -> Amsterdam
 func flyRegionCodeToLocation(regionCode string) string {
 	switch strings.ToUpper(regionCode) {
-	case "???":
+	case "":
 		return "on premise (likely: localhost)"
 	case "AMS":
 		return "Amsterdam, Netherlands"
