@@ -54,7 +54,6 @@ func LoadStats4AllSites() types.Arc42Statistics {
 		wg.Add(1)
 
 		go getUsageStatisticsForSite(site, &Stats4Sites[index], &wg)
-
 	}
 
 	// retrieve repo statistics
@@ -102,9 +101,9 @@ func calculateTotals(stats []types.SiteStats) types.TotalsForAllSites {
 func getUsageStatisticsForSite(site string, thisSiteStats *types.SiteStats, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	// TODO: mutex.Lock might break performance optimization - rethink!!
-	mutex.Lock()
-	defer mutex.Unlock()
+	// it seems we don't need to lock here:
+	//mutex.Lock()
+	//defer mutex.Unlock()
 
 	// to avoid repeating the expression, introduce local var
 	thisSiteStats.Site = site
@@ -116,9 +115,6 @@ func getUsageStatisticsForSite(site string, thisSiteStats *types.SiteStats, wg *
 
 func getRepoStatisticsForSite(site string, thisRepoStats *types.RepoStats, wg *sync.WaitGroup) {
 	defer wg.Done()
-
-	mutex.Lock()
-	defer mutex.Unlock()
 
 	thisRepoStats.Site = site
 	thisRepoStats.Repo = github.GithubArc42URL + site + "-site"

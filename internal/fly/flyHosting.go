@@ -27,13 +27,13 @@ func flyRegion() string {
 }
 
 // flyRegionCodeToLocation converts a 3-letter fly.io region
-// code to a location name, hopefully beeing compatible
+// code to a location name, hopefully being compatible
 // with https://fly.io/docs/reference/regions/
 // e.g. ams -> Amsterdam
 func flyRegionCodeToLocation(regionCode string) string {
 	switch strings.ToUpper(regionCode) {
 	case "":
-		return "premise (likely: localhost)"
+		return "on premise (likely: localhost)"
 	case "AMS":
 		return "Amsterdam, Netherlands"
 	case "ARN":

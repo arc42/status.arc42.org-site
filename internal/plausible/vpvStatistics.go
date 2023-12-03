@@ -109,10 +109,6 @@ func SiteMetricsConcurrent(siteHandler *plausible.Site, period plausible.TimePer
 
 	defer wg.Done()
 
-	// todo: check if mutex is really needed...
-	mutex.Lock()
-	defer mutex.Unlock()
-
 	// Build query
 	siteMetricsQuery := plausible.AggregateQuery{
 		Period: period,

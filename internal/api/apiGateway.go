@@ -142,7 +142,7 @@ func LogServerDetails(appVersion string) {
 	// There, the env variable FLY_REGION should be set.
 	// If this variable is empty, we assume we're running locally
 	region, location := fly.RegionAndLocation()
-	log.Info().Msgf("Server region is %s/%s", region, location)
+	log.Info().Msgf("Server region is%s %s", region, location)
 }
 
 // StartAPIServer creates an http ServeMux with a few predefined routes.
