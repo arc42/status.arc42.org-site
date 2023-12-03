@@ -20,7 +20,7 @@ func RegionAndLocation() (string, string) {
 func flyRegion() string {
 	region := os.Getenv("FLY_REGION")
 	if region == "" {
-		return "???"
+		return ""
 	} else {
 		return region
 	}
@@ -32,8 +32,8 @@ func flyRegion() string {
 // e.g. ams -> Amsterdam
 func flyRegionCodeToLocation(regionCode string) string {
 	switch strings.ToUpper(regionCode) {
-	case "???":
-		return "on premise (likely: localhost)"
+	case "":
+		return "premise (likely: localhost)"
 	case "AMS":
 		return "Amsterdam, Netherlands"
 	case "ARN":

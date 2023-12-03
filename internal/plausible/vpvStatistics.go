@@ -13,11 +13,33 @@ import (
 	"os"
 	"site-usage-statistics/internal/types"
 	"strconv"
+	"sync"
 )
 
 // plausibleClient wraps the plausible API.
 // The required (secret) API key is set within the initialization.
 var plausibleClient *plausible.Client = nil
+
+// need mutex to ensure isolated access to shared variable
+var mutex sync.Mutex
+
+var APIKEY string
+
+// init is called during system startup
+func init() {
+	APIKEY = os.Getenv("PLAUSIBLE_API_KEY")
+
+	if APIKEY == "" {
+		// no value, no API calls, no results.
+		// we exit here, as we have no chance of recovery
+		log.Error().Msgf("CRITICAL ERROR: required plausible API key not set.\n" +
+			"You need to set the 'PLAUSIBLE_API_KEY' environment variable prior to launching this application.\n")
+
+		os.Exit(13)
+	} else {
+		log.Debug().Msg("PLAUSIBLE_API_KEY set")
+	}
+}
 
 // initPlausibleHandler gets the plausible API key
 // and creates a handler (NewClient) to perform queries upon
@@ -27,18 +49,7 @@ func initPlausibleHandler() *plausible.Client {
 
 		// APIKEY is a personal key for https://plausible.io
 		// It needs to be set via environment variable
-		var APIKEY string = os.Getenv("PLAUSIBLE_API_KEY")
 
-		if APIKEY == "" {
-			// no value, no API calls, no results.
-			// we exit here, as we have no chance of recovery
-			log.Error().Msgf("CRITICAL ERROR: required plausible API key not set.\n" +
-				"You need to set the 'PLAUSIBLE_API_KEY' environment variable prior to launching this application.\n")
-
-			os.Exit(13)
-		} else {
-			log.Debug().Msg("PLAUSIBLE_API_KEY set")
-		}
 		return plausible.NewClient(APIKEY)
 	} else {
 		return plausibleClient
@@ -46,8 +57,8 @@ func initPlausibleHandler() *plausible.Client {
 }
 
 // StatsForSite collects all relevant statistics for a given site
-// (currently 7D, 30D and 12M), and updates the Sums accordingly
-func StatsForSite(thisSite string, stats *types.SiteStats, totals *types.TotalsForAllSites) {
+// (currently 7D, 30D and 12M)
+func StatsForSite(thisSite string, stats *types.SiteStats) {
 
 	// init the required handler
 	// the function ensures it's initialized only once.
@@ -56,33 +67,51 @@ func StatsForSite(thisSite string, stats *types.SiteStats, totals *types.TotalsF
 	// Get a handler to perform queries for a given site
 	siteHandler := plausibleClient.Site(thisSite)
 
-	// Get the different metrics
-	var stats7D types.VisitorsAndPageViews = SiteMetrics(siteHandler, plausible.Last7Days())
+	// WaitGroup to handle concurrent Goroutines
+	var wg sync.WaitGroup
+
+	// Get the three different metrics:
+
+	var stats7D types.VisitorsAndPageViews
+	wg.Add(1)
+	SiteMetricsConcurrent(siteHandler, plausible.Last7Days(), &stats7D, &wg)
+
+	var stats30D types.VisitorsAndPageViews
+	wg.Add(1)
+	SiteMetricsConcurrent(siteHandler, plausible.Last30Days(), &stats30D, &wg)
+
+	var stats12M types.VisitorsAndPageViews
+	wg.Add(1)
+	SiteMetricsConcurrent(siteHandler, plausible.Last12Months(), &stats12M, &wg)
+
+	wg.Wait()
+
+	// now process results
 	stats.Visitors7d = stats7D.Visitors
+	stats.Visitors7dNr = stats7D.VisitorNr
 	stats.Pageviews7d = stats7D.Pageviews
-	totals.SumOfVisitors7d += stats7D.VisitorNr
-	totals.SumOfPageviews7d += stats7D.PageViewNr
+	stats.Pageviews7dNr = stats7D.PageviewNr
 
-	var stats30D = SiteMetrics(siteHandler, plausible.Last30Days())
 	stats.Visitors30d = stats30D.Visitors
+	stats.Visitors30dNr = stats30D.VisitorNr
 	stats.Pageviews30d = stats30D.Pageviews
-	totals.SumOfVisitors30d += stats30D.VisitorNr
-	totals.SumOfPageviews30d += stats30D.PageViewNr
+	stats.Pageviews30dNr = stats30D.PageviewNr
 
-	var stats12M = SiteMetrics(siteHandler, plausible.Last12Months())
 	stats.Visitors12m = stats12M.Visitors
 	stats.Pageviews12m = stats12M.Pageviews
-	totals.SumOfVisitors12m += stats12M.VisitorNr
-	totals.SumOfPageviews12m += stats12M.PageViewNr
-
+	stats.Visitors12mNr = stats12M.VisitorNr
+	stats.Pageviews12mNr = stats12M.PageviewNr
 }
 
-// SiteMetrics collects statics for given site and period from plausible.io API.
+// SiteMetricsConcurrent collects statics for given site and period from plausible.io API.
 // Return either the numbers or "n/a" in case of API errors
-// Updates the TotalsForAllSites
-func SiteMetrics(siteHandler *plausible.Site, period plausible.TimePeriod) types.VisitorsAndPageViews {
+func SiteMetricsConcurrent(siteHandler *plausible.Site, period plausible.TimePeriod, vApvs *types.VisitorsAndPageViews, wg *sync.WaitGroup) {
 
-	var vApvs types.VisitorsAndPageViews
+	defer wg.Done()
+
+	// todo: check if mutex is really needed...
+	mutex.Lock()
+	defer mutex.Unlock()
 
 	// Build query
 	siteMetricsQuery := plausible.AggregateQuery{
@@ -99,15 +128,15 @@ func SiteMetrics(siteHandler *plausible.Site, period plausible.TimePeriod) types
 		log.Error().Msgf("Error performing query to plausible.io: %v", err)
 		// in this case, we don't add anything to the Sums
 		vApvs.Pageviews = "n/a"
-		vApvs.PageViewNr = 0
+		vApvs.PageviewNr = 0
 		vApvs.Visitors = "n/a"
 		vApvs.VisitorNr = 0
 	} else {
+		log.Debug().Msgf("%s had %d visitors for period %s", siteHandler.ID(), result.Visitors, period.Period)
 		vApvs.Pageviews = strconv.Itoa(result.Pageviews)
-		vApvs.PageViewNr = result.Pageviews
+		vApvs.PageviewNr = result.Pageviews
 		vApvs.Visitors = strconv.Itoa(result.Visitors)
 		vApvs.VisitorNr = result.Visitors
 	}
 
-	return vApvs
 }

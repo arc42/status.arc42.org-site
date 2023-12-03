@@ -17,7 +17,7 @@
         <th>PageViews</th>
     </tr>
 
-    {{ range .Stats4Site}}
+    {{ range .Stats4Site }}
         <tr>
             <td><a href="https://{{.Site }}">{{.Site}}</a></td>
             <td style="border-left: 2px solid black;">{{ .Visitors7d}}</td>
@@ -50,8 +50,10 @@
 <div style="font-size: 12px; padding-bottom: 14px;">
     Data collected in {{ .HowLongDidItTake }} msecs by arc42 statistics service
     (v. {{.AppVersion}}) at {{.LastUpdatedString }}
-    {{if .FlyRegion}}
-        running on <a href="https://fly.io" target="_blank"> fly.io </a>
+    running on {{if .FlyRegion}}
+        <a href="https://fly.io" target="_blank"> fly.io </a>
         in {{.WhereDoesItRun}} (region {{.FlyRegion}})
-    {{end }}
+    {{ else }}
+        {{.WhereDoesItRun}}
+    {{ end}}
 </div>

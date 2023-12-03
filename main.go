@@ -9,10 +9,11 @@ import (
 	"strings"
 )
 
-const AppVersion = "0.3.4b"
+const AppVersion = "0.4.0"
 
 // version history
-// 0.3.4b take log level from envirionment variable LOGLEVEL
+// 0.4.0 first version with Goroutines
+// 0.3.4b take log level from environment variable LOGLEVEL
 // 0.3.4 removed all fmt.print*, migrated to zerolog
 // 0.3.3 fixed issue #46
 // 0.3.1 slight refactoring

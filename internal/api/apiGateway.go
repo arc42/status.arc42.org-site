@@ -84,7 +84,7 @@ func SendCORSHeaders(w *http.ResponseWriter, r *http.Request) {
 
 	var origin string
 	origin = r.Host
-	log.Debug().Msgf("received request from host: %s\n", origin)
+	log.Debug().Msgf("received request from host: %s", origin)
 
 	// TODO: don't always allow origin, restrict to known hosts
 	//(*w).Header().Set("Access-Control-Allow-Origin", origin)
