@@ -15,8 +15,6 @@ var AppVersion string
 // ArcStats collects all data
 var ArcStats types.Arc42Statistics
 
-var mutex sync.Mutex
-
 func SetAppVersion(appVersion string) {
 	AppVersion = appVersion
 	log.Debug().Msg("App version set to " + appVersion)
@@ -100,10 +98,6 @@ func calculateTotals(stats []types.SiteStats) types.TotalsForAllSites {
 // This func is called as Goroutine.
 func getUsageStatisticsForSite(site string, thisSiteStats *types.SiteStats, wg *sync.WaitGroup) {
 	defer wg.Done()
-
-	// it seems we don't need to lock here:
-	//mutex.Lock()
-	//defer mutex.Unlock()
 
 	// to avoid repeating the expression, introduce local var
 	thisSiteStats.Site = site
