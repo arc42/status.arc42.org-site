@@ -9,9 +9,10 @@ import (
 	"strings"
 )
 
-const AppVersion = "0.4.0"
+const AppVersion = "0.4.1"
 
 // version history
+// 0.4.1 added links to issue & bug badges
 // 0.4.0 first version with Goroutines
 // 0.3.4b take log level from environment variable LOGLEVEL
 // 0.3.4 removed all fmt.print*, migrated to zerolog
@@ -78,8 +79,8 @@ func main() {
 	// set the AppVersion via a func.
 	domain.SetAppVersion(AppVersion)
 
-	// Start a server which runs in background and waits for http requests to arrive
-	// on predefined routes.
+	// Start a server which runs in background and waits for http requests
+	// to arrive at predefined routes.
 	// THIS IS A BLOCKING CALL, therefore server details are printed prior to starting the server
 	api.LogServerDetails(AppVersion)
 	api.StartAPIServer()
