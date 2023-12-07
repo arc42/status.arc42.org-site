@@ -18,7 +18,7 @@ const ShieldsBugSuffix = "?query=label%3Abug%20is%3Aopen&label=bugs&color=red"
 
 // LocalBadgeLocation is the constant for the file path of local badge images.
 // we use these local versions to save remote-requests to shields.io
-const LocalBadgeLocation = "/assets/badges/"
+const LocalBadgeLocation = "/images/badges/"
 const LocalIssueBadgePrefix = LocalBadgeLocation + "issue-"
 const LocalBugBadgePrefix = LocalBadgeLocation + "bug-" +
 	""
