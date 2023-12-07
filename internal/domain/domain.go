@@ -32,7 +32,7 @@ func setServerMetaInfo(a42s *types.Arc42Statistics) {
 	a42s.LastUpdatedString = bielefeldTime.Format("2. January 2006, 15:04:03h")
 }
 
-// LoadStats4AllSites calls the plausible wrapper package to retrieve site statistics.
+// LoadStats4AllSites retrieves the statistics for all sites from plausible.io and GitHub repositories.
 func LoadStats4AllSites() types.Arc42Statistics {
 
 	// the WaitGroup synchronises the parallel goroutines
@@ -43,7 +43,6 @@ func LoadStats4AllSites() types.Arc42Statistics {
 	var Stats4Sites = make([]types.SiteStats, len(types.Arc42sites))
 	var Stats4Repos = make([]types.RepoStats, len(types.Arc42sites))
 
-	// var IssuesAndBugs4Sites = make([]types.)
 	// 1.) set meta info
 	setServerMetaInfo(&a42s)
 
@@ -74,6 +73,11 @@ func LoadStats4AllSites() types.Arc42Statistics {
 
 	// now calculate totals
 	a42s.Totals = calculateTotals(Stats4Sites)
+
+	// create Issue- and Bug Links
+	for index, _ := range types.Arc42sites {
+		badge.SetIssuesAndBugBadgeURLsForSite(&a42s.Stats4Site[index])
+	}
 
 	return a42s
 }
@@ -115,32 +119,4 @@ func getRepoStatisticsForSite(site string, thisRepoStats *types.RepoStats, wg *s
 
 	github.StatsForRepo(site, thisRepoStats)
 
-}
-
-// bugBadgeURL returns a shields.io bug badge URL,
-// if the bug-count is >= 0. Otherwise, NO bug badge
-// shall be shown.
-func bugBadgeURL(site string, nrOfBugs int) string {
-
-	// shields.io bug URLS look like that:https://img.shields.io/github/issues-search/arc42/quality.arc42.org-site?query=label%3Abug%20is%3Aopen&label=bugs&color=red
-
-	if nrOfBugs > 0 {
-		return badge.ShieldsGithubBugsURLPrefix + site + "-site" + badge.ShieldsBugSuffix
-	} else {
-		return ""
-	}
-}
-
-// setIssuesAndBugBadgeURLsForSite sets some constants for use within the templates
-// (to avoid overly long string constants within these templates)
-//
-// if the number of bugs==0, then this URL remains empty, so no badge will be shown
-// if the number of issues==0, then a special "hurray" badge shall be shown.
-
-func setIssuesAndBugBadgeURLsForSite(stats *types.RepoStats) {
-
-	// shields.io issues URLS look like that: https://img.shields.io/github/issues-raw/arc42/arc42.org-site
-	stats.IssueBadgeURL = badge.ShieldsGithubIssuesURL + stats.Site + "-site"
-
-	stats.BugBadgeURL = bugBadgeURL(stats.Site, stats.NrOfOpenBugs)
 }

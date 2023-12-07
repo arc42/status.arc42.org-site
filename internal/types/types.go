@@ -14,7 +14,7 @@ var Arc42sites = [7]string{
 	"status.arc42.org",
 }
 
-// SiteStats contains viewer and pageview statistics for a single arc42 site or subdomain.
+// SiteStats contains visitor and pageviews statistics for a single arc42 site or subdomain.
 type SiteStats struct {
 	Site           string // site name
 	Visitors7d     string
