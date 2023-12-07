@@ -69,6 +69,7 @@ func LoadStats4AllSites() types.Arc42Statistics {
 		a42s.Stats4Site[index] = Stats4Sites[index]
 		a42s.Stats4Site[index].NrOfOpenIssues = Stats4Repos[index].NrOfOpenIssues
 		a42s.Stats4Site[index].NrOfOpenBugs = Stats4Repos[index].NrOfOpenBugs
+		a42s.Stats4Site[index].Repo = Stats4Repos[index].Repo
 	}
 
 	// now calculate totals
