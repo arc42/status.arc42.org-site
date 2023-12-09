@@ -23,24 +23,19 @@ import (
 // SVGBadgePath is the constant path to the directory where SVG files for badges are stored.
 const SVGBadgePath = "./svgs/"
 
-const IssueBadgeFileNameSuffix = "-issues.svg"
-const BugBadgeFileNameSuffix = "-bugs.svg"
-
 const issuesColor = "CEA41E"
 const bugsColor = "DC143C"
-
-const issueName = "issue"
-const bugName = "bug"
 
 const badgeDownloadURLPrefix = "https://img.shields.io/badge/"
 
 // svgFileNameForKindOf creates the filename for the downloaded issue-svg files.
+// These are required both for the downloading process AND for creating the URLs in the final output HTML
 func svgFileNameForKindOf(kindOf string, count int) string {
 	switch kindOf {
-	case issueName:
-		return strconv.Itoa(count) + IssueBadgeFileNameSuffix
-	case bugName:
-		return strconv.Itoa(count) + BugBadgeFileNameSuffix
+	case badge.IssueName:
+		return strconv.Itoa(count) + badge.IssueBadgeFileNameSuffix
+	case badge.BugName:
+		return strconv.Itoa(count) + badge.BugBadgeFileNameSuffix
 	default:
 		log.Error().Msgf("error creating filename for count %d and kindOf %s", count, kindOf)
 		return "_error-" + strconv.Itoa(count)
@@ -49,9 +44,9 @@ func svgFileNameForKindOf(kindOf string, count int) string {
 
 func badgeColorForKindOf(kindOf string) string {
 	switch kindOf {
-	case issueName:
+	case badge.IssueName:
 		return issuesColor
-	case bugName:
+	case badge.BugName:
 		return bugsColor
 	default:
 		return issuesColor
@@ -138,7 +133,7 @@ func main() {
 	// so we have a filesystem location to store SVG files
 	createSVGBadgeDirIfNotPresent(SVGBadgePath)
 
-	downloadSVGBadgesForKindof(issueName)
-	downloadSVGBadgesForKindof(bugName)
+	downloadSVGBadgesForKindof(badge.IssueName)
+	downloadSVGBadgesForKindof(badge.BugName)
 
 }

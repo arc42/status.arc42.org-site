@@ -11,10 +11,16 @@ import (
 	"strconv"
 )
 
-const ShieldsGithubIssuesURL = "https://img.shields.io/github/issues-raw/arc42/"
+// after ADR-0006, we don't need the following URLs any more:
+// const ShieldsGithubIssuesURL = "https://img.shields.io/github/issues-raw/arc42/"
+// const ShieldsGithubBugsURLPrefix = "https://img.shields.io/github/issues-search/arc42/"
+// const ShieldsBugSuffix = "?query=label%3Abug%20is%3Aopen&label=bugs&color=red"
 
-const ShieldsGithubBugsURLPrefix = "https://img.shields.io/github/issues-search/arc42/"
-const ShieldsBugSuffix = "?query=label%3Abug%20is%3Aopen&label=bugs&color=red"
+const IssueName = "issue"
+const BugName = "bug"
+
+const IssueBadgeFileNameSuffix = "-issues.svg"
+const BugBadgeFileNameSuffix = "-bugs.svg"
 
 // LocalBadgeLocation is the constant for the file path of local badge images.
 // we use these local versions to save remote-requests to shields.io
@@ -24,8 +30,9 @@ const LocalBugBadgePrefix = LocalBadgeLocation + "bugs-" +
 	""
 const LocalBadgeSvgThreshold = 20
 
-// bugBadgeURL returns a badge URL, which is either a local URL or a hyperlink to shields.io.
-// if the bug-count is >= 0, create a link to a badge, otherwise NO bug badge shall be shown.
+// bugBadgeURL returns a badge URL, which always refers to a local image
+// as these have been pre-generated (see ADR-0006)
+// if the nrOfBugs is >= 0, create a link to a badge, otherwise NO bug badge shall be shown.
 func bugBadgeURL(site string, nrOfBugs int) string {
 
 	// shields.io bug URLS look like that:https://img.shields.io/github/issues-search/arc42/quality.arc42.org-site?query=label%3Abug%20is%3Aopen&label=bugs&color=red
