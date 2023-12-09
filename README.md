@@ -3,7 +3,7 @@ like all cool websites we need a status-subdomain with some statistics.
 
 ## Overview
 
-![context diagram](docs/3-context-status-arc42-org.drawio.png)
+![context diagram](documentation/3-context-status-arc42-org.drawio.png)
 
 ### Explanation
 
