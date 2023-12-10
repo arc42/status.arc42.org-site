@@ -116,7 +116,7 @@ func getRepoStatisticsForSite(site string, thisRepoStats *types.RepoStats, wg *s
 	defer wg.Done()
 
 	thisRepoStats.Site = site
-	thisRepoStats.Repo = github.GithubArc42URL + site + "-site"
+	thisRepoStats.Repo = github.GithubArc42URL + site
 
 	github.StatsForRepo(site, thisRepoStats)
 
