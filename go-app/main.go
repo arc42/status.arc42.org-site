@@ -9,9 +9,10 @@ import (
 	"strings"
 )
 
-const AppVersion = "0.4.2"
+const AppVersion = "0.4.3"
 
 // version history
+// 0.4.3 fix #57 (local svg images for issues and badges)
 // 0.4.2 merge repositories (site-statistics and status.arc42.org-site) into one!
 // 0.4.1 added links to issue & bug badges
 // 0.4.0 first version with Goroutines
