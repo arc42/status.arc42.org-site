@@ -1,0 +1,61 @@
+<!-- golang template for arc42 usage statistics table -->
+
+<table>
+    <tr>
+        <th rowspan="2"><img src="/images/minion-logo-100px.png" alt="Gopher logo"></th>
+        <th colspan="2" style="border-left: 2px solid black;">7 Days</th>
+        <th colspan="2" style="border-left: 2px solid black;">30 Days</th>
+        <th colspan="2" style="border-left: 2px solid black;">12 Month</th>
+        <th rowspan="2" style="border-left: 2px solid black;">Issues</th>
+    </tr>
+    <tr>
+        <th style="border-left: 2px solid black;">Visitors</th>
+        <th>PageViews</th>
+        <th style="border-left: 2px solid black;">Visitors</th>
+        <th>PageViews</th>
+        <th style="border-left: 2px solid black;">Visitors</th>
+        <th>PageViews</th>
+    </tr>
+
+    {{ range .Stats4Site }}
+        <tr>
+            <td><a href="https://{{.Site }}">{{.Site}}</a></td>
+            <td style="border-left: 2px solid black;">{{ .Visitors7d}}</td>
+            <td>{{ .Pageviews7d}}</td>
+            <td style="border-left: 2px solid black;">{{ .Visitors30d}}</td>
+            <td>{{ .Pageviews30d}}</td>
+            <td style="border-left: 2px solid black;">{{ .Visitors12m}}</td>
+            <td>{{ .Pageviews12m}}</td>
+            <td style="text-align: left;border-left: 2px solid black;"><a href="{{.Repo}}/issues">
+                    <img alt="GitHub open issues" src="{{.IssueBadgeURL}}">
+                    {{if .BugBadgeURL}}
+                    <img alt="GitHub bugs" src="{{.BugBadgeURL}}">
+                    {{end}}
+                </a></td>
+        </tr>
+    {{ end }}
+    <tr>
+        <td style="border-top: 2px solid black;">Totals:</td>
+        <td style="border-top: 2px solid black;border-left: 2px solid black;">{{ .Totals.SumOfVisitors7d}}</td>
+        <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageviews7d}}</td>
+        <td style="border-top: 2px solid black;border-left: 2px solid black;">{{ .Totals.SumOfVisitors30d}}</td>
+        <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageviews30d}}</td>
+        <td style="border-top: 2px solid black;border-left: 2px solid black;">{{ .Totals.SumOfVisitors12m}}</td>
+        <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageviews12m}}</td>
+        <td style="border-left: 2px solid black;"></td>
+    </tr>
+</table>
+
+<br>
+<div style="font-size: 12px; padding-bottom: 14px;">
+    Data collected in {{ .HowLongDidItTake }} msecs by arc42 statistics service
+    (v. {{.AppVersion}}) at {{.LastUpdatedString }}
+    running {{if .FlyRegion}}
+        on <a href="https://fly.io" target="_blank"> fly.io </a>
+        in {{.WhereDoesItRun}} (region {{.FlyRegion}})
+    {{ else }}
+        {{.WhereDoesItRun}}
+    {{ end}}
+</div>
+
+Local badge: <img src="/images/badges/issues-2.svg" alt="2 issues badge">
