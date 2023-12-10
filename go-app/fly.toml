@@ -1,0 +1,25 @@
+# fly.toml app configuration file generated for arc42-stats on 2023-11-07T21:38:50+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+## WHEN MOVING to another region, you have to update
+## the fly.io token... otherwise the GitHub action will fail.
+
+app = "arc42-stats"
+primary_region = "ams"
+
+[build]
+
+[http_service]
+  internal_port = 8043
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+
+[env]
+## using the environment to differentiate between PRODUCTION (aka fly.io) and DEVELOPMENT (aka localhost)
+  ENVIRONMENT = "PRODUCTION"
+  LOGLEVEL = "INFO"
