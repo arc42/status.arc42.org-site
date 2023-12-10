@@ -21,7 +21,8 @@ import (
 )
 
 // SVGBadgePath is the constant path to the directory where SVG files for badges are stored.
-const SVGBadgePath = "./svgs/"
+// It points to /docs, the directory of the static Jekyll site!
+const SVGBadgePath = "../../../docs/images/badges/"
 
 const issuesColor = "CEA41E"
 const bugsColor = "DC143C"
@@ -73,15 +74,17 @@ func openIssueSVGBadgeDownloadURL(count int, kindOf string) string {
 }
 
 func createSVGBadgeDirIfNotPresent(dirName string) {
-
+	log.Info().Msgf("try to create directory %s", dirName)
 	if _, err := os.Stat(dirName); os.IsNotExist(err) {
+		log.Info().Msgf("directory %s did not exist, creating...", dirName)
 		errDir := os.MkdirAll(dirName, 0755)
 		if errDir != nil {
 			log.Fatal().Msg(errDir.Error())
 		} else {
 			log.Info().Msgf("directory %s created", dirName)
 		}
-
+	} else {
+		log.Info().Msg("directory seems to be present...")
 	}
 }
 
@@ -94,7 +97,7 @@ func downloadSVG(url string, count int, kindOf string) error {
 	defer resp.Body.Close()
 
 	fileName := svgFileNameForKindOf(kindOf, count)
-	log.Info().Msgf("filename is %s", fileName)
+	log.Info().Msgf("filename is %s%s", SVGBadgePath, fileName)
 
 	file, err := os.Create(SVGBadgePath + fileName)
 	if err != nil {
@@ -112,7 +115,7 @@ func init() {
 	log.Logger = zerolog.New(output).With().Timestamp().Caller().Logger()
 }
 
-func downloadSVGBadgesForKindof(kindOf string) {
+func downloadSVGBadgesForKindOf(kindOf string) {
 	log.Info().Msgf("starting to download %ss", kindOf)
 
 	// Download and save each SVG file
@@ -133,7 +136,7 @@ func main() {
 	// so we have a filesystem location to store SVG files
 	createSVGBadgeDirIfNotPresent(SVGBadgePath)
 
-	downloadSVGBadgesForKindof(badge.IssueName)
-	downloadSVGBadgesForKindof(badge.BugName)
+	downloadSVGBadgesForKindOf(badge.IssueName)
+	downloadSVGBadgesForKindOf(badge.BugName)
 
 }
