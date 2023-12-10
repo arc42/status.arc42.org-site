@@ -28,10 +28,13 @@
             <td>{{ .Pageviews12m}}</td>
             <td style="text-align: left;border-left: 2px solid black;"><a href="{{.Repo}}/issues">
                     <img alt="GitHub open issues" src="{{.IssueBadgeURL}}">
-                    {{if .BugBadgeURL}}
-                    <img alt="GitHub bugs" src="{{.BugBadgeURL}}">
-                    {{end}}
-                </a></td>
+                </a>
+                {{if .BugBadgeURL}}
+                    <a href="{{.Repo}}/issues">
+                        <img alt="GitHub bugs" src="{{.BugBadgeURL}}">
+                    </a>
+                {{end}}
+            </td>
         </tr>
     {{ end }}
     <tr>
@@ -57,5 +60,3 @@
         {{.WhereDoesItRun}}
     {{ end}}
 </div>
-
-Local badge: <img src="/images/badges/issues-2.svg" alt="2 issues badge">
