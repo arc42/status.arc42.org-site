@@ -9,5 +9,6 @@
     <orderEntry type="library" name="htmx.org" level="application" />
     <orderEntry type="module" module-name="documentation" />
     <orderEntry type="module" module-name="docs" />
+    <orderEntry type="module" module-name=".github" />
   </component>
 </module>
