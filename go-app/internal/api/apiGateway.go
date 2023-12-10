@@ -1,14 +1,14 @@
 package api
 
 import (
+	"arc42-status/internal/domain"
+	"arc42-status/internal/fly"
 	"embed"
 	"github.com/rs/zerolog/log"
 	"html/template"
 	"net/http"
 	"os"
 	"path/filepath"
-	"site-usage-statistics/internal/domain"
-	"site-usage-statistics/internal/fly"
 	"strconv"
 	"time"
 )

@@ -1,11 +1,11 @@
 package domain
 
 import (
+	"arc42-status/internal/badge"
+	"arc42-status/internal/github"
+	"arc42-status/internal/plausible"
+	"arc42-status/internal/types"
 	"github.com/rs/zerolog/log"
-	"site-usage-statistics/internal/badge"
-	"site-usage-statistics/internal/github"
-	"site-usage-statistics/internal/plausible"
-	"site-usage-statistics/internal/types"
 	"sync"
 	"time"
 )

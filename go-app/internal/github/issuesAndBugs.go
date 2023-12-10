@@ -2,12 +2,12 @@
 package github
 
 import (
+	"arc42-status/internal/types"
 	"github.com/rs/zerolog/log"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"os"
-	"site-usage-statistics/internal/types"
 )
 
 const GithubArc42URL = "https://github.com/arc42/"

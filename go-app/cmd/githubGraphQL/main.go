@@ -1,8 +1,8 @@
 package main
 
 import (
-	"site-usage-statistics/internal/github"
-	"site-usage-statistics/internal/types"
+	"arc42-status/internal/github"
+	"arc42-status/internal/types"
 )
 
 func main() {

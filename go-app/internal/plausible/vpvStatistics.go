@@ -8,10 +8,10 @@ package plausible
 // ==============================================
 
 import (
+	"arc42-status/internal/types"
 	"github.com/andrerfcsantos/go-plausible/plausible"
 	"github.com/rs/zerolog/log"
 	"os"
-	"site-usage-statistics/internal/types"
 	"strconv"
 	"sync"
 )

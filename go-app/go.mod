@@ -1,4 +1,4 @@
-module site-usage-statistics
+module arc42-status
 
 go 1.21
 

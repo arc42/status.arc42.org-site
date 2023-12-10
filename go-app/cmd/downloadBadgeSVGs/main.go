@@ -11,12 +11,12 @@ package main
 // we download these badges from shields.io, from URLs like this:
 // https://img.shields.io/badge/open_issues-19-BDB76B
 import (
+	"arc42-status/internal/badge"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"os"
-	"site-usage-statistics/internal/badge"
 	"strconv"
 )
 

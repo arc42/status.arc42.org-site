@@ -1,17 +1,18 @@
 package main
 
 import (
+	"arc42-status/internal/api"
+	"arc42-status/internal/domain"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"
-	"site-usage-statistics/internal/api"
-	"site-usage-statistics/internal/domain"
 	"strings"
 )
 
-const AppVersion = "0.4.1"
+const AppVersion = "0.4.2"
 
 // version history
+// 0.4.2 merge repositories (site-statistics and status.arc42.org-site) into one!
 // 0.4.1 added links to issue & bug badges
 // 0.4.0 first version with Goroutines
 // 0.3.4b take log level from environment variable LOGLEVEL

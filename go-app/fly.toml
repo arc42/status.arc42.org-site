@@ -3,7 +3,7 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 ## WHEN MOVING to another region, you have to update
-## the fly.io token... otherwise the github action will fail.
+## the fly.io token... otherwise the GitHub action will fail.
 
 app = "arc42-stats"
 primary_region = "ams"
@@ -22,4 +22,4 @@ primary_region = "ams"
 [env]
 ## using the environment to differentiate between PRODUCTION (aka fly.io) and DEVELOPMENT (aka localhost)
   ENVIRONMENT = "PRODUCTION"
-  LOGLEVEL = "DEBUG"
+  LOGLEVEL = "INFO"
