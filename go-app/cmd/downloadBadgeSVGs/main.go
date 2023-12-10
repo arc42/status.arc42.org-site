@@ -29,20 +29,6 @@ const bugsColor = "DC143C"
 
 const badgeDownloadURLPrefix = "https://img.shields.io/badge/"
 
-// svgFileNameForKindOf creates the filename for the downloaded issue-svg files.
-// These are required both for the downloading process AND for creating the URLs in the final output HTML
-func svgFileNameForKindOf(kindOf string, count int) string {
-	switch kindOf {
-	case badge.IssueName:
-		return strconv.Itoa(count) + badge.IssueBadgeFileNameSuffix
-	case badge.BugName:
-		return strconv.Itoa(count) + badge.BugBadgeFileNameSuffix
-	default:
-		log.Error().Msgf("error creating filename for count %d and kindOf %s", count, kindOf)
-		return "_error-" + strconv.Itoa(count)
-	}
-}
-
 func badgeColorForKindOf(kindOf string) string {
 	switch kindOf {
 	case badge.IssueName:
@@ -96,7 +82,7 @@ func downloadSVG(url string, count int, kindOf string) error {
 	}
 	defer resp.Body.Close()
 
-	fileName := svgFileNameForKindOf(kindOf, count)
+	fileName := badge.SVGFileNameForKindOf(kindOf, count)
 	log.Info().Msgf("filename is %s%s", SVGBadgePath, fileName)
 
 	file, err := os.Create(SVGBadgePath + fileName)

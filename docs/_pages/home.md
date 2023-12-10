@@ -4,8 +4,7 @@ layout: splash
 permalink: /
 header:
   overlay_image: /images/statistics-splash.webp
-  overlay_color: "#d72f2f"
-  overlay_filter: rgba(10, 80, 250, 0.4)
+  overlay_filter: rgba(0, 65, 83, 0.7)
   
   actions: 
     - label: "&#8594; arc42.org"

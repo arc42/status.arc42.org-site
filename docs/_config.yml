@@ -42,6 +42,7 @@ author:
 include:
   - _pages
   - images
+  - images/badges
   - assets
   
 exclude:

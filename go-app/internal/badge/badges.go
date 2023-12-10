@@ -8,6 +8,7 @@ package badge
 
 import (
 	"arc42-status/internal/types"
+	"github.com/rs/zerolog/log"
 	"strconv"
 )
 
@@ -25,10 +26,22 @@ const BugBadgeFileNameSuffix = "-bugs.svg"
 // LocalBadgeLocation is the constant for the file path of local badge images.
 // we use these local versions to save remote-requests to shields.io
 const LocalBadgeLocation = "/images/badges/"
-const LocalIssueBadgePrefix = LocalBadgeLocation + "issues-"
-const LocalBugBadgePrefix = LocalBadgeLocation + "bugs-" +
-	""
+
 const LocalBadgeSvgThreshold = 20
+
+// SVGFileNameForKindOf creates the filename for the downloaded issue-svg files.
+// These are required both for the downloading process AND for creating the URLs in the final output HTML
+func SVGFileNameForKindOf(kindOf string, count int) string {
+	switch kindOf {
+	case IssueName:
+		return strconv.Itoa(count) + IssueBadgeFileNameSuffix
+	case BugName:
+		return strconv.Itoa(count) + BugBadgeFileNameSuffix
+	default:
+		log.Error().Msgf("error creating filename for count %d and kindOf %s", count, kindOf)
+		return "_error-" + strconv.Itoa(count)
+	}
+}
 
 // badgeURL returns a badge URL, which always refers to a local image
 // as these have been pre-generated (see ADR-0006)
@@ -46,11 +59,8 @@ func badgeURL(kindOf string, nrOfIssuesOrBugs int) string {
 		badgeValue = LocalBadgeSvgThreshold + 1
 	}
 
-	if kindOf == BugName {
-		return LocalBugBadgePrefix + strconv.Itoa(badgeValue) + ".svg"
-	} else {
-		return LocalIssueBadgePrefix + strconv.Itoa(badgeValue) + ".svg"
-	}
+	return LocalBadgeLocation + SVGFileNameForKindOf(kindOf, badgeValue)
+
 }
 
 // SetIssuesAndBugBadgeURLsForSite sets links for use within the templates
