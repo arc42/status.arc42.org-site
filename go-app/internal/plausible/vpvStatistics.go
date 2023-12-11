@@ -11,6 +11,8 @@ import (
 	"arc42-status/internal/types"
 	"github.com/andrerfcsantos/go-plausible/plausible"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 	"os"
 	"strconv"
 	"sync"
@@ -86,8 +88,11 @@ func StatsForSite(thisSite string, stats *types.SiteStats) {
 
 	wg.Wait()
 
+	p := message.NewPrinter(language.German)
+
 	// now process results
-	stats.Visitors7d = stats7D.Visitors
+	// stats.Visitors7d = stats7D.Visitors
+	stats.Visitors7d = p.Sprintf("%d", stats7D.VisitorNr)
 	stats.Visitors7dNr = stats7D.VisitorNr
 	stats.Pageviews7d = stats7D.Pageviews
 	stats.Pageviews7dNr = stats7D.PageviewNr
@@ -98,8 +103,9 @@ func StatsForSite(thisSite string, stats *types.SiteStats) {
 	stats.Pageviews30dNr = stats30D.PageviewNr
 
 	stats.Visitors12m = stats12M.Visitors
-	stats.Pageviews12m = stats12M.Pageviews
+	stats.Pageviews12m = p.Sprintf("%d", stats12M.PageviewNr)
 	stats.Visitors12mNr = stats12M.VisitorNr
+	//stats.Pageviews12mNr = stats12M.PageviewNr
 	stats.Pageviews12mNr = stats12M.PageviewNr
 }
 
