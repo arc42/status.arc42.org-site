@@ -6,6 +6,8 @@ import (
 	"arc42-status/internal/plausible"
 	"arc42-status/internal/types"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 	"sync"
 	"time"
 )
@@ -87,14 +89,27 @@ func calculateTotals(stats []types.SiteStats) types.TotalsForAllSites {
 	var totals types.TotalsForAllSites
 
 	for index := range types.Arc42sites {
-		totals.SumOfVisitors7d += stats[index].Visitors7dNr
-		totals.SumOfPageviews7d += stats[index].Pageviews7dNr
-		totals.SumOfVisitors30d += stats[index].Visitors30dNr
-		totals.SumOfPageviews30d += stats[index].Pageviews30dNr
-		totals.SumOfVisitors12m += stats[index].Visitors12mNr
-		totals.SumOfPageviews12m += stats[index].Pageviews12mNr
+		totals.SumOfVisitors7dNr += stats[index].Visitors7dNr
+		totals.SumOfPageviews7dNr += stats[index].Pageviews7dNr
+		totals.SumOfVisitors30dNr += stats[index].Visitors30dNr
+		totals.SumOfPageviews30dNr += stats[index].Pageviews30dNr
+		totals.SumOfVisitors12mNr += stats[index].Visitors12mNr
+		totals.SumOfPageviews12mNr += stats[index].Pageviews12mNr
 	}
-	log.Debug().Msgf("Total visits and pageviews (V/PV, 7d, 30d, 12m)= %d/%d, %d/%d, %d/%d", totals.SumOfVisitors7d, totals.SumOfPageviews7d, totals.SumOfVisitors30d, totals.SumOfPageviews30d, totals.SumOfVisitors12m, totals.SumOfPageviews12m)
+
+	// now convert numbers to strings-with-separators
+	p := message.NewPrinter(language.German)
+
+	totals.SumOfVisitors7d = p.Sprintf("%d", totals.SumOfVisitors7dNr)
+	totals.SumOfPageviews7d = p.Sprintf("%d", totals.SumOfPageviews7dNr)
+
+	totals.SumOfVisitors30d = p.Sprintf("%d", totals.SumOfVisitors30dNr)
+	totals.SumOfPageviews30d = p.Sprintf("%d", totals.SumOfPageviews30dNr)
+
+	totals.SumOfVisitors12m = p.Sprintf("%d", totals.SumOfVisitors12mNr)
+	totals.SumOfPageviews12m = p.Sprintf("%d", totals.SumOfPageviews12mNr)
+
+	log.Debug().Msgf("Total visits and pageviews (V/PV, 7d, 30d, 12m)= %d/%d, %d/%d, %d/%d", totals.SumOfVisitors7dNr, totals.SumOfPageviews7dNr, totals.SumOfVisitors30dNr, totals.SumOfPageviews30dNr, totals.SumOfVisitors12mNr, totals.SumOfPageviews12mNr)
 
 	return totals
 }

@@ -55,12 +55,18 @@ type RepoStats struct {
 // If certain values are "n/a" (when the external API sends errors),
 // we let these values count 0.
 type TotalsForAllSites struct {
-	SumOfVisitors7d   int
-	SumOfPageviews7d  int
-	SumOfVisitors30d  int
-	SumOfPageviews30d int
-	SumOfVisitors12m  int
-	SumOfPageviews12m int
+	SumOfVisitors7dNr   int
+	SumOfVisitors7d     string
+	SumOfPageviews7dNr  int
+	SumOfPageviews7d    string
+	SumOfVisitors30dNr  int
+	SumOfVisitors30d    string
+	SumOfPageviews30dNr int
+	SumOfPageviews30d   string
+	SumOfVisitors12mNr  int
+	SumOfVisitors12m    string
+	SumOfPageviews12mNr int
+	SumOfPageviews12m   string
 }
 
 // Arc42Statistics collects information about the sites and subdomains
