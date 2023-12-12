@@ -9,10 +9,11 @@ import (
 	"strings"
 )
 
-const AppVersion = "0.4.4"
+const AppVersion = "0.4.5"
 
 // version history
-// 0.4.4 fix bad hyperlink to github issues
+// 0.4.5 fix missing separators in large numbers
+// 0.4.4 fix bad hyperlink to GitHub issues
 // 0.4.3 fix #57 (local svg images for issues and badges)
 // 0.4.2 merge repositories (site-statistics and status.arc42.org-site) into one!
 // 0.4.1 added links to issue & bug badges
