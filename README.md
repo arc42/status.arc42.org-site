@@ -6,23 +6,27 @@ This repository is organized as follows:
 ![main folders of this repo](documentation/0-repo-overview.drawio.svg)
 
 
-## Overview
+## Development and Feature Planning
 
-![context diagram](documentation/3-context-status-arc42-org.drawio.png)
 
-### Explanation
+Upcoming features and are planned with a [GitHub project](https://github.com/orgs/arc42/projects/5/views/1)
 
-| Element  | Description |
-| --- | --- |
-| Plausible.io | This (commercial) service collects usage data. We access via their API |
-| GitHub | Bug- and Issue-counter, plus additional repository status. Access via GraphQL |
-| Fly.io | Our cloud provider (aka hyperscaler). We query the geographical region from their API.|
-| Uptimerobot | in planning: Tracks availability of the site(s). API not yet tested.|
-| Turso DB | in planning: A distributed, self-replicating SQLite database in the cloud. |
+## Supported by INNOQ
 
-API calls are handled via the site-usage-statistics service, located in its own [repository](https://github.com/arc42/site-usage-statistics).
+This work is actively supported by [INNOQ Deutschland GmbH](https://innoq.com).
 
-## Development Status + Planning
+![Supported by INNOQ](supported-by-innoq.svg)
 
-Upcoming features and current development are planned with a [GitHub project](https://github.com/orgs/arc42/projects/5/views/1)
+## Licence
+
+![CC-BY-SA](by-sa.png)
+
+This content is provided _as-is_, without any guarantees. 
+It is open-source under the [Creative-Commons-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.en) licence:
+
+* see the [original text](https://creativecommons.org/licenses/by-sa/4.0/) and the
+* [legal details](https://creativecommons.org/licenses/by-sa/4.0/legalcode.en)
+
+
+Created 2023 by [Dr. Gernot Starke](https://gernotstarke.de) and contributors. 
 
