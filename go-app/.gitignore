@@ -20,5 +20,4 @@
 # Go workspace file
 go.work
 .DS_Store
-set-plausible-api-key.sh
 set-api-keys.sh
