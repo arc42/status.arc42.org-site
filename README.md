@@ -1,5 +1,10 @@
-# Status and Statistics Overview
-like all cool websites we need a status-subdomain with some statistics.
+# Repository Overview
+Like all cool websites we need a status-subdomain, showing usage- and repo statistics for all arc42 domains and subdomains.
+
+This repository is organized as follows:
+
+![main folders of this repo](documentation/0-repo-overview.drawio.svg)
+
 
 ## Overview
 
