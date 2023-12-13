@@ -1,6 +1,6 @@
 # Documentation Overview
 
-![context diagram](documentation/3-context-status-arc42-org.drawio.png)
+![context diagram](3-context-status-arc42-org.drawio.png)
 
 ### Explanation
 
@@ -12,7 +12,6 @@
 | Uptimerobot | in planning: Tracks availability of the site(s). API not yet tested.|
 | Turso DB | in planning: A distributed, self-replicating SQLite database in the cloud. |
 
-API calls are handled via the site-usage-statistics service, located in its own [repository](https://github.com/arc42/site-usage-statistics).
 
 ## Development Status + Planning
 
