@@ -1,11 +1,8 @@
 _includes/.DS_Store
 .DS_Store
-_site
-.jekyll-metadata
-.idea
+docs/_site
+docs/.jekyll-metadata
 node_modules
 Gemfile.lock
 *.bkp
-*.bkp
-.*bkp
 *.dtmp
