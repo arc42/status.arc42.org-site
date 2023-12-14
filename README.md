@@ -1,5 +1,8 @@
 # Repository Overview
-Like all cool websites we need a status-subdomain, showing usage- and repo statistics for all arc42 domains and subdomains.
+Like all cool websites, arc42 has a status-subdomain, showing usage- and repo statistics for its domains and subdomains.
+
+[![build+deploy go-app](https://github.com/arc42/status.arc42.org-site/actions/workflows/fly.yml/badge.svg?branch=main)](https://github.com/arc42/status.arc42.org-site/actions/workflows/fly.yml)
+[![build+deploy jekyll](https://github.com/arc42/status.arc42.org-site/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/arc42/status.arc42.org-site/actions/workflows/pages/pages-build-deployment)
 
 This repository is organized as follows:
 
