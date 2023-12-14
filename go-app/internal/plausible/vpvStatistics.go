@@ -22,9 +22,6 @@ import (
 // The required (secret) API key is set within the initialization.
 var plausibleClient *plausible.Client = nil
 
-// need mutex to ensure isolated access to shared variable
-var mutex sync.Mutex
-
 var APIKEY string
 
 // init is called during system startup

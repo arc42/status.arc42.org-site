@@ -78,7 +78,7 @@ func LoadStats4AllSites() types.Arc42Statistics {
 	a42s.Totals = calculateTotals(Stats4Sites)
 
 	// create Issue- and Bug Links
-	for index, _ := range types.Arc42sites {
+	for index := range types.Arc42sites {
 		badge.SetIssuesAndBugBadgeURLsForSite(&a42s.Stats4Site[index])
 	}
 
