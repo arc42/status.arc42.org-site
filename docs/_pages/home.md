@@ -9,8 +9,8 @@ header:
   actions: 
     - label: "&#8594; arc42.org"
       url: "https://www.arc42.org"
-    - label: "&#8594; arc42.de"
-      url: "https://www.arc42.de"
+    - label: "&#8594; arc42-Docu"
+      url: "/arc42build"
 
    
 
