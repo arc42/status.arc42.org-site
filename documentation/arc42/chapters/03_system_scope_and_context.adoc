@@ -1,0 +1,36 @@
+:jbake-title: System Scope and Context
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 3
+:filename: /chapters/03_system_scope_and_context.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-system-scope-and-context]]
+== System Scope and Context
+
+
+
+
+
+=== Business Context
+
+
+
+**<Diagram or Table>**
+
+**<optionally: Explanation of external domain interfaces>**
+
+=== Technical Context
+
+
+
+**<Diagram or Table>**
+
+**<optionally: Explanation of technical interfaces>**
+
+**<Mapping Input/Output to Channels>**
