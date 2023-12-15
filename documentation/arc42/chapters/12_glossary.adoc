@@ -1,0 +1,27 @@
+:jbake-title: Glossary
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 12
+:filename: /chapters/12_glossary.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-glossary]]
+== Glossary
+
+
+
+[cols="e,2e" options="header"]
+|===
+|Term |Definition
+
+|<Term-1>
+|<definition-1>
+
+|<Term-2>
+|<definition-2>
+|===

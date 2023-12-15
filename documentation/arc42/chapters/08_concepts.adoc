@@ -1,0 +1,34 @@
+:jbake-title: Cross-cutting Concepts
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 8
+:filename: /chapters/08_concepts.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-concepts]]
+== Cross-cutting Concepts
+
+
+
+
+
+=== _<Concept 1>_
+
+_<explanation>_
+
+
+
+=== _<Concept 2>_
+
+_<explanation>_
+
+...
+
+=== _<Concept n>_
+
+_<explanation>_
