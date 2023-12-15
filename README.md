@@ -1,15 +1,15 @@
 # Repository Overview
 Like all cool websites, arc42 has a status-subdomain, showing usage- and repo statistics for its domains and subdomains.
 
+This is a _multi-repo_, and the directories are organized as follows:
+
 | **Static Jekyll Site** | **Documentation**  | **Statistic service (Go app)** |
-|---------------------- |---------------------|--------------------------------|
-| [\docs]() | [\documentation]() | [\go-app]()  |
+|------|--------|----------------|
+| [**/docs**](/docs) | [**/documentation**](/documentation) |[**/go-app**](/go-app)  |
+|  Jekyll/Github-pages based static website.|arc42-based technical  documentation, created with docToolchain. | Cloud-based statistics service written in Golang |
 | [![build+deploy jekyll](https://github.com/arc42/status.arc42.org-site/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/arc42/status.arc42.org-site/actions/workflows/pages/pages-build-deployment) |    | [![build+deploy go-app](https://github.com/arc42/status.arc42.org-site/actions/workflows/fly.yml/badge.svg?branch=main)](https://github.com/arc42/status.arc42.org-site/actions/workflows/fly.yml) <br>[![golang-lint](https://github.com/arc42/status.arc42.org-site/actions/workflows/golang-lint.yml/badge.svg)](https://github.com/arc42/status.arc42.org-site/actions/workflows/golang-lint.yml) |
+| ![jekyll-logo](documentation/images/jekyll-logo.png)|![](documentation/images/doctoolchain-logo.png) | ![zorg-gopher](documentation/images/zorg-gopher.png)![fly logo](documentation/images/fly-logo.svg)
 
-
-This repository is organized as follows:
-
-![main folders of this repo](documentation/0-repo-overview.drawio.svg)
 
 
 ## Development and Feature Planning
@@ -21,11 +21,11 @@ Upcoming features and are planned with a [GitHub project](https://github.com/org
 
 This work is actively supported by [INNOQ Deutschland GmbH](https://innoq.com).
 
-![Supported by INNOQ](supported-by-innoq.svg)
+![Supported by INNOQ](documentation/images/supported-by-innoq.svg)
 
 ## Licence
 
-![CC-BY-SA](by-sa.png)
+![CC-BY-SA](documentation/images/by-sa.png)
 
 This content is provided _as-is_, without any guarantees. 
 It is open-source under the [Creative-Commons-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.en) licence:
