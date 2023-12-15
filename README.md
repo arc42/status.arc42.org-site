@@ -1,9 +1,10 @@
 # Repository Overview
 Like all cool websites, arc42 has a status-subdomain, showing usage- and repo statistics for its domains and subdomains.
 
-[![build+deploy go-app](https://github.com/arc42/status.arc42.org-site/actions/workflows/fly.yml/badge.svg?branch=main)](https://github.com/arc42/status.arc42.org-site/actions/workflows/fly.yml)
-[![build+deploy jekyll](https://github.com/arc42/status.arc42.org-site/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/arc42/status.arc42.org-site/actions/workflows/pages/pages-build-deployment)
-[![golang-lint](https://github.com/arc42/status.arc42.org-site/actions/workflows/golang-lint.yml/badge.svg)](https://github.com/arc42/status.arc42.org-site/actions/workflows/golang-lint.yml)
+| **Static Jekyll Site** | **Documentation**  | **Statistic service (Go app)** |
+|---------------------- |---------------------|--------------------------------|
+| [\docs]() | [\documentation]() | [\go-app]()  |
+| [![build+deploy jekyll](https://github.com/arc42/status.arc42.org-site/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/arc42/status.arc42.org-site/actions/workflows/pages/pages-build-deployment) |    | [![build+deploy go-app](https://github.com/arc42/status.arc42.org-site/actions/workflows/fly.yml/badge.svg?branch=main)](https://github.com/arc42/status.arc42.org-site/actions/workflows/fly.yml) <br>[![golang-lint](https://github.com/arc42/status.arc42.org-site/actions/workflows/golang-lint.yml/badge.svg)](https://github.com/arc42/status.arc42.org-site/actions/workflows/golang-lint.yml) |
 
 
 This repository is organized as follows:
