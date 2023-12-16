@@ -8,10 +8,8 @@ This is a _multi-repo_, and the directories are organized as follows:
 | [**/docs**](/docs) | [**/documentation**](/documentation) |[**/go-app**](/go-app)  |
 |  Jekyll/Github-pages based static website.|arc42-based technical  documentation, created with docToolchain. | Cloud-based statistics service written in Golang |
 | [![build+deploy jekyll](https://github.com/arc42/status.arc42.org-site/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/arc42/status.arc42.org-site/actions/workflows/pages/pages-build-deployment) |    | [![build+deploy go-app](https://github.com/arc42/status.arc42.org-site/actions/workflows/fly.yml/badge.svg?branch=main)](https://github.com/arc42/status.arc42.org-site/actions/workflows/fly.yml) <br>[![golang-lint](https://github.com/arc42/status.arc42.org-site/actions/workflows/golang-lint.yml/badge.svg)](https://github.com/arc42/status.arc42.org-site/actions/workflows/golang-lint.yml) |
-| ![jekyll-logo](documentation/images/jekyll-logo.png)|![](documentation/images/doctoolchain-logo.png) | ![zorg-gopher](documentation/images/zorg-gopher.png)![fly logo](documentation/images/fly-logo.svg)
 
-
-
+![Repo overview with logos](documentation/images/0-repo-overview.drawio.png)
 ## Development and Feature Planning
 
 
