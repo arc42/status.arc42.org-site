@@ -1,7 +1,13 @@
 <!doctype html>
 
-<html lang="en" class="no-js">
+<html lang="en">
 <head>
+    <title>Sortable Table Example</title>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" charset="utf8"
+            src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.js"></script>
 
     <style>
         table {
@@ -14,6 +20,7 @@
             text-align: center;
             padding: 8px;
         }
+
         td {
             border: 1px solid #dddddd;
             text-align: right;
@@ -33,11 +40,12 @@
     </style>
 </head>
 
-<body >
+<body>
 
 <h2>Refactored by JetBrains AI</h2>
 
-<table border="1">
+<table id="myTable" class="display">
+    <thead>
     <tr>
         <th rowspan="2">Site</th>
         <th colspan="2" class="cell-style">7 Days</th>
@@ -53,6 +61,9 @@
         <th class="cell-style">Visitors</th>
         <th>PageViews</th>
     </tr>
+    </thead>
+    <tbody>
+
     <tr>
         <td>arc42.org</td>
         <td class="cell-style">2149</td>
@@ -83,6 +94,7 @@
         <td>20</td>
         <td class="cell-style">n/a</td>
     </tr>
+    </tbody>
     <tfoot>
     <tr>
         <td>arc42.org</td>
@@ -96,6 +108,18 @@
     </tr>
     </tfoot>
 </table>
+
+<script>
+    $(document).ready(function () {
+        $('#myTable').DataTable(
+            {
+                info:false,
+                searching: false,
+                paging: false,
+                ordering: true
+            });
+    });
+</script>
 
 
 </body>
