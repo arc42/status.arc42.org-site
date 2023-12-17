@@ -90,7 +90,7 @@ Data will be collected by arc42 statistics service running on
 
 
 
-<a id="de-org-canvas">
+<a id="de-org-canvas"/>
 ## German and International Site, canvas
 
 {% include feature_row id="de-org-canvas" %}
@@ -103,3 +103,17 @@ Data will be collected by arc42 statistics service running on
 
 
 The page was generated on {{ site.time }}.
+
+<!-- enable table sorting -->
+
+<script>
+    $(document).ready(function () {
+        $('#sortableStatsTable').DataTable(
+            {
+                info:false,
+                searching: false,
+                paging: false,
+                ordering: true
+            });
+    });
+</script>
