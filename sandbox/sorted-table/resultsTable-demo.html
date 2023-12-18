@@ -1,0 +1,86 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <title>Sortable Table Example</title>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" charset="utf8"
+            src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.js"></script>
+
+    <style>
+        .border-left {
+            border-left: 2px solid black;
+        }
+
+        .border-top {
+            border-top: 2px solid black;
+        }
+
+        .text-align-left {
+            text-align: left;
+        }
+
+        thead th {
+            border-left: 2px solid black;
+        }
+
+        .gopher-logo {
+            content: url("images/minion-logo-100px.png");
+        }
+    </style>
+</head>
+<body>
+<table id="statsTable" class="display">
+    <thead>
+    <tr>
+        <th rowspan="2"><img src="./images/minion-logo-100px.png" /></th>
+        <th colspan="2" style="border-left: 2px solid black;">7 Days</th>
+        <th colspan="2" style="border-left: 2px solid black;">30 Days</th>
+        <th colspan="2" style="border-left: 2px solid black;">12 Month</th>
+        <th rowspan="2" style="border-left: 2px solid black;">Issues</th>
+    </tr>
+    <tr>
+        <th style="border-left: 2px solid black;">Visitors</th>
+        <th>PageViews</th>
+        <th style="border-left: 2px solid black;">Visitors</th>
+        <th>PageViews</th>
+        <th style="border-left: 2px solid black;">Visitors</th>
+        <th>PageViews</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>arc42.org</td>
+        <td style="border-left: 2px solid black;">v7D</td>
+        <td>p7d</td>
+        <td style="border-left: 2px solid black;">V30D</td>
+        <td>p30d</td>
+        <td style="border-left: 2px solid black;">V12m</td>
+        <td>p12m</td>
+        <td style="text-align: left;border-left: 2px solid black;">
+            issues
+        </td>
+    </tr>    <tr>
+        <td>arc42.de</td>
+        <td style="border-left: 2px solid black;">v7D</td>
+        <td>p7d</td>
+        <td style="border-left: 2px solid black;">V30D</td>
+        <td>p30d</td>
+        <td style="border-left: 2px solid black;">V12m</td>
+        <td>p12m</td>
+        <td style="text-align: left;border-left: 2px solid black;">
+            issues
+        </td>
+    </tr>
+
+    </tbody>
+
+    <tfoot>
+
+    </tfoot>
+</table>
+
+</body>
+</html>

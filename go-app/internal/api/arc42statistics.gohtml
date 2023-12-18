@@ -34,10 +34,7 @@
                 <a href="{{.Repo}}/issues">
                     <img alt="GitHub open issues" src="{{.IssueBadgeURL}}">
                 </a>
-                {{if .BugBadgeURL}}
-                <a href="{{.Repo}}/issues">
-                        <img alt="GitHub bugs" src="{{.BugBadgeURL}}">
-                </a>
+                {{if .BugBadgeURL}}<a href="{{.Repo}}/issues"><img alt="GitHub bugs" src="{{.BugBadgeURL}}"> </a>
                 {{end}}
             </td>
         </tr>
