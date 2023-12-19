@@ -1,0 +1,42 @@
+:jbake-status: published
+:jbake-order: 6
+:jbake-type: page_toc
+:jbake-title: Runtime View
+:jbake-menu: arc42
+
+ifndef::dtc-magic-toc[]
+:dtc-magic-toc:
+:toc:
+
+
+:toc: left
+
+++++
+<!-- endtoc -->
+++++
+endif::[]
+:filename: /chapters/06_runtime_view.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-runtime-view]]
+== Runtime View
+
+
+
+
+=== <Runtime Scenario 1>
+
+
+* _<insert runtime diagram or textual description of the scenario>_
+* _<insert description of the notable aspects of the interactions between the
+building block instances depicted in this diagram.>_
+
+=== <Runtime Scenario 2>
+
+=== ...
+
+=== <Runtime Scenario n>

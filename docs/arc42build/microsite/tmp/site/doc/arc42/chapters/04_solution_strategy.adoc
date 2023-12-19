@@ -1,0 +1,29 @@
+:jbake-status: published
+:jbake-order: 4
+:jbake-type: page_toc
+:jbake-title: Solution Strategy
+:jbake-menu: arc42
+
+ifndef::dtc-magic-toc[]
+:dtc-magic-toc:
+:toc:
+
+
+:toc: left
+
+++++
+<!-- endtoc -->
+++++
+endif::[]
+:filename: /chapters/04_solution_strategy.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-solution-strategy]]
+== Solution Strategy
+
+
+

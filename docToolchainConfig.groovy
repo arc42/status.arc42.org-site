@@ -16,8 +16,6 @@ inputPath = 'documentation';
 // pdfThemeDir = './src/docs/pdfTheme'
 
 inputFiles = [
-        //[file: 'doctoolchain_demo.adoc',       formats: ['html','pdf']],
-        //[file: 'arc42-template.adoc',    formats: ['html','pdf']],
 	[file: 'arc42/arc42.adoc', formats: ['html','pdf']],
 	/** inputFiles **/
 ]
@@ -88,40 +86,39 @@ microsite.with {
     siteFolder = '../site'
 
     // the title of the microsite, displayed in the upper left corner
-    title = '##site-title##'
+    title = 'arc42 Documentation for status.arc42.org'
     // the next items configure some links in the footer
     //
     // contact eMail
-    // example: mailto:bert@example.com
-    footerMail = '##footer-email##'
+    footerMail = ''
     //
     // twitter account url
-    footerTwitter = '##twitter-url##'
+    footerTwitter = ''
     //
     // Stackoverflow QA
-    footerSO = '##Stackoverflow-url##'
+    footerSO = ''
     //
     // Github Repository
-    footerGithub = '##Github-url##'
+    footerGithub = 'https://github.com/arc42/status.arc42.org-site'
     //
     // Slack Channel
-    footerSlack = '##Slack-url##'
+    footerSlack = ''
     //
     // Footer Text
     // example: <small class="text-white">built with docToolchain and jBake <br /> theme: docsy</small>
     footerText = '<small class="text-white">built with <a href="https://doctoolchain.org">docToolchain</a> and <a href="https://jbake.org">jBake</a> <br /> theme: <a href="https://www.docsy.dev/">docsy</a></small>'
     //
     // site title if no other title is given
-    title = 'docToolchain'
+    title = 'arc42 Documentation for status.arc42.org'
     //
     // the url to create an issue in github
     // Example: https://github.com/docToolchain/docToolchain/issues/new
-    issueUrl = '##issue-url##'
+    issueUrl = 'https://github.com/arc42/status.arc42.org-site/issues'
     //
     // the base url for code files in github
     // Example: https://github.com/doctoolchain/doctoolchain/edit/master/src/docs
     branch = System.getenv("DTC_PROJECT_BRANCH")?:'-'
-    gitRepoUrl = '##git-repo-url##'
+    gitRepoUrl = 'https://github.com/arc42/status.arc42.org-site'
 
     //
     // the location of the landing page
@@ -499,51 +496,3 @@ collectIncludes.with {
 }
 //end::collectIncludesConfig[]
 
-//tag::structurizrConfig[]
-// Configuration for Structurizr related tasks
-structurizr = [:]
-
-structurizr.with {
-
-    // Configure where `exportStructurizr` looks for the Structurizr model.
-    workspace = {
-        // The directory in which the Structurizr workspace file is located.
-        // path = 'src/docs/structurizr'
-
-        // By default `exportStructurizr` looks for a file '${structurizr.workspace.path}/workspace.dsl'.
-        // You can customize this behavior with 'filename'. Note that the workspace filename is provided without '.dsl' extension.
-        // filename = 'workspace'
-    }
-
-    export = {
-        // Directory for the exported diagrams.
-        //
-        // WARNING: Do not put manually created/changed files into this directory.
-        // If a valid Structurizr workspace file is found the directory is deleted before the diagram files are generated.
-        // outputPath = 'src/docs/structurizr/diagrams'
-
-        // Format of the exported diagrams. Defaults to 'plantuml' if the parameter is not provided.
-        //
-        // Following formats are supported:
-        // - 'plantuml': the same as 'plantuml/structurizr'
-        // - 'plantuml/structurizr': exports views to PlantUML
-        // - 'plantuml/c4plantuml': exports views to PlantUML with https://github.com/plantuml-stdlib/C4-PlantUML
-        // format = 'plantuml'
-    }
-}
-//end::structurizrConfig[]
-
-//tag::openAIConfig[]
-// Configuration for openAI related tasks
-openAI = [:]
-
-openAI.with {
-    // This task requires a person access token for openAI.
-    // Ensure to pass this token as parameters when calling the task
-    // using -PopenAI.token=xx-xxxxxxxxxxxxxx
-
-    //model = "text-davinci-003"
-    //maxToken = '500'
-    //temperature = '0.3'
-}
-//end::openAIConfig[]
