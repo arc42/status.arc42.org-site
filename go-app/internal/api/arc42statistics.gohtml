@@ -52,7 +52,9 @@
         <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageviews30d}}</td>
         <td style="border-top: 2px solid black;border-left: 2px solid black;">{{ .Totals.SumOfVisitors12m}}</td>
         <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageviews12m}}</td>
-        <td style="column-span: 2; border-left: 2px solid black;"></td>
+        <td style="column-span: 2; border-left: 2px solid black;border-top: 2px solid black;">>{{ .Totals.TotalNrOfIssues}}</td>
+        <td style="border-top: 2px solid black;">{{ .Totals.TotalNrOfBugs}}</td>
+
     </tr> </tfoot>
 </table>
 

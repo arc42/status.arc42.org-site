@@ -45,6 +45,7 @@ type RepoStats struct {
 	Repo           string // the URL of the GitHub repository
 	NrOfOpenBugs   int    // the number of open bugs in that repo
 	NrOfOpenIssues int    // number of open issues
+	NrOfPRs        int    // number of open pull-requests
 	IssueBadgeURL  string // URL of the shields.io issues badge
 	BugBadgeURL    string // URL of the shields.io bugs issue
 
@@ -67,6 +68,9 @@ type TotalsForAllSites struct {
 	SumOfVisitors12m    string
 	SumOfPageviews12mNr int
 	SumOfPageviews12m   string
+	TotalNrOfIssues     int
+	TotalNrOfBugs       int
+	TotalNrOfPRs        int
 }
 
 // Arc42Statistics collects information about the sites and subdomains

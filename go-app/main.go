@@ -9,11 +9,11 @@ import (
 	"strings"
 )
 
-const AppVersion = "0.4.6d"
+const AppVersion = "0.4.6e"
 
 // version history
 // 0.4.7 replace most inline styles by css
-// 0.4.6 sortable table (a: initial, b: better styling, no sorting on issues/bugs, c,d: fix layout issues)
+// 0.4.6 sortable table (a: initial, b...e: fix layout issues)
 // 0.4.5 fix missing separators in large numbers
 // 0.4.4 fix bad hyperlink to GitHub issues
 // 0.4.3 fix #57 (local svg images for issues and badges)
