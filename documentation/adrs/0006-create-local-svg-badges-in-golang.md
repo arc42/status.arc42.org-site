@@ -4,7 +4,9 @@ Date: 2023-12-08
 
 ## Status
 
-Accepted
+Deprecated.
+
+Update: 23-12-25: The badges shall be replaced by pure numbers to improve visual consistency of the table.
 
 ## Context
 
