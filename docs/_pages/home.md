@@ -148,7 +148,7 @@ document.body.addEventListener('htmx:load', function(event) {
                 paging: false,
                 ordering: true,
                 language: {"decimal": "-", "thousands": "." },
-               columnDefs: [{ orderable: false, targets: [7] }]
+               columnDefs: [{ orderable: false, targets: [] }] 
             });
         }
     });
