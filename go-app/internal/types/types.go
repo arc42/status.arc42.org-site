@@ -34,6 +34,7 @@ type SiteStats struct {
 	Repo           string // the URL of the GitHub repository
 	NrOfOpenBugs   int    // the number of open bugs in that repo
 	NrOfOpenIssues int    // number of open issues
+	NrOfOpenPRs    int
 	IssueBadgeURL  string // URL of the shields.io issues badge
 	BugBadgeURL    string // URL of the shields.io bugs issue
 

@@ -95,6 +95,9 @@ func calculateTotals(stats []types.SiteStats) types.TotalsForAllSites {
 		totals.SumOfPageviews30dNr += stats[index].Pageviews30dNr
 		totals.SumOfVisitors12mNr += stats[index].Visitors12mNr
 		totals.SumOfPageviews12mNr += stats[index].Pageviews12mNr
+		totals.TotalNrOfIssues += stats[index].NrOfOpenIssues
+		totals.TotalNrOfBugs += stats[index].NrOfOpenBugs
+		totals.TotalNrOfPRs += stats[index].NrOfOpenPRs
 	}
 
 	// now convert numbers to strings-with-separators
