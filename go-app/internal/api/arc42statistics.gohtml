@@ -32,10 +32,10 @@
             <td>{{ .Pageviews30d}}</td>
             <td style="border-left: 2px solid black;">{{ .Visitors12m}}</td>
             <td>{{ .Pageviews12m}}</td>
-            <td style="text-align: left;border-left: 2px solid black;">
+            <td style="text-align: right;border-left: 2px solid black;">
                 <a href="{{.Repo}}/issues">{{.NrOfOpenIssues}}</a>
             </td>
-            <td>
+            <td style="text-align: right;">
                 {{if .BugBadgeURL}}
                     <a href="{{.Repo}}/issues">{{.NrOfOpenBugs}}</a>
                 {{end}}
@@ -52,7 +52,7 @@
         <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageviews30d}}</td>
         <td style="border-top: 2px solid black;border-left: 2px solid black;">{{ .Totals.SumOfVisitors12m}}</td>
         <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageviews12m}}</td>
-        <td style="border-left: 2px solid black;"></td>
+        <td style="column-span: 2; border-left: 2px solid black;"></td>
     </tr> </tfoot>
 </table>
 
