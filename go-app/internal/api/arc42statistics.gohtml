@@ -7,7 +7,7 @@
         <th colspan="2" style="border-left: 2px solid black; text-align: center;">7 Days</th>
         <th colspan="2" style="border-left: 2px solid black; text-align: center;">30 Days</th>
         <th colspan="2" style="border-left: 2px solid black; text-align: center;">12 Month</th>
-        <th rowspan="2" style="border-left: 2px solid black; text-align: center;">Issues</th>
+        <th colspan="2" style="border-left: 2px solid black; text-align: center;">Open Tasks</th>
     </tr>
     <tr>
         <th style="border-left: 2px solid black; text-align: center;">Visitors</th>
@@ -16,6 +16,8 @@
         <th>PageViews</th>
         <th style="border-left: 2px solid black;">Visitors</th>
         <th>PageViews</th>
+        <th style="border-left: 2px solid black;">Issues</th>
+        <th>Bugs</th>
     </tr>
     </thead>
 
@@ -31,12 +33,11 @@
             <td style="border-left: 2px solid black;">{{ .Visitors12m}}</td>
             <td>{{ .Pageviews12m}}</td>
             <td style="text-align: left;border-left: 2px solid black;">
-                <a href="{{.Repo}}/issues">
-                    <img alt="GitHub open issues" src="{{.IssueBadgeURL}}">
-                </a>
+                <a href="{{.Repo}}/issues">{{.NrOfOpenIssues}}</a>
             </td>
             <td>
-                {{if .BugBadgeURL}}<a href="{{.Repo}}/issues"><img alt="GitHub bugs" src="{{.BugBadgeURL}}"> </a>
+                {{if .BugBadgeURL}}
+                    <a href="{{.Repo}}/issues">{{.NrOfOpenBugs}}</a>
                 {{end}}
             </td>
         </tr>
