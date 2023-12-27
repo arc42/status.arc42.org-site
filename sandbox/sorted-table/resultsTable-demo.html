@@ -10,25 +10,65 @@
             src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.js"></script>
 
 
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: auto;
+
+        }
+        .border-left-black {
+            border-left: 2px solid black;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        th {
+            border: 1px solid #dddddd;
+            text-align: center;
+            padding: 8px;
+        }
+
+        td {
+            border: 1px solid #dddddd;
+            text-align: right;
+            padding: 8px;
+        }
+
+        tr:nth-child(2n+3) {
+            background-color: #dddddd;
+        }
+
+        tfoot td, tfoot th {
+            text-align: right !important;
+        }
+
+    </style>
 </head>
 <body>
 <table id="sortableStatsTable" class="display">
     <thead>
     <tr>
         <th rowspan="2"><img src="/images/minion-logo-100px.png" alt="Gopher logo"></th>
-        <th colspan="2" style="border-left: 2px solid black; text-align: center;">7 Days</th>
-        <th colspan="2" style="border-left: 2px solid black; text-align: center;">30 Days</th>
-        <th colspan="2" style="border-left: 2px solid black; text-align: center;">12 Month</th>
-        <th colspan="2" style="border-left: 2px solid black; text-align: center;">Open Tasks</th>
+        <th colspan="2" class="border-left-black text-center">7 Days</th>
+        <th colspan="2" class="border-left-black text-center">30 Days</th>
+        <th colspan="2" class="border-left-black text-center">12 Month</th>
+        <th colspan="2"  class="border-left-black text-center">Open Tasks</th>
     </tr>
     <tr>
-        <th style="border-left: 2px solid black; text-align: center;">Visitors</th>
+        <th class="border-left-black text-center">Visitors</th>
         <th>PageViews</th>
-        <th style="border-left: 2px solid black;">Visitors</th>
+        <th class="border-left-black">Visitors</th>
         <th>PageViews</th>
-        <th style="border-left: 2px solid black;">Visitors</th>
+        <th class="border-left-black">Visitors</th>
         <th>PageViews</th>
-        <th style="border-left: 2px solid black;">Issues</th>
+        <th class="border-left-black">Issues</th>
         <th>Bugs</th>
     </tr>
     </thead>
