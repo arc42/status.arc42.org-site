@@ -19,25 +19,22 @@ type SiteStats struct {
 	Site           string // site name
 	Visitors7d     string
 	Visitors7dNr   int
-	Pageviews7d    string
-	Pageviews7dNr  int
+	PageViews7d    string
+	PageViews7dNr  int
 	Visitors30d    string
 	Visitors30dNr  int
-	Pageviews30d   string
-	Pageviews30dNr int
+	PageViews30d   string
+	PageViews30dNr int
 	Visitors12m    string
 	Visitors12mNr  int
-	Pageviews12m   string
-	Pageviews12mNr int
+	PageViews12m   string
+	PageViews12mNr int
 
 	// these are needed for the template to execute properly
 	Repo           string // the URL of the GitHub repository
 	NrOfOpenBugs   int    // the number of open bugs in that repo
 	NrOfOpenIssues int    // number of open issues
 	NrOfOpenPRs    int
-	IssueBadgeURL  string // URL of the shields.io issues badge
-	BugBadgeURL    string // URL of the shields.io bugs issue
-
 }
 
 // RepoStats contains information about the repository underlying the site
@@ -47,8 +44,6 @@ type RepoStats struct {
 	NrOfOpenBugs   int    // the number of open bugs in that repo
 	NrOfOpenIssues int    // number of open issues
 	NrOfPRs        int    // number of open pull-requests
-	IssueBadgeURL  string // URL of the shields.io issues badge
-	BugBadgeURL    string // URL of the shields.io bugs issue
 
 }
 
@@ -59,16 +54,16 @@ type RepoStats struct {
 type TotalsForAllSites struct {
 	SumOfVisitors7dNr   int
 	SumOfVisitors7d     string
-	SumOfPageviews7dNr  int
-	SumOfPageviews7d    string
+	SumOfPageViews7dNr  int
+	SumOfPageViews7d    string
 	SumOfVisitors30dNr  int
 	SumOfVisitors30d    string
-	SumOfPageviews30dNr int
-	SumOfPageviews30d   string
+	SumOfPageViews30dNr int
+	SumOfPageViews30d   string
 	SumOfVisitors12mNr  int
 	SumOfVisitors12m    string
-	SumOfPageviews12mNr int
-	SumOfPageviews12m   string
+	SumOfPageViews12mNr int
+	SumOfPageViews12m   string
 	TotalNrOfIssues     int
 	TotalNrOfBugs       int
 	TotalNrOfPRs        int
@@ -96,18 +91,18 @@ type Arc42Statistics struct {
 	// it also contains Repo stats, like issues and bugs
 	Stats4Site [len(Arc42sites)]SiteStats
 
-	// Totals contains the sum of all the statistics over all sites
+	// Totals: sum of all the statistics over all sites
 	Totals TotalsForAllSites
 }
 
-// VisitorsAndPageViews is a temporarily-used struct.
+// VisitorsAndPageViews is a temporary struct.
 // Note the 'string' type: most often it will be a number,
 // but in case of errors it should be NotAvailable
 type VisitorsAndPageViews struct {
 	Visitors   string
 	VisitorNr  int
-	Pageviews  string
-	PageviewNr int
+	PageViews  string
+	PageViewNr int
 }
 
 // IssuesAndBugs is a struct used during the (concurrent) calls to GitHub.
