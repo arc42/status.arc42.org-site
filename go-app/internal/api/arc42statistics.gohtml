@@ -27,11 +27,11 @@
         <tr>
             <td><a href="https://{{.Site }}">{{.Site}}</a></td>
             <td style="border-left: 2px solid black;">{{ .Visitors7d}}</td>
-            <td>{{ .Pageviews7d}}</td>
+            <td>{{ .PageViews7d}}</td>
             <td style="border-left: 2px solid black;">{{ .Visitors30d}}</td>
-            <td>{{ .Pageviews30d}}</td>
+            <td>{{ .PageViews30d}}</td>
             <td style="border-left: 2px solid black;">{{ .Visitors12m}}</td>
-            <td>{{ .Pageviews12m}}</td>
+            <td>{{ .PageViews12m}}</td>
             <td style="text-align: right;border-left: 2px solid black;">
                 <a href="{{.Repo}}/issues">{{.NrOfOpenIssues}}</a>
             </td>
@@ -47,11 +47,11 @@
     <tfoot> <tr>
         <td style="border-top: 2px solid black;">Totals:</td>
         <td style="border-top: 2px solid black;border-left: 2px solid black;">{{ .Totals.SumOfVisitors7d}}</td>
-        <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageviews7d}}</td>
+        <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageViews7d}}</td>
         <td style="border-top: 2px solid black;border-left: 2px solid black;">{{ .Totals.SumOfVisitors30d}}</td>
-        <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageviews30d}}</td>
+        <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageViews30d}}</td>
         <td style="border-top: 2px solid black;border-left: 2px solid black;">{{ .Totals.SumOfVisitors12m}}</td>
-        <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageviews12m}}</td>
+        <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageViews12m}}</td>
         <td style="column-span: 2; border-left: 2px solid black;border-top: 2px solid black;;text-align: right">{{ .Totals.TotalNrOfIssues}}</td>
         <td style="border-top: 2px solid black;text-align: right ">{{ .Totals.TotalNrOfBugs}}</td>
 

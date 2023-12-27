@@ -76,21 +76,22 @@ func LoadStats4AllSites() types.Arc42Statistics {
 	}
 
 	// now calculate totals
-	a42s.Totals = calculateTotals(Stats4Sites)
+	a42s.Totals = calculateTotals(a42s.Stats4Site)
 
 	return a42s
 }
 
-func calculateTotals(stats []types.SiteStats) types.TotalsForAllSites {
+// func calculateTotals(stats []types.SiteStats) types.TotalsForAllSites {
+func calculateTotals(stats [len(types.Arc42sites)]types.SiteStats) types.TotalsForAllSites {
 	var totals types.TotalsForAllSites
 
 	for index := range types.Arc42sites {
 		totals.SumOfVisitors7dNr += stats[index].Visitors7dNr
-		totals.SumOfPageviews7dNr += stats[index].Pageviews7dNr
+		totals.SumOfPageViews7dNr += stats[index].PageViews7dNr
 		totals.SumOfVisitors30dNr += stats[index].Visitors30dNr
-		totals.SumOfPageviews30dNr += stats[index].Pageviews30dNr
+		totals.SumOfPageViews30dNr += stats[index].PageViews30dNr
 		totals.SumOfVisitors12mNr += stats[index].Visitors12mNr
-		totals.SumOfPageviews12mNr += stats[index].Pageviews12mNr
+		totals.SumOfPageViews12mNr += stats[index].PageViews12mNr
 		totals.TotalNrOfIssues += stats[index].NrOfOpenIssues
 		totals.TotalNrOfBugs += stats[index].NrOfOpenBugs
 		// currently (Dec. 26th 2023), PRs are ignored
@@ -102,15 +103,15 @@ func calculateTotals(stats []types.SiteStats) types.TotalsForAllSites {
 	p := message.NewPrinter(language.German)
 
 	totals.SumOfVisitors7d = p.Sprintf("%d", totals.SumOfVisitors7dNr)
-	totals.SumOfPageviews7d = p.Sprintf("%d", totals.SumOfPageviews7dNr)
+	totals.SumOfPageViews7d = p.Sprintf("%d", totals.SumOfPageViews7dNr)
 
 	totals.SumOfVisitors30d = p.Sprintf("%d", totals.SumOfVisitors30dNr)
-	totals.SumOfPageviews30d = p.Sprintf("%d", totals.SumOfPageviews30dNr)
+	totals.SumOfPageViews30d = p.Sprintf("%d", totals.SumOfPageViews30dNr)
 
 	totals.SumOfVisitors12m = p.Sprintf("%d", totals.SumOfVisitors12mNr)
-	totals.SumOfPageviews12m = p.Sprintf("%d", totals.SumOfPageviews12mNr)
+	totals.SumOfPageViews12m = p.Sprintf("%d", totals.SumOfPageViews12mNr)
 
-	log.Debug().Msgf("Total visits and pageviews (V/PV, 7d, 30d, 12m)= %d/%d, %d/%d, %d/%d", totals.SumOfVisitors7dNr, totals.SumOfPageviews7dNr, totals.SumOfVisitors30dNr, totals.SumOfPageviews30dNr, totals.SumOfVisitors12mNr, totals.SumOfPageviews12mNr)
+	log.Debug().Msgf("Total visits and pageviews (V/PV, 7d, 30d, 12m)= %d/%d, %d/%d, %d/%d", totals.SumOfVisitors7dNr, totals.SumOfPageViews7dNr, totals.SumOfVisitors30dNr, totals.SumOfPageViews30dNr, totals.SumOfVisitors12mNr, totals.SumOfPageViews12mNr)
 	log.Debug().Msgf("Total %d issues and %d bugs", totals.TotalNrOfIssues, totals.TotalNrOfBugs)
 
 	return totals

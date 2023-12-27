@@ -90,19 +90,19 @@ func StatsForSite(thisSite string, stats *types.SiteStats) {
 	// now process results
 	// before #55 these assignments read: stats.Visitors7d = stats7D.Visitors
 	stats.Visitors7d = p.Sprintf("%d", stats7D.VisitorNr)
-	stats.Pageviews7d = p.Sprintf("%d", stats7D.PageviewNr)
+	stats.PageViews7d = p.Sprintf("%d", stats7D.PageViewNr)
 	stats.Visitors7dNr = stats7D.VisitorNr
-	stats.Pageviews7dNr = stats7D.PageviewNr
+	stats.PageViews7dNr = stats7D.PageViewNr
 
 	stats.Visitors30d = p.Sprintf("%d", stats30D.VisitorNr)
-	stats.Pageviews30d = p.Sprintf("%d", stats30D.PageviewNr)
+	stats.PageViews30d = p.Sprintf("%d", stats30D.PageViewNr)
 	stats.Visitors30dNr = stats30D.VisitorNr
-	stats.Pageviews30dNr = stats30D.PageviewNr
+	stats.PageViews30dNr = stats30D.PageViewNr
 
 	stats.Visitors12m = p.Sprintf("%d", stats12M.VisitorNr)
-	stats.Pageviews12m = p.Sprintf("%d", stats12M.PageviewNr)
+	stats.PageViews12m = p.Sprintf("%d", stats12M.PageViewNr)
 	stats.Visitors12mNr = stats12M.VisitorNr
-	stats.Pageviews12mNr = stats12M.PageviewNr
+	stats.PageViews12mNr = stats12M.PageViewNr
 }
 
 // SiteMetricsConcurrent collects statics for given site and period from plausible.io API.
@@ -125,14 +125,14 @@ func SiteMetricsConcurrent(siteHandler *plausible.Site, period plausible.TimePer
 	if err != nil {
 		log.Error().Msgf("Error performing query to plausible.io: %v", err)
 		// in this case, we don't add anything to the Sums
-		vApvs.Pageviews = "n/a"
-		vApvs.PageviewNr = 0
+		vApvs.PageViews = "n/a"
+		vApvs.PageViewNr = 0
 		vApvs.Visitors = "n/a"
 		vApvs.VisitorNr = 0
 	} else {
 		log.Debug().Msgf("%s had %d visitors for period %s", siteHandler.ID(), result.Visitors, period.Period)
-		vApvs.Pageviews = strconv.Itoa(result.Pageviews)
-		vApvs.PageviewNr = result.Pageviews
+		vApvs.PageViews = strconv.Itoa(result.Pageviews)
+		vApvs.PageViewNr = result.Pageviews
 		vApvs.Visitors = strconv.Itoa(result.Visitors)
 		vApvs.VisitorNr = result.Visitors
 	}
