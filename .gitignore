@@ -8,3 +8,4 @@ Gemfile.lock
 *.dtmp
 .gradle
 build
+.idea/runConfigurations/go_run_main_go.xml
