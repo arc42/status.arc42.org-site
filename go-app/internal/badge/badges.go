@@ -7,7 +7,6 @@ package badge
 // Only if the bug- or issue count exceeds this number we will use the fallback of remote badges from shields.io, in other cases take the local equivalents.
 
 import (
-	"arc42-status/internal/types"
 	"github.com/rs/zerolog/log"
 	"strconv"
 )
@@ -61,14 +60,4 @@ func badgeURL(kindOf string, nrOfIssuesOrBugs int) string {
 
 	return LocalBadgeLocation + SVGFileNameForKindOf(kindOf, badgeValue)
 
-}
-
-// SetIssuesAndBugBadgeURLsForSite sets links for use within the templates
-// (to avoid overly long string constants within these templates)
-//
-// if the number of bugs==0, then this URL remains empty, so no badge will be shown
-func SetIssuesAndBugBadgeURLsForSite(stats *types.SiteStats) {
-
-	stats.IssueBadgeURL = badgeURL(IssueName, stats.NrOfOpenIssues)
-	stats.BugBadgeURL = badgeURL(BugName, stats.NrOfOpenBugs)
 }

@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"arc42-status/internal/badge"
 	"arc42-status/internal/github"
 	"arc42-status/internal/plausible"
 	"arc42-status/internal/types"
@@ -66,21 +65,18 @@ func LoadStats4AllSites() types.Arc42Statistics {
 	wg.Wait()
 
 	// get results from Goroutines
-	log.Debug().Msgf("transferring results in LoadStats4Site")
+	log.Debug().Msgf("transferring results into LoadStats4Site")
 	for index := range types.Arc42sites {
 		a42s.Stats4Site[index] = Stats4Sites[index]
 		a42s.Stats4Site[index].NrOfOpenIssues = Stats4Repos[index].NrOfOpenIssues
 		a42s.Stats4Site[index].NrOfOpenBugs = Stats4Repos[index].NrOfOpenBugs
 		a42s.Stats4Site[index].Repo = Stats4Repos[index].Repo
+
+		log.Debug().Msgf("Repo %s has %d issues and %d bugs", Stats4Repos[index].Repo, Stats4Repos[index].NrOfOpenIssues, Stats4Repos[index].NrOfOpenBugs)
 	}
 
 	// now calculate totals
 	a42s.Totals = calculateTotals(Stats4Sites)
-
-	// create Issue- and Bug Links
-	for index := range types.Arc42sites {
-		badge.SetIssuesAndBugBadgeURLsForSite(&a42s.Stats4Site[index])
-	}
 
 	return a42s
 }
@@ -97,10 +93,12 @@ func calculateTotals(stats []types.SiteStats) types.TotalsForAllSites {
 		totals.SumOfPageviews12mNr += stats[index].Pageviews12mNr
 		totals.TotalNrOfIssues += stats[index].NrOfOpenIssues
 		totals.TotalNrOfBugs += stats[index].NrOfOpenBugs
-		totals.TotalNrOfPRs += stats[index].NrOfOpenPRs
+		// currently (Dec. 26th 2023), PRs are ignored
+		//totals.TotalNrOfPRs += stats[index].NrOfOpenPRs
 	}
 
 	// now convert numbers to strings-with-separators
+	// e.g., 1234 -> 1.234
 	p := message.NewPrinter(language.German)
 
 	totals.SumOfVisitors7d = p.Sprintf("%d", totals.SumOfVisitors7dNr)
@@ -113,6 +111,7 @@ func calculateTotals(stats []types.SiteStats) types.TotalsForAllSites {
 	totals.SumOfPageviews12m = p.Sprintf("%d", totals.SumOfPageviews12mNr)
 
 	log.Debug().Msgf("Total visits and pageviews (V/PV, 7d, 30d, 12m)= %d/%d, %d/%d, %d/%d", totals.SumOfVisitors7dNr, totals.SumOfPageviews7dNr, totals.SumOfVisitors30dNr, totals.SumOfPageviews30dNr, totals.SumOfVisitors12mNr, totals.SumOfPageviews12mNr)
+	log.Debug().Msgf("Total %d issues and %d bugs", totals.TotalNrOfIssues, totals.TotalNrOfBugs)
 
 	return totals
 }

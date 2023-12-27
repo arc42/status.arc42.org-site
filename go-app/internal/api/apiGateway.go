@@ -35,9 +35,9 @@ var embeddedTemplatesFolder embed.FS
 
 // statsHTMLTableHandler returns the usage statistics as html table
 // 1. start timer
-// 2. updates ArcStats
+// 2. update ArcStats
 // 3. sets required http headers needed for CORS
-// 4. renders the output via HtmlTableTmpl
+// 4. render the output via HtmlTableTmpl
 func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Debug().Msg("received statsTable request")

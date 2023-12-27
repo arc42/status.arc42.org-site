@@ -35,9 +35,6 @@ type SiteStats struct {
 	NrOfOpenBugs   int    // the number of open bugs in that repo
 	NrOfOpenIssues int    // number of open issues
 	NrOfOpenPRs    int
-	IssueBadgeURL  string // URL of the shields.io issues badge
-	BugBadgeURL    string // URL of the shields.io bugs issue
-
 }
 
 // RepoStats contains information about the repository underlying the site
@@ -47,8 +44,6 @@ type RepoStats struct {
 	NrOfOpenBugs   int    // the number of open bugs in that repo
 	NrOfOpenIssues int    // number of open issues
 	NrOfPRs        int    // number of open pull-requests
-	IssueBadgeURL  string // URL of the shields.io issues badge
-	BugBadgeURL    string // URL of the shields.io bugs issue
 
 }
 
@@ -96,11 +91,11 @@ type Arc42Statistics struct {
 	// it also contains Repo stats, like issues and bugs
 	Stats4Site [len(Arc42sites)]SiteStats
 
-	// Totals contains the sum of all the statistics over all sites
+	// Totals: sum of all the statistics over all sites
 	Totals TotalsForAllSites
 }
 
-// VisitorsAndPageViews is a temporarily-used struct.
+// VisitorsAndPageViews is a temporary struct.
 // Note the 'string' type: most often it will be a number,
 // but in case of errors it should be NotAvailable
 type VisitorsAndPageViews struct {
