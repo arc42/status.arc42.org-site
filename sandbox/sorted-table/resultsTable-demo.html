@@ -21,6 +21,10 @@
             border-left: 2px solid black;
         }
 
+        .border-top {
+            border-top: 2px solid black;
+        }
+
         .text-center {
             text-align: center;
         }
@@ -29,24 +33,20 @@
             text-align: right;
         }
 
-        th {
+        th,td {
             border: 1px solid #dddddd;
-            text-align: center;
             padding: 8px;
-        }
-
-        td {
-            border: 1px solid #dddddd;
             text-align: right;
-            padding: 8px;
+
         }
 
-        tr:nth-child(2n+3) {
-            background-color: #dddddd;
+
+        tbody tr:nth-child(odd) {
+            background-color: #dbe2fc;
         }
 
         tfoot td, tfoot th {
-            text-align: right !important;
+            text-align: right;
         }
 
     </style>
@@ -76,49 +76,51 @@
     <tbody>
 
     <tr>
-        <td><a href="https://{{.Site ">site-a</a></td>
-        <td style="border-left: 2px solid black;">7Da</td>
+        <td><a href=" ">site-a</a></td>
+        <td class="border-left-black">7Da</td>
         <td>pv7d</td>
-        <td style="border-left: 2px solid black;">v30d</td>
+        <td class="border-left-black">v30d</td>
         <td>pv30d</td>
-        <td style="border-left: 2px solid black;">v12m</td>
+        <td class="border-left-black">v12m</td>
         <td>pv12m</td>
-        <td style="text-align: right;border-left: 2px solid black;">
-            <a href="{{.Repo">i1</a>
+        <td class="border-left-black">
+            <a href="Repo">i1</a>
         </td>
-        <td style="text-align: right;">
-            <a href="{{.Repo/issues">b1</a>
+        <td>
+            <a href="Repo/issues">b1</a>
         </td>
     </tr>
 
+
     <tr>
-        <td><a href="https://{{.Site ">site-a</a></td>
-        <td style="border-left: 2px solid black;">7Da</td>
+        <td><a href=" ">site-b</a></td>
+        <td class="border-left-black">7Da</td>
         <td>pv7d</td>
-        <td style="border-left: 2px solid black;">v30d</td>
+        <td class="border-left-black">v30d</td>
         <td>pv30d</td>
-        <td style="border-left: 2px solid black;">v12m</td>
+        <td class="border-left-black">v12m</td>
         <td>pv12m</td>
-        <td style="text-align: right;border-left: 2px solid black;">
-            <a href="{{.Repo">i1</a>
+        <td class="border-left-black">
+            <a href="Repo2">i2</a>
         </td>
-        <td style="text-align: right;">
-            <a href="{{.Repo/issues">b1</a>
+        <td>
+            <a href="Repo/issues">b2</a>
         </td>
     </tr>
+
 
     </tbody>
 
     <tfoot> <tr>
-        <td style="border-top: 2px solid black;">Totals:</td>
-        <td style="border-top: 2px solid black;border-left: 2px solid black;">a</td>
-        <td style="border-top: 2px solid black;">7d</td>
-        <td style="border-top: 2px solid black;border-left: 2px solid black;">30d</td>
-        <td style="border-top: 2px solid black;">30d</td>
-        <td style="border-top: 2px solid black;border-left: 2px solid black;">12m</td>
-        <td style="border-top: 2px solid black;">12m</td>
-        <td style="column-span: 2; border-left: 2px solid black;border-top: 2px solid black;;text-align: right">issues</td>
-        <td style="border-top: 2px solid black;text-align: right ">bugs</td>
+        <td class="border-top">Totals:</td>
+        <td class="border-top border-left-black">a</td>
+        <td class="border-top">7 Days</td>
+        <td class="border-top border-left-black">30 Days</td>
+        <td class="border-top">30 Days</td>
+        <td class="border-top border-left-black">12 Months</td>
+        <td class="border-top">12 Months</td>
+        <td class="column-span: 2 border-left-black border-top text-right">Issues</td>
+        <td class="border-top text-right ">Bugs</td>
 
     </tr> </tfoot>
 </table>
