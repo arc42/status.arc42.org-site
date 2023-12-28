@@ -9,9 +9,10 @@ import (
 	"strings"
 )
 
-const AppVersion = "0.4.6f"
+const AppVersion = "0.4.7"
 
 // version history
+// 0.5.x rate limit: limit amount of queries to external APIs
 // 0.4.7 replace most inline styles by css
 // 0.4.6 sortable table (a: initial, b...e: fix layout issues), f: fix #94
 // 0.4.5 fix missing separators in large numbers
