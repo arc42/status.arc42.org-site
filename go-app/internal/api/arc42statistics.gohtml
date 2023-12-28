@@ -4,19 +4,19 @@
     <thead>
     <tr>
         <th rowspan="2"><img src="/images/minion-logo-100px.png" alt="Gopher logo"></th>
-        <th colspan="2" style="border-left: 2px solid black; text-align: center;">7 Days</th>
-        <th colspan="2" style="border-left: 2px solid black; text-align: center;">30 Days</th>
-        <th colspan="2" style="border-left: 2px solid black; text-align: center;">12 Month</th>
-        <th colspan="2" style="border-left: 2px solid black; text-align: center;">Open Tasks</th>
+        <th colspan="2" class="border-left-black text-center">7 Days</th>
+        <th colspan="2" class="border-left-black text-center">30 Days</th>
+        <th colspan="2" class="border-left-black text-center">12 Month</th>
+        <th colspan="2"  class="border-left-black text-center">Open Tasks</th>
     </tr>
     <tr>
-        <th style="border-left: 2px solid black; text-align: center;">Visitors</th>
+        <th class="border-left-black">Visitors</th>
         <th>PageViews</th>
-        <th style="border-left: 2px solid black;">Visitors</th>
+        <th class="border-left-black">Visitors</th>
         <th>PageViews</th>
-        <th style="border-left: 2px solid black;">Visitors</th>
+        <th class="border-left-black">Visitors</th>
         <th>PageViews</th>
-        <th style="border-left: 2px solid black;">Issues</th>
+        <th class="border-left-black">Issues</th>
         <th>Bugs</th>
     </tr>
     </thead>
@@ -26,16 +26,16 @@
     {{ range .Stats4Site }}
         <tr>
             <td><a href="https://{{.Site }}">{{.Site}}</a></td>
-            <td style="border-left: 2px solid black;">{{ .Visitors7d}}</td>
+            <td class="border-left-black">{{ .Visitors7d}}</td>
             <td>{{ .PageViews7d}}</td>
-            <td style="border-left: 2px solid black;">{{ .Visitors30d}}</td>
+            <td class="border-left-black">{{ .Visitors30d}}</td>
             <td>{{ .PageViews30d}}</td>
-            <td style="border-left: 2px solid black;">{{ .Visitors12m}}</td>
+            <td class="border-left-black">{{ .Visitors12m}}</td>
             <td>{{ .PageViews12m}}</td>
-            <td style="text-align: right;border-left: 2px solid black;">
+            <td class="border-left-black">
                 <a href="{{.Repo}}/issues">{{.NrOfOpenIssues}}</a>
             </td>
-            <td style="text-align: right;">
+            <td >
                 {{if (gt .NrOfOpenBugs 0)}}
                     <a href="{{.Repo}}/issues">{{.NrOfOpenBugs}}</a>
                 {{end}}
@@ -45,15 +45,15 @@
     </tbody>
 
     <tfoot> <tr>
-        <td style="border-top: 2px solid black;">Totals:</td>
-        <td style="border-top: 2px solid black;border-left: 2px solid black;">{{ .Totals.SumOfVisitors7d}}</td>
-        <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageViews7d}}</td>
-        <td style="border-top: 2px solid black;border-left: 2px solid black;">{{ .Totals.SumOfVisitors30d}}</td>
-        <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageViews30d}}</td>
-        <td style="border-top: 2px solid black;border-left: 2px solid black;">{{ .Totals.SumOfVisitors12m}}</td>
-        <td style="border-top: 2px solid black;">{{ .Totals.SumOfPageViews12m}}</td>
-        <td style="column-span: 2; border-left: 2px solid black;border-top: 2px solid black;;text-align: right">{{ .Totals.TotalNrOfIssues}}</td>
-        <td style="border-top: 2px solid black;text-align: right ">{{ .Totals.TotalNrOfBugs}}</td>
+        <td class="border-top">Totals:</td>
+        <td class="border-top border-left-black">{{ .Totals.SumOfVisitors7d}}</td>
+        <td class="border-top">{{ .Totals.SumOfPageViews7d}}</td>
+        <td class="border-top border-left-black">{{ .Totals.SumOfVisitors30d}}</td>
+        <td class="border-top">{{ .Totals.SumOfPageViews30d}}</td>
+        <td class="border-top border-left-black">{{ .Totals.SumOfVisitors12m}}</td>
+        <td class="border-top">{{ .Totals.SumOfPageViews12m}}</td>
+        <td class="border-top border-left-black">{{ .Totals.TotalNrOfIssues}}</td>
+        <td class="border-top">{{ .Totals.TotalNrOfBugs}}</td>
 
     </tr> </tfoot>
 </table>

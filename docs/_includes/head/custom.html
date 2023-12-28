@@ -15,31 +15,43 @@
 
 
 <style>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-    width: auto;
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: auto;
 
-}
+    }
+    .border-left-black {
+        border-left: 2px solid black;
+    }
 
-th {
-  border: 1px solid #dddddd;
-  text-align: center;
-  padding: 8px;
-}
-td {
-  border: 1px solid #dddddd;
-  text-align: right;
-  padding: 8px;
-}
+    .border-top {
+        border-top: 2px solid black;
+    }
 
-tr:nth-child(2n+3) {
-            background-color: #dddddd;
-        }
+    .text-center {
+        text-align: center;
+    }
 
-tfoot td, tfoot th {
-    text-align: right !important;
-}
+    .text-right {
+        text-align: right;
+    }
+
+    th,td {
+        border: 1px solid #dddddd;
+        padding: 8px;
+        text-align: right;
+
+    }
+
+
+    tbody tr:nth-child(odd) {
+        background-color: #dbe2fc;
+    }
+
+    tfoot td, tfoot th {
+        text-align: right;
+    }
 
 </style>
 
