@@ -27,7 +27,7 @@ func randomDateTime(monthAgo int) string {
 	randTime := someTimeAgo.Add(time.Duration(randDiff) * time.Second)
 
 	// Output randomTime to console in SQL datetime format
-	return (randTime.Format("2006-01-02 15:04:05"))
+	return (randTime.Format(database.DateTimeLayout))
 }
 
 func populateTimeOfStatusRequestTable(tblName string, index int) {

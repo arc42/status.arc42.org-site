@@ -21,6 +21,7 @@ ifndef::imagesdir[:imagesdir: ../../images]
 
 === Quality Goals
 
+* Environmental friendly: Reduce computing resources used as much as possible.
 
 
 === Stakeholders
