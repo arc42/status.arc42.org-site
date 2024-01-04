@@ -2,18 +2,23 @@
 // that counts visitors and pageviews of the arc42 sites.
 package plausible
 
+import (
+	"github.com/andrerfcsantos/go-plausible/plausible"
+	"os"
+)
+
 // thanx and credits to Andre
 // https://github.com/andrerfcsantos/go-plausible
 // wrapping https://plausible.io/docs
 // ==============================================
 
+// vpv: Visitors and PageViews
+
 import (
 	"arc42-status/internal/types"
-	"github.com/andrerfcsantos/go-plausible/plausible"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
-	"os"
 	"strconv"
 	"sync"
 )
