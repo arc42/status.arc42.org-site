@@ -2,9 +2,12 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/rs/zerolog/log"
+	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	"os"
 	"sync"
+	"time"
 )
 
 // database code depends on Turso database, see https://turso.tech.
@@ -13,18 +16,21 @@ import (
 const TursoDBName = "arc42-statistics"
 const TursoURLPlain = "libsql://" + TursoDBName + "-gernotstarke.turso.io"
 
+const TableTimeOfSystemStart = "TimeOfSystemStart"
 const TableTimeOfStatusRequest = "TimeOfStatusRequest"
-
 const TableTimeOfPlausibleCall = "TimeOfPlausibleCall"
-
 const TableTimeOfGitHubCall = "TimeOfGitHubCall"
 
-// to ensure
+// used to format DateTime values
+const DateTimeLayout = "2006-01-02 15:04:05"
+
+// Singleton-pattern to ensure the DB is initialized only once
 var (
 	once       sync.Once
 	dbInstance *sql.DB
 )
 
+// initAuthToken should not be called directly, it is only used by the Singleton GetDB()
 func initAuthToken() string {
 	tursoAuthToken := os.Getenv("TURSO_AUTH_TOKEN")
 	if tursoAuthToken == "" {
@@ -38,6 +44,8 @@ func initAuthToken() string {
 	return tursoAuthToken
 }
 
+// GetDB is a singleton function that returns a pointer to a sql.DB object.
+// It ensures that only one instance of the database connection is created.
 func GetDB() *sql.DB {
 	once.Do(func() {
 
@@ -53,4 +61,19 @@ func GetDB() *sql.DB {
 
 	return dbInstance
 
+}
+
+func SaveStartupTime(now time.Time, appVersion string, environment string) {
+	// language-SQL
+	insertStatement := fmt.Sprintf(
+		`INSERT INTO %s ( Startup, AppVersion, Environment ) 
+				 VALUES ("%s", "%s", "%s"); `,
+		TableTimeOfSystemStart, now.Format(DateTimeLayout), appVersion, environment)
+
+	_, err := GetDB().Exec(insertStatement)
+	if err != nil {
+		log.Error().Msgf("Error inserting startup metadata %s:%s:%s\n ", TableTimeOfSystemStart, err, environment)
+	} else {
+		log.Info().Msg("wrote startup time to database")
+	}
 }

@@ -2,14 +2,16 @@ package main
 
 import (
 	"arc42-status/internal/api"
+	"arc42-status/internal/database"
 	"arc42-status/internal/domain"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"
 	"strings"
+	"time"
 )
 
-const AppVersion = "0.4.7"
+const AppVersion = "0.5.0"
 
 // version history
 // 0.5.x rate limit: limit amount of queries to external APIs
@@ -70,6 +72,10 @@ func init() {
 }
 
 func main() {
+	// as the main package cannot be imported, constants defined here
+	// cannot directly be used in internal/* packages.
+	//Therefore, we set the AppVersion via a func.
+	domain.SetAppVersion(AppVersion)
 
 	// find out runtime environment:
 	// PROD or PRODUCTION -> fly.io, running in the cloud
@@ -78,15 +84,14 @@ func main() {
 	if strings.HasPrefix(environment, "PROD") {
 		log.Info().Msg("Running on fly.io")
 	} else {
+		environment = "DEV"
 		log.Info().Msg("Running on localhost")
 	}
 
-	// as the main package cannot be imported, constants defined here
-	// cannot directly be used in internal/* packages, therefore we
-	// set the AppVersion via a func.
-	domain.SetAppVersion(AppVersion)
+	// Save the startup metadata persistently, see ADR-0012
+	database.SaveStartupTime(time.Now(), AppVersion, environment)
 
-	// Start a server which runs in background and waits for http requests
+	// Start a server which runs in the background, and waits for http requests
 	// to arrive at predefined routes.
 	// THIS IS A BLOCKING CALL, therefore server details are printed prior to starting the server
 	api.LogServerDetails(AppVersion)

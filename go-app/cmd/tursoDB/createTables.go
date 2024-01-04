@@ -50,4 +50,10 @@ func main() {
          )`
 	createTable(database.TableTimeOfGitHubCall, database.GetDB(), createToGHSQL)
 
+	createToSysStart := fmt.Sprintf(
+		`CREATE TABLE IF NOT EXISTS  %s 
+( Startup DATETIME PRIMARY KEY DEFAULT CURRENT_TIMESTAMP, 
+AppVersion VARCHAR(15), 
+Environment VARCHAR(15) ); `, database.TableTimeOfSystemStart)
+	createTable(database.TableTimeOfSystemStart, database.GetDB(), createToSysStart)
 }
