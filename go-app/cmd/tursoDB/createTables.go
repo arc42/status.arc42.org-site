@@ -28,12 +28,12 @@ func main() {
 
 	// SQL statement to create a table.
 	// language=SQL
-	createToSRSQL := "CREATE TABLE IF NOT EXISTS " + database.TableTimeOfStatusRequest +
-		` (TimeCalled DATETIME PRIMARY KEY DEFAULT CURRENT_TIMESTAMP, 
-         RequestIP VARCHAR(16),
-		 Route VARCHAR(50))`
+	createToSRSQL := "CREATE TABLE IF NOT EXISTS " + database.TableTimeOfInvocation +
+		` (invocation_time DATETIME PRIMARY KEY DEFAULT CURRENT_TIMESTAMP, 
+         request_ip VARCHAR(16),
+		 route VARCHAR(50))`
 
-	createTable(database.TableTimeOfStatusRequest, db, createToSRSQL)
+	createTable(database.TableTimeOfInvocation, db, createToSRSQL)
 
 	// language=SQL
 	createToPCSQL := `CREATE TABLE IF NOT EXISTS ` + database.TableTimeOfPlausibleCall +

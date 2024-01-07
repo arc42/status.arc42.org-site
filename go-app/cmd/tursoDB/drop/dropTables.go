@@ -41,7 +41,7 @@ func dropOneTable(tblName string) {
 }
 
 func dropTables() {
-	dropOneTable(database.TableTimeOfStatusRequest)
+	dropOneTable(database.TableTimeOfInvocation)
 	dropOneTable(database.TableTimeOfPlausibleCall)
 	dropOneTable(database.TableTimeOfGitHubCall)
 }

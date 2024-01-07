@@ -48,13 +48,13 @@ func populateTimeOfStatusRequestTable(tblName string, index int) {
 func main() {
 	fmt.Println("creating content in tables on Turso")
 
-	fmt.Printf("Inserting %d records into TABLE %s;\n", RecordCount, database.TableTimeOfStatusRequest)
+	fmt.Printf("Inserting %d records into TABLE %s;\n", RecordCount, database.TableTimeOfInvocation)
 
 	// get the timestamp for current time (now)
 	now = time.Now()
 
 	for i := 0; i <= RecordCount; i++ {
-		populateTimeOfStatusRequestTable(database.TableTimeOfStatusRequest, i)
+		populateTimeOfStatusRequestTable(database.TableTimeOfInvocation, i)
 	}
 
 }
