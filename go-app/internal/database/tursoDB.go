@@ -17,11 +17,18 @@ const TursoDBName = "arc42-statistics"
 const TursoURLPlain = "libsql://" + TursoDBName + "-gernotstarke.turso.io"
 
 const TableTimeOfSystemStart = "TimeOfSystemStart"
-const TableTimeOfStatusRequest = "TimeOfStatusRequest"
+const TableTimeOfInvocation = "TimeOfInvocation"
 const TableTimeOfPlausibleCall = "TimeOfPlausibleCall"
 const TableTimeOfGitHubCall = "TimeOfGitHubCall"
 
-// used to format DateTime values
+// column names for TableTimeOfSystemStart
+const (
+	SysStartupColumnStartup    = "startup"
+	SysStartupColumnAppVersion = "app_version"
+	SysStartupColumnEnv        = "environment"
+)
+
+// DateTimeLayout is used to format DateTime values
 const DateTimeLayout = "2006-01-02 15:04:05"
 
 // Singleton-pattern to ensure the DB is initialized only once
@@ -63,6 +70,8 @@ func GetDB() *sql.DB {
 
 }
 
+// SaveStartupTime saves the startup time of the application to the database.
+// It inserts a new record into the TableTimeOfSystemStart table with the current time, app version, and environment.
 func SaveStartupTime(now time.Time, appVersion string, environment string) {
 	// language-SQL
 	insertStatement := fmt.Sprintf(
@@ -73,6 +82,21 @@ func SaveStartupTime(now time.Time, appVersion string, environment string) {
 	_, err := GetDB().Exec(insertStatement)
 	if err != nil {
 		log.Error().Msgf("Error inserting startup metadata %s:%s:%s\n ", TableTimeOfSystemStart, err, environment)
+	} else {
+		log.Info().Msg("wrote startup time to database")
+	}
+}
+
+func SaveInvocationParams(requestIP string, route string) {
+
+	insertStatement := fmt.Sprintf(
+		`INSERT INTO %s ( invocation_time, request_ip, route ) 
+				 VALUES ("%s", "%s", "%s"); `,
+		TableTimeOfInvocation, time.Now().Format(DateTimeLayout), requestIP, route)
+
+	_, err := GetDB().Exec(insertStatement)
+	if err != nil {
+		log.Error().Msgf("Error inserting startup metadata %s:%s:%s\n ", TableTimeOfSystemStart, err)
 	} else {
 		log.Info().Msg("wrote startup time to database")
 	}
