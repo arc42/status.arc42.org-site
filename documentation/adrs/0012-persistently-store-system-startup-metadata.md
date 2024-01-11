@@ -19,9 +19,9 @@ We write the current time to a database table during system startup, prior to st
 Therefore we introduce a new table:
 
 
-#### TimeOfSystemStartup
+#### Table "system_startup"
 
-TimeOfSystemStartup stores the DateTime when the whole system was started.
+"system_startup" stores the DateTime when the whole system was started.
 
 | startup | app_version | environment |
 | --- | --- | ---|
@@ -30,4 +30,4 @@ TimeOfSystemStartup stores the DateTime when the whole system was started.
 ## Consequences
 
 - enhance the scripts for creating, dropping and dumping tables, accordingly.
-- create function to be called *once* immeadiately after system startup
+- create function to be called *once* immediately after system startup
