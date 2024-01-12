@@ -8,10 +8,11 @@ import (
 	"github.com/rs/zerolog/log"
 	"os"
 	"strings"
+	"sync"
 	"time"
 )
 
-const AppVersion = "0.5.0"
+const AppVersion = "0.5.1"
 
 // version history
 // 0.5.x rate limit: limit amount of queries to external APIs
@@ -71,25 +72,50 @@ func init() {
 	log.Info().Msgf("log level set to %s", loglevel)
 }
 
+// Singleton-pattern to ensure the environment is set only once
+var (
+	once        sync.Once
+	environment string
+)
+
+// GetEnv is a singleton function that returns an Environment.
+// It ensures that only one instance is created.
+func GetEnv() string {
+	once.Do(func() {
+		envi := strings.ToUpper(os.Getenv("ENVIRONMENT"))
+		switch {
+		case strings.HasPrefix(envi, "DEV"):
+			{
+				envi = "DEV"
+				log.Info().Msg("Running on localhost")
+			}
+		case strings.HasPrefix(envi, "TEST"):
+			{
+				envi = "TEST"
+				log.Info().Msg("Running as TEST on localhost")
+			}
+		case strings.HasPrefix(envi, "PROD"):
+			{
+				envi = "PROD"
+				log.Info().Msg("Running on fly.io")
+			}
+		default:
+			envi = "DEV" // Default to Development
+			log.Info().Msg("No ENVIRONMENT set, presumably running on localhost")
+		}
+		environment = envi
+	})
+	return environment
+}
+
 func main() {
-	// as the main package cannot be imported, constants defined here
+	// As the main package cannot be imported, constants defined here
 	// cannot directly be used in internal/* packages.
-	//Therefore, we set the AppVersion via a func.
+	// Therefore, we set the AppVersion via a func.
 	domain.SetAppVersion(AppVersion)
 
-	// find out runtime environment:
-	// PROD or PRODUCTION -> fly.io, running in the cloud
-	// DEV or DEVELOPMENT -> localhost, running on local machine
-	environment := strings.ToUpper(os.Getenv("ENVIRONMENT"))
-	if strings.HasPrefix(environment, "PROD") {
-		log.Info().Msg("Running on fly.io")
-	} else {
-		environment = "DEV"
-		log.Info().Msg("Running on localhost")
-	}
-
 	// Save the startup metadata persistently, see ADR-0012
-	database.SaveStartupTime(time.Now(), AppVersion, environment)
+	database.SaveStartupTime(time.Now(), AppVersion, GetEnv())
 
 	// Start a server which runs in the background, and waits for http requests
 	// to arrive at predefined routes.
