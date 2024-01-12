@@ -21,39 +21,19 @@ func createTable(tableName string, db *sql.DB, createTableSQL string) {
 	fmt.Printf("Table %s created successfully\n", tableName)
 }
 
+// @deprecated as of ADR-0013 (use Atlas for schema management)
+// code left here to demo how a table can be created in Go.
+
 func main() {
 
 	db := database.GetDB()
-	fmt.Printf("Trying to create DB tables on database %v\n", db.Driver())
+	fmt.Printf("Create DB table on database %v\n", db.Driver())
 
-	// SQL statement to create a table.
-	// language=SQL
-	createToSRSQL := "CREATE TABLE IF NOT EXISTS " + database.TableTimeOfStatusRequest +
-		` (TimeCalled DATETIME PRIMARY KEY DEFAULT CURRENT_TIMESTAMP, 
-         RequestIP VARCHAR(16),
-		 Route VARCHAR(50))`
-
-	createTable(database.TableTimeOfStatusRequest, db, createToSRSQL)
-
-	// language=SQL
-	createToPCSQL := `CREATE TABLE IF NOT EXISTS ` + database.TableTimeOfPlausibleCall +
-		`(
-			PlausibleCalledAt DATETIME PRIMARY KEY DEFAULT CURRENT_TIMESTAMP,
-            ServiceVersion VARCHAR(15)
+	createDemoTable := `CREATE TABLE IF NOT EXISTS demo_table (
+			current_time  DATETIME PRIMARY KEY DEFAULT CURRENT_TIMESTAMP,
+            service_version VARCHAR(15)
          )`
-	createTable(database.TableTimeOfPlausibleCall, database.GetDB(), createToPCSQL)
 
-	createToGHSQL := `CREATE TABLE IF NOT EXISTS ` + database.TableTimeOfGitHubCall +
-		`(
-			GitHubCalledAt DATETIME PRIMARY KEY DEFAULT CURRENT_TIMESTAMP,
-            ServiceVersion VARCHAR(15)
-         )`
-	createTable(database.TableTimeOfGitHubCall, database.GetDB(), createToGHSQL)
+	createTable("demo_table", database.GetDB(), createDemoTable)
 
-	createToSysStart := fmt.Sprintf(
-		`CREATE TABLE IF NOT EXISTS  %s 
-( Startup DATETIME PRIMARY KEY DEFAULT CURRENT_TIMESTAMP, 
-AppVersion VARCHAR(15), 
-Environment VARCHAR(15) ); `, database.TableTimeOfSystemStart)
-	createTable(database.TableTimeOfSystemStart, database.GetDB(), createToSysStart)
 }

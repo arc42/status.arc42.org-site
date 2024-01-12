@@ -23,17 +23,18 @@ If our current server is a "fresh instance", we have to ignore the last-time-cal
 
 ## Decision
 
-1. Create a database that keeps the last-query time for both Plausible and GitHub requests.
+1. Create a table that keeps the invocation times of our API
+2. Create tables that keep the last-query time for both Plausible and GitHub requests.
 2. Call the Plausible.io API only once every `Plausible_Rate_Limit_Minutes` (defaulting to 20)
 3. Call the GitHub API only once every `GitHub_Rate_Limit_Minutes` (defaulting to 3)
 
 The tables shall have the following format:
  
-#### TimeOfStatusRequest
+#### TimeOfInvocation
 
-TimeOfStatusRequest stores the DateTime of the calls to our service, plus service version and request IP
+TimeOfInvocation stores the DateTime of invocations, plus request IP and route.
 
-| TimeCalled | RequestIP | Route |
+| invocation_time | request_ip | route |
 | --- | --- | --- |
 | A DATETIME entry, denoting at what date/time our API was called  | caller IP | Route that was called (e.g. statsTable or ping |
 
@@ -42,18 +43,17 @@ TimeOfStatusRequest stores the DateTime of the calls to our service, plus servic
 
 TimeOfPlausibleCall stores the DateTime of the calls to plausible.io API.
 
-| PlausibleCalledAt | ServiceVersion |
-| --- | --- | 
-| A DATETIME entry, denoting at what date/time the plausible API was called | our service version IT |
+| plausible_invocation_time |
+| --- | 
+| A DATETIME entry, denoting at what date/time the plausible API was called |
 
 #### TimeOfGitHubCall
 
 TimeOfGitHubCall stores the DateTime of the calls to GitHub API.
 
-| GitHubCalledAt | ServiceVersion |
-| --- | --- | 
-| A DATETIME entry, denoting at what date/time the GitHub API was called | our service version IT |
-
+| github_invocation_time | 
+| --- | 
+| A DATETIME entry, denoting at what date/time the GitHub API was called | 
 
 ## Consequences
 

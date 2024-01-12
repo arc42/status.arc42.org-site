@@ -1,6 +1,7 @@
 package api
 
 import (
+	"arc42-status/internal/database"
 	"arc42-status/internal/domain"
 	"arc42-status/internal/fly"
 	"embed"
@@ -57,7 +58,11 @@ func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 	// 3. handle the CORS stuff
 	SendCORSHeaders(&w, r)
 
-	// 4. finally, render the template
+	// 4. store request params in database
+	// TODO: make this asyn
+	database.SaveInvocationParams(r.Host, r.RequestURI)
+
+	// 5. finally, render the template
 	executeTemplate(w, filepath.Join(TemplatesDir, HtmlTableTmpl), domain.ArcStats)
 }
 

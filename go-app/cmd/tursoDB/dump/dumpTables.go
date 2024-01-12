@@ -13,7 +13,7 @@ func chooseTable() string {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Println("Please select which table you like to see:")
-	fmt.Printf("1. %s\n", database.TableTimeOfStatusRequest)
+	fmt.Printf("1. %s\n", database.TableTimeOfInvocation)
 	fmt.Printf("2. %s\n", database.TableTimeOfPlausibleCall)
 	fmt.Printf("3. %s\n", database.TableTimeOfGitHubCall)
 	fmt.Print("Enter choice (1-3): ")
@@ -28,7 +28,7 @@ func chooseTable() string {
 
 	switch input {
 	case "1":
-		return database.TableTimeOfStatusRequest
+		return database.TableTimeOfInvocation
 	case "2":
 		return database.TableTimeOfPlausibleCall
 	case "3":
