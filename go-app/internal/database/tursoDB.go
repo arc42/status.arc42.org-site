@@ -11,21 +11,33 @@ import (
 )
 
 // database code depends on Turso database, see https://turso.tech.
+
+// Access to turso depends on the libsql driver,
 // see https://github.com/tursodatabase/libsql-client-go
+
+// database schema (tables, columns) are defined in file "schema.hcl"
+// and managed by Atlas.
 
 const TursoDBName = "arc42-statistics"
 const TursoURLPlain = "libsql://" + TursoDBName + "-gernotstarke.turso.io"
 
-const TableTimeOfSystemStart = "TimeOfSystemStart"
-const TableTimeOfInvocation = "TimeOfInvocation"
-const TableTimeOfPlausibleCall = "TimeOfPlausibleCall"
-const TableTimeOfGitHubCall = "TimeOfGitHubCall"
+const TableTimeOfSystemStart = "system_startup"
+const TableTimeOfInvocation = "time_of_invocation"
+const TableTimeOfPlausibleCall = "time_of_plausible_call"
+const TableTimeOfGitHubCall = "time_of_github_call"
 
 // column names for TableTimeOfSystemStart
 const (
 	SysStartupColumnStartup    = "startup"
 	SysStartupColumnAppVersion = "app_version"
 	SysStartupColumnEnv        = "environment"
+)
+
+// colum names for TableTimeOfInvocation
+const (
+	InvocationTimeColumnInvocation = "invocation_time"
+	InvocationTimeColumnRequestIP  = "request_ip"
+	InvocationTimeColumnRoute      = "route"
 )
 
 // DateTimeLayout is used to format DateTime values
@@ -36,6 +48,12 @@ var (
 	once       sync.Once
 	dbInstance *sql.DB
 )
+
+func DatabaseURL(env string) string {
+	var dburl string
+
+	return dburl
+}
 
 // initAuthToken should not be called directly, it is only used by the Singleton GetDB()
 func initAuthToken() string {
@@ -53,6 +71,7 @@ func initAuthToken() string {
 
 // GetDB is a singleton function that returns a pointer to a sql.DB object.
 // It ensures that only one instance of the database connection is created.
+// For PROD
 func GetDB() *sql.DB {
 	once.Do(func() {
 
@@ -75,9 +94,11 @@ func GetDB() *sql.DB {
 func SaveStartupTime(now time.Time, appVersion string, environment string) {
 	// language-SQL
 	insertStatement := fmt.Sprintf(
-		`INSERT INTO %s ( Startup, AppVersion, Environment ) 
+		`INSERT INTO %s ( %s, %s, %s ) 
 				 VALUES ("%s", "%s", "%s"); `,
-		TableTimeOfSystemStart, now.Format(DateTimeLayout), appVersion, environment)
+		TableTimeOfSystemStart,
+		SysStartupColumnStartup, SysStartupColumnAppVersion, SysStartupColumnEnv,
+		now.Format(DateTimeLayout), appVersion, environment)
 
 	_, err := GetDB().Exec(insertStatement)
 	if err != nil {
@@ -90,14 +111,17 @@ func SaveStartupTime(now time.Time, appVersion string, environment string) {
 func SaveInvocationParams(requestIP string, route string) {
 
 	insertStatement := fmt.Sprintf(
-		`INSERT INTO %s ( invocation_time, request_ip, route ) 
+		`INSERT INTO %s ( %s, %s, %s ) 
 				 VALUES ("%s", "%s", "%s"); `,
-		TableTimeOfInvocation, time.Now().Format(DateTimeLayout), requestIP, route)
+		TableTimeOfInvocation,
+		InvocationTimeColumnInvocation, InvocationTimeColumnRequestIP,
+		InvocationTimeColumnRoute,
+		time.Now().Format(DateTimeLayout), requestIP, route)
 
 	_, err := GetDB().Exec(insertStatement)
 	if err != nil {
-		log.Error().Msgf("Error inserting startup metadata %s:%s:%s\n ", TableTimeOfSystemStart, err)
+		log.Error().Msgf("Error inserting invocation parameters %s:%s:%s\n ", TableTimeOfSystemStart, err)
 	} else {
-		log.Info().Msg("wrote startup time to database")
+		log.Info().Msg("wrote request parameters to database")
 	}
 }
