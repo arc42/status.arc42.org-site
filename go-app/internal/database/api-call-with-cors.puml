@@ -1,0 +1,29 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+
+actor client as "Client"
+participant site as "status.arc42.org\nstatic website"
+participant htmx as "htmx\nJavaScript lib"
+participant server as "api Gateway"
+
+client -> site : "https://status.arc42.org"
+site -> htmx: replace table
+activate htmx
+
+htmx -> server: OPTIONS statsTable
+activate server
+server -> server : Set CORS headers
+server --> htmx : return 200 OK
+
+htmx -> server : GET /statsTable
+server -> server : Set CORS headers
+server -> server : Perform additional processing
+server --> htmx : return 200 OK with data
+deactivate server
+htmx --> site: html table\ncontaining results
+deactivate htmx
+site --> client: display table
+@enduml
