@@ -4,9 +4,12 @@ import (
 	"arc42-status/internal/env"
 	"database/sql"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/rs/zerolog/log"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	"os"
+	"os/user"
+	"path/filepath"
 	"sync"
 	"time"
 )
@@ -19,9 +22,12 @@ import (
 // database schema (tables, columns) are defined in file "schema.hcl"
 // and managed by Atlas.
 
-const TursoPRODDBName = "arc42-statistics"
-const TursoTESTDBName = "arc42-test"
-const TursoPRODUrl = "libsql://" + TursoPRODDBName + "-gernotstarke.turso.io"
+const tursoPRODDBName = "arc42-statistics"
+const tursoTESTDBName = "arc42-stats-dev.db"
+
+const tursoPRODUrl = "libsql://" + tursoPRODDBName + "-gernotstarke.turso.io"
+const tursoTESTUrl = "libsql://" + tursoTESTDBName + "-gernotstarke.turso.io"
+
 const LocalSQLiteURL = "sqlite://dev.db?_fk=1"
 
 const TableTimeOfSystemStart = "system_startup"
@@ -66,6 +72,21 @@ func initAuthToken() string {
 	return tursoAuthToken
 }
 
+// pathToDevDB determines the location of the DEV and TEST database:
+// we use the users' home directory with a subdirectory /.arc42-sqlite/
+func pathToDevDB() string {
+	// CurrentUser returns the current user.
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal().Msg("error in getting current user")
+	}
+
+	devDBPath := filepath.Join(usr.HomeDir, tursoTESTDBName)
+
+	log.Debug().Msgf("path to DEV db is %s", devDBPath)
+	return devDBPath
+}
+
 // GetDB is a singleton function that returns a pointer to a sql.DB object.
 // It ensures that only one instance of the database connection is created.
 // For PROD, this is always the Turso libSQL database.
@@ -78,20 +99,14 @@ func GetDB() *sql.DB {
 		switch env.GetEnv() {
 		case "PROD":
 			{
-				dbUrl = TursoPRODUrl + "?authToken=" + initAuthToken()
+				dbUrl = tursoPRODUrl + "?authToken=" + initAuthToken()
 				driverName = "libsql"
 				break
 			}
-		case "DEV":
+		case "DEV", "TEST":
 			{
-				dbUrl = LocalSQLiteURL
-				driverName = "sqlite"
-				break
-			}
-		case "TEST":
-			{
-				dbUrl = ""
-				driverName = ""
+				dbUrl = pathToDevDB()
+				driverName = "sqlite3"
 				break
 			}
 		default:
