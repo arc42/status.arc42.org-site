@@ -13,3 +13,30 @@ ifndef::imagesdir[:imagesdir: ../../images]
 == System Scope and Context
 
 image::03-context-status-arc42-org4canvas.drawio.png[]
+
+[cols="1,3,1"]
+|===
+| Element | Responsibility | Code
+
+| Plausible.io
+| Web analytics SAAS platform, counts viewers and pageviews
+|`/internal/plausible`
+
+| Fly.io
+| Cloud (hyperscaler) platform, where the status.arc42.org application is deployed and executed. Besides deploying the golang application on their servers, We ask fly.io for the current server region, utilizing their https://fly.io/docs/reference/[API].
+|`/internal/fly`
+
+| GitHub
+| Hosting all repositories for arc42 sites and subdomains. API returns bug and issue count plus other info related to these repositories.
+| `/internal/github`
+
+| Slack
+| Notification service: When users request certain actions in the status app, notifications are sent to a specific Slack channel/app.
+| currently in planning
+
+| Turso Database
+| A cloud-hosted, multi-instance database storing several types of runtime data we need to persist. For example: startup times of the app.
+| ìnternal/database`
+
+|===
+
