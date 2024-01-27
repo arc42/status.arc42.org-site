@@ -8,10 +8,8 @@ ifndef::imagesdir[:imagesdir: ../../images]
 
 :toc:
 
-
-
 [[section-design-decisions]]
 == Architecture Decisions
 
-
+you'll find the Architecture decision records in the top-level menu link:../../adrs/0001-record-architecture-decisions.html["Tech Decisions (ADRs)"]
 
