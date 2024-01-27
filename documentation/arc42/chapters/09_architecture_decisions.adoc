@@ -6,12 +6,13 @@
 :filename: /chapters/09_architecture_decisions.adoc
 ifndef::imagesdir[:imagesdir: ../../images]
 
+:toclevels: 1
 :toc:
-
-
 
 [[section-design-decisions]]
 == Architecture Decisions
 
+ifndef::projectRootDir[:projectRootDir: ../../..]
 
+include::{projectRootDir}/build/adrInclude.adoc[]
 

@@ -18,7 +18,6 @@ Accepted.
 
 * This is only valid if our service wasn't shutdown by our cloud provider between calls to our API.
 If our current server is a "fresh instance", we have to ignore the last-time-called values.
-* 
 * As we run in the cloud, we need to store the last-query-time for our external APIs in a persistent store (DB).
 
 
