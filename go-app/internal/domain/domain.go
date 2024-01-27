@@ -81,7 +81,6 @@ func LoadStats4AllSites() types.Arc42Statistics {
 	return a42s
 }
 
-// func calculateTotals(stats []types.SiteStats) types.TotalsForAllSites {
 func calculateTotals(stats [len(types.Arc42sites)]types.SiteStats) types.TotalsForAllSites {
 	var totals types.TotalsForAllSites
 

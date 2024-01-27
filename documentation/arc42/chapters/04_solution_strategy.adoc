@@ -13,5 +13,13 @@ ifndef::imagesdir[:imagesdir: ../../images]
 [[section-solution-strategy]]
 == Solution Strategy
 
+* implement in Golang (facilitates cloud deployment)
+* use https://plausible.io[plausible.io] to collect usage data (commercial service with excellent data privacy, no cookies)
+* static site generator (Jekyll, Github pages) for main site
+* use https://fly.io[fly.io] for cloud deployment
+* use https://turso.tech[turso.tech] for cloud data storage
+
+Fully open-source, source hosted on https://github.com/arc42/status.arc42.org-site[public GitHub repository].
+
 
 

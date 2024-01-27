@@ -8,11 +8,20 @@ import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"os"
+	"time"
 )
 
 const GithubArc42URL = "https://github.com/arc42/"
 
 const GITHUB_GRAPHQL_API_KEY_NAME = "GITHUB_API_KEY"
+
+// GitHubQueryInterval determines how many minutes to minimally wait prior to calling the external API again
+// currently set to 1 minute
+const GitHubQueryInterval = time.Minute
+
+// gitHubLastTimeCalled contains the time we called the public GitHub API the last time.
+// Initially, it is set to Jan 1st 2004 - the approximate date arc42 was created.
+var gitHubLastTimeCalled = time.Date(2004, time.January, 1, 0, 0, 0, 0, time.UTC)
 
 // Define the query structs,
 // using JSON GraphQL "struct-tags":
@@ -25,7 +34,7 @@ type BugsIssuesQuery struct {
 		} `graphql:"issues(states:OPEN)"`
 		Bugs struct {
 			TotalCount githubv4.Int
-		} `graphql:"bugs: issues(states:OPEN, labels:[\"BUG\"])"`
+		} `graphql:"bugs: issues(states:OPEN, labels:[\"BUG\", \"BUGS\"])"`
 	} `graphql:"repository(owner: $owner, name: $repo)"`
 }
 
@@ -65,6 +74,9 @@ func StatsForRepo(thisSite string, stats *types.RepoStats) {
 
 	stats.NrOfOpenBugs = int(query.Repository.Bugs.TotalCount)
 	stats.NrOfOpenIssues = int(query.Repository.Issues.TotalCount)
+
+	// reset timer
+	gitHubLastTimeCalled = time.Now()
 
 	log.Debug().Msgf("%s has %d open issues and %d bugs", thisSite, stats.NrOfOpenIssues, stats.NrOfOpenBugs)
 

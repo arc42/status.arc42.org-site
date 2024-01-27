@@ -35,42 +35,53 @@ func init() {
 var embeddedTemplatesFolder embed.FS
 
 // statsHTMLTableHandler returns the usage statistics as html table
-// 1. start timer
-// 2. update ArcStats
-// 3. sets required http headers needed for CORS
+// 1. sets required http headers needed for CORS
+// 2a. for the preflight OPTIONS request, just return the CORS header and OK.
+// otherwise:
+// 2b. start timer
+// 3. update ArcStats
 // 4. render the output via HtmlTableTmpl
 func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Debug().Msg("received statsTable request")
 
-	// 1. set timer
-	var startOfProcessing = time.Now()
+	// handle the CORS stuff
+	SetCORSHeaders(&w, r)
 
-	// 2. update ArcStats
-	domain.ArcStats = domain.LoadStats4AllSites()
+	//2a. Check if it's an OPTIONS request (preflight)
+	if r.Method == "OPTIONS" {
+		// No further action beyond setting headers is required for the preflight request
+		w.WriteHeader(http.StatusOK)
+		return
+	} else {
 
-	// remember how long it took to update statistics
-	domain.ArcStats.HowLongDidItTake = strconv.FormatInt(time.Since(startOfProcessing).Milliseconds(), 10)
+		// 2b. set timer
+		var startOfProcessing = time.Now()
 
-	//find out  where this service is running
-	domain.ArcStats.FlyRegion, domain.ArcStats.WhereDoesItRun = fly.RegionAndLocation()
+		// 3. update ArcStats
+		domain.ArcStats = domain.LoadStats4AllSites()
 
-	// 3. handle the CORS stuff
-	SendCORSHeaders(&w, r)
+		// remember how long it took to update statistics
+		domain.ArcStats.HowLongDidItTake = strconv.FormatInt(time.Since(startOfProcessing).Milliseconds(), 10)
 
-	// 4. store request params in database
-	// TODO: make this asyn
-	database.SaveInvocationParams(r.Host, r.RequestURI)
+		// find out where this service is running
+		domain.ArcStats.FlyRegion, domain.ArcStats.WhereDoesItRun = fly.RegionAndLocation()
 
-	// 5. finally, render the template
-	executeTemplate(w, filepath.Join(TemplatesDir, HtmlTableTmpl), domain.ArcStats)
+		// 4. store request params in database
+		// TODO: make this async
+		// TODO: include real IP address
+		database.SaveInvocationParams(r.Host, r.RequestURI)
+
+		// 5. finally, render the template
+		executeTemplate(w, filepath.Join(TemplatesDir, HtmlTableTmpl), domain.ArcStats)
+	}
 }
 
 // pingHandler returns a message and the time
 func pingHandler(w http.ResponseWriter, r *http.Request) {
 
 	// need to set specific headers, depending on request origin
-	SendCORSHeaders(&w, r)
+	SetCORSHeaders(&w, r)
 
 	var Host string = r.Host
 	var RequestURI string = r.RequestURI
@@ -80,10 +91,10 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 	executeTemplate(w, filepath.Join(TemplatesDir, PingTmpl), r)
 }
 
-// sendCORSHeaders sets specific headers
+// setCORSHeaders sets specific headers
 // * calls from the "official" URL status.arc42.org are allowed
 // * calls from localhost or "null" are also allowed
-func SendCORSHeaders(w *http.ResponseWriter, r *http.Request) {
+func SetCORSHeaders(w *http.ResponseWriter, r *http.Request) {
 
 	// TODO: why do we use * here?
 

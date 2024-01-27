@@ -1,6 +1,8 @@
 #
 schema "main" {
 }
+
+
 table "system_startup" {
   schema = schema.main
   column "startup" {
@@ -17,6 +19,7 @@ table "system_startup" {
   }
 }
 
+#
 table "time_of_invocation" {
   schema = schema.main
   column "invocation_time" {
@@ -27,9 +30,24 @@ table "time_of_invocation" {
     null = false
     type = varchar(16)
   }
-  column "route"{
+  column "route" {
     null = false
     type = varchar(50)
   }
+}
 
+table "time_of_plausible_call" {
+  schema = schema.main
+  column "invocation_time" {
+    null = false
+    type = datetime
+  }
+}
+
+table "time_of_github_call" {
+  schema = schema.main
+  column "invocation_time" {
+    null = false
+    type = datetime
+  }
 }

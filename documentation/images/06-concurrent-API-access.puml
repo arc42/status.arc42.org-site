@@ -1,0 +1,34 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+participant domain
+participant "domain.\nsiteStats" as siteStats
+participant "domain.\nrepoStats" as repoStats
+group parallel [domain.go]
+    domain -> domain : init logger
+    loop for site in allSites
+      par
+        domain -> siteStats: get SiteStatistics(site)
+        activate siteStats
+        par
+            siteStats -> plausible: get 7D( site )
+            else
+            siteStats -> plausible: get 30D( site )
+            else
+            siteStats -> plausible: get 12M( site )
+        end
+        deactivate siteStats
+        else
+        domain -> repoStats: getRepoStatistics(site)
+        activate repoStats
+            repoStats -> github: getRepoStatistics
+            activate github
+            deactivate github
+        deactivate repoStats
+    end
+    domain -> domain: aggregateResults( site )
+
+end
+@enduml

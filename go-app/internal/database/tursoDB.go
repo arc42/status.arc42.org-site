@@ -1,11 +1,15 @@
 package database
 
 import (
+	"arc42-status/internal/env"
 	"database/sql"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/rs/zerolog/log"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	"os"
+	"os/user"
+	"path/filepath"
 	"sync"
 	"time"
 )
@@ -18,8 +22,13 @@ import (
 // database schema (tables, columns) are defined in file "schema.hcl"
 // and managed by Atlas.
 
-const TursoDBName = "arc42-statistics"
-const TursoURLPlain = "libsql://" + TursoDBName + "-gernotstarke.turso.io"
+const tursoPRODDBName = "arc42-statistics"
+const tursoTESTDBName = "arc42-stats-dev.db"
+
+const tursoPRODUrl = "libsql://" + tursoPRODDBName + "-gernotstarke.turso.io"
+const tursoTESTUrl = "libsql://" + tursoTESTDBName + "-gernotstarke.turso.io"
+
+const LocalSQLiteURL = "sqlite://dev.db?_fk=1"
 
 const TableTimeOfSystemStart = "system_startup"
 const TableTimeOfInvocation = "time_of_invocation"
@@ -49,12 +58,6 @@ var (
 	dbInstance *sql.DB
 )
 
-func DatabaseURL(env string) string {
-	var dburl string
-
-	return dburl
-}
-
 // initAuthToken should not be called directly, it is only used by the Singleton GetDB()
 func initAuthToken() string {
 	tursoAuthToken := os.Getenv("TURSO_AUTH_TOKEN")
@@ -69,22 +72,59 @@ func initAuthToken() string {
 	return tursoAuthToken
 }
 
+// pathToDevDB determines the location of the DEV and TEST database:
+// we use the users' home directory with a subdirectory /.arc42-sqlite/
+func pathToDevDB() string {
+	// CurrentUser returns the current user.
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal().Msg("error in getting current user")
+	}
+
+	devDBPath := filepath.Join(usr.HomeDir, tursoTESTDBName)
+
+	log.Debug().Msgf("path to DEV db is %s", devDBPath)
+	return devDBPath
+}
+
 // GetDB is a singleton function that returns a pointer to a sql.DB object.
 // It ensures that only one instance of the database connection is created.
-// For PROD
+// For PROD, this is always the Turso libSQL database.
+// For DEV or TEST, this is a local instance of SQLite.
 func GetDB() *sql.DB {
 	once.Do(func() {
+		var dbUrl string
+		var driverName string
 
-		var dbUrl = TursoURLPlain + "?authToken=" + initAuthToken()
+		switch env.GetEnv() {
+		case "PROD":
+			{
+				dbUrl = tursoPRODUrl + "?authToken=" + initAuthToken()
+				driverName = "libsql"
+				break
+			}
+		case "DEV", "TEST":
+			{
+				dbUrl = pathToDevDB()
+				driverName = "sqlite3"
+				break
+			}
+		default:
+			{
+				// this should never happen, as env.GetEnv() needs to care for valid environments
+				log.Error().Msgf("Invalid environment %s  specified", env.GetEnv())
+				os.Exit(13)
+			}
+		}
 
-		db, err := sql.Open("libsql", dbUrl)
+		// open the database
+		db, err := sql.Open(driverName, dbUrl)
 		if err != nil {
-			log.Error().Msgf("failed to open db %s: %s", dbUrl, err)
+			log.Error().Msgf("Failed to open db %s: %s", dbUrl, err)
 			os.Exit(13)
 		}
 		dbInstance = db
 	})
-
 	return dbInstance
 
 }

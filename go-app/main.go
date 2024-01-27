@@ -4,18 +4,19 @@ import (
 	"arc42-status/internal/api"
 	"arc42-status/internal/database"
 	"arc42-status/internal/domain"
+	"arc42-status/internal/env"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"
-	"strings"
-	"sync"
 	"time"
 )
 
-const AppVersion = "0.5.1"
+const AppVersion = "0.5.3"
 
 // version history
 // 0.5.x rate limit: limit amount of queries to external APIs
+//       0.5.2: distinct env package, distinct DB for DEV, handle OPTIONS request
+//		 0.5.3: BUG and BUGS are both recognized
 // 0.4.7 replace most inline styles by css
 // 0.4.6 sortable table (a: initial, b...e: fix layout issues), f: fix #94
 // 0.4.5 fix missing separators in large numbers
@@ -72,42 +73,6 @@ func init() {
 	log.Info().Msgf("log level set to %s", loglevel)
 }
 
-// Singleton-pattern to ensure the environment is set only once
-var (
-	once        sync.Once
-	environment string
-)
-
-// GetEnv is a singleton function that returns an Environment.
-// It ensures that only one instance is created.
-func GetEnv() string {
-	once.Do(func() {
-		envi := strings.ToUpper(os.Getenv("ENVIRONMENT"))
-		switch {
-		case strings.HasPrefix(envi, "DEV"):
-			{
-				envi = "DEV"
-				log.Info().Msg("Running on localhost")
-			}
-		case strings.HasPrefix(envi, "TEST"):
-			{
-				envi = "TEST"
-				log.Info().Msg("Running as TEST on localhost")
-			}
-		case strings.HasPrefix(envi, "PROD"):
-			{
-				envi = "PROD"
-				log.Info().Msg("Running on fly.io")
-			}
-		default:
-			envi = "DEV" // Default to Development
-			log.Info().Msg("No ENVIRONMENT set, presumably running on localhost")
-		}
-		environment = envi
-	})
-	return environment
-}
-
 func main() {
 	// As the main package cannot be imported, constants defined here
 	// cannot directly be used in internal/* packages.
@@ -115,7 +80,7 @@ func main() {
 	domain.SetAppVersion(AppVersion)
 
 	// Save the startup metadata persistently, see ADR-0012
-	database.SaveStartupTime(time.Now(), AppVersion, GetEnv())
+	database.SaveStartupTime(time.Now(), AppVersion, env.GetEnv())
 
 	// Start a server which runs in the background, and waits for http requests
 	// to arrive at predefined routes.
