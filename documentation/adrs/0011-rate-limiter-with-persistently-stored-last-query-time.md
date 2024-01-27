@@ -1,10 +1,11 @@
 # 11. rate-limiter with persistently stored last-query-time
 
 Date: 2023-12-29
+modified: 2024-01-25
 
 ## Status
 
-Accepted
+Accepted.
 
 ## Context
 
@@ -23,10 +24,10 @@ If our current server is a "fresh instance", we have to ignore the last-time-cal
 
 ## Decision
 
-1. Create a table that keeps the invocation times of our API
+1. Create a table that keeps the invocation times of **our** API
 2. Create tables that keep the last-query time for both Plausible and GitHub requests.
-2. Call the Plausible.io API only once every `Plausible_Rate_Limit_Minutes` (defaulting to 20)
-3. Call the GitHub API only once every `GitHub_Rate_Limit_Minutes` (defaulting to 3)
+2. Call the Plausible.io API only once every `plausible_Rate_Limit_Minutes` (defaulting to 20)
+3. Call the GitHub API only once every `gitHub_Rate_Limit_Minutes` (defaulting to 3)
 
 The tables shall have the following format:
  

@@ -19,22 +19,42 @@ ifndef::imagesdir[:imagesdir: ../../images]
 
 === Whitebox Overall System
 
+image::05-building-blocks-status-arc42-org.drawio.png[]
 
 
-_**<Overview Diagram>**_
+[cols="1,3,1"]
+|===
+| Element | Responsibility | Code
 
-Motivation::
+| main
+| Golang requires a "main" func as entry point in the application.
+|
 
-_<text explanation>_
+| api gateway
+| an http server with several predefined routes. This server is called from the public website, dispatches to domain and returns either plain html to the static site (or other formats when called via the upcoming technical API)
+|`internal/api`
 
+| domain
+| core functionality, coordination of various subsystems, results collection
+|
 
-Contained Building Blocks::
-_<Description of contained building block (black boxes)>_
+| types
+| a few data types and -structures used by other parts. Extracted from the domain to avoid circular dependencies.
+|
 
-Important Interfaces::
-_<Description of important interfaces>_
+| github
+| wrapper for the public GitHub (graphql) API. We query several repository infos (e.g. nr of open issues, bugs and pull-requests).
+|
 
+|database
+|wrapper for https://turso.tech[Turso], an SQLite clone running in the cloud. We store some usage and operations data, and wanted to avoid hosting our own DB.
+|
 
+|fly.io
+|wrapper for the https://fly.io[fly.io API], which we use to find out the server region where our application is deployed. Not to be confused with our _hosting and deployment_ concept.
+|
+
+|===
 
 
 ==== <Name black box 1>
@@ -54,68 +74,3 @@ _<(Optional) Fulfilled Requirements>_
 _<(optional) Open Issues/Problems/Risks>_
 
 
-
-
-==== <Name black box 2>
-
-_<black box template>_
-
-==== <Name black box n>
-
-_<black box template>_
-
-
-==== <Name interface 1>
-
-...
-
-==== <Name interface m>
-
-
-
-=== Level 2
-
-
-
-==== White Box _<building block 1>_
-
-
-
-_<white box template>_
-
-==== White Box _<building block 2>_
-
-
-_<white box template>_
-
-...
-
-==== White Box _<building block m>_
-
-
-_<white box template>_
-
-
-
-=== Level 3
-
-
-
-
-==== White Box <_building block x.1_>
-
-
-
-
-_<white box template>_
-
-
-==== White Box <_building block x.2_>
-
-_<white box template>_
-
-
-
-==== White Box <_building block y.1_>
-
-_<white box template>_

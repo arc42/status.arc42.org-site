@@ -11,11 +11,12 @@ import (
 	"time"
 )
 
-const AppVersion = "0.5.2"
+const AppVersion = "0.5.3"
 
 // version history
 // 0.5.x rate limit: limit amount of queries to external APIs
 //       0.5.2: distinct env package, distinct DB for DEV, handle OPTIONS request
+//		 0.5.3: BUG and BUGS are both recognized
 // 0.4.7 replace most inline styles by css
 // 0.4.6 sortable table (a: initial, b...e: fix layout issues), f: fix #94
 // 0.4.5 fix missing separators in large numbers
