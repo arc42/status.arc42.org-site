@@ -75,42 +75,41 @@ doc-faq-quality:
 </thead>
 <tbody>
     <tr>
-        <td>arc42.de</td>
-        <td class="cell-style">3344</td>
-        <td>101</td>
-        <td class="cell-style">3967</td>
-        <td>3890</td>
-        <td class="cell-style">9416</td>
-        <td>420</td>
-        <td class="cell-style">n/a</td>
+        <td></td>
+        <td class="cell-style"></td>
+        <td></td>
+        <td class="cell-style"></td></td>
+        <td></td>
+        <td class="cell-style"></td>
+        <td></td>
+        <td class="cell-style"></td>
     </tr>
     <tr>
-        <td>docs.arc42.org</td>
-        <td class="cell-style">49</td>
-        <td>11</td>
-        <td class="cell-style">67</td>
-        <td>90</td>
-        <td class="cell-style">41</td>
-        <td>20</td>
-        <td class="cell-style">n/a</td>
+        <td></td>
+        <td class="cell-style"></td>
+        <td></td>
+        <td class="cell-style"></td>
+        <td></td>
+        <td class="cell-style"></td>
+        <td></td>
+        <td class="cell-style"></td>
     </tr>
 </tbody>
 <tfoot>
      <tr>
         <td>arc42.org</td>
-        <td class="cell-style">Sum V7Ds</td>
-        <td>Sum P7D</td>
-        <td class="cell-style">Sum V30D</td>
-        <td>Sum 30D</td>
-        <td class="cell-style">Sum V12M</td>
-        <td>Sum P12m</td>
+        <td class="cell-style"></td>
+        <td></td>
+        <td class="cell-style"></td>
+        <td></td>
+        <td class="cell-style"></td>
+        <td></td>
         <td class="cell-style"></td>
     </tr>
 </tfoot>
 </table>
 
-Data is beeing collected by arc42 statistics service running on
-<a href="https://fly.io" target="_blank"><img src="/images/fly-logo-landscape.svg" width="60px"></a>
+Data is being collected by arc42 statistics service running on <a href="https://fly.io" target="_blank"><img src="/images/fly-logo-landscape.svg" width="60px"></a>
 
 </div>
 
