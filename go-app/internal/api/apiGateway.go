@@ -29,14 +29,14 @@ func init() {
 
 // embed templates into compiled binary, so we don't need to read from file system
 // embeds the templates folder into variable embeddedTemplatesFolder
-// === DON'T REMOVE THE COMMENT BELOW
+// === KEEP THE COMMENT BELOW
 //
 //go:embed *.gohtml
 var embeddedTemplatesFolder embed.FS
 
 // statsHTMLTableHandler returns the usage statistics as html table
 // 1. sets required http headers needed for CORS
-// 2a. for the preflight OPTIONS request, just return the CORS header and OK.
+// 2a for the preflight OPTIONS request, return the CORS header and OK.
 // otherwise:
 // 2b. start timer
 // 3. update ArcStats
@@ -58,8 +58,8 @@ func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 		// 2b. set timer
 		var startOfProcessing = time.Now()
 
-		// 3. update ArcStats
-		domain.ArcStats = domain.LoadStats4AllSites()
+		// 3. get ArcStats (hopefully from cache)
+		domain.ArcStats = domain.Stats4AllSites()
 
 		// remember how long it took to update statistics
 		domain.ArcStats.HowLongDidItTake = strconv.FormatInt(time.Since(startOfProcessing).Milliseconds(), 10)
@@ -91,7 +91,7 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 	executeTemplate(w, filepath.Join(TemplatesDir, PingTmpl), r)
 }
 
-// setCORSHeaders sets specific headers
+// SetCORSHeaders sets specific headers
 // * calls from the "official" URL status.arc42.org are allowed
 // * calls from localhost or "null" are also allowed
 func SetCORSHeaders(w *http.ResponseWriter, r *http.Request) {
@@ -161,7 +161,7 @@ func LogServerDetails(appVersion string) {
 	log.Info().Msgf("Server region is%s %s", region, location)
 }
 
-// StartAPIServer creates an http ServeMux with a few predefined routes.
+// StartAPIServer creates http ServeMux with a few predefined routes.
 func StartAPIServer() {
 
 	mux := http.NewServeMux()

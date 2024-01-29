@@ -11,12 +11,14 @@ import (
 	"time"
 )
 
-const AppVersion = "0.5.3"
+const appVersion = "0.5.5"
 
 // version history
 // 0.5.x rate limit: limit amount of queries to external APIs
 //       0.5.2: distinct env package, distinct DB for DEV, handle OPTIONS request
 //		 0.5.3: BUG and BUGS are both recognized
+// 		 0.5.4: start with empty table on homepage
+// 		 0.5.5: caching with zcache
 // 0.4.7 replace most inline styles by css
 // 0.4.6 sortable table (a: initial, b...e: fix layout issues), f: fix #94
 // 0.4.5 fix missing separators in large numbers
@@ -76,15 +78,20 @@ func init() {
 func main() {
 	// As the main package cannot be imported, constants defined here
 	// cannot directly be used in internal/* packages.
-	// Therefore, we set the AppVersion via a func.
-	domain.SetAppVersion(AppVersion)
+	// Therefore, we set the appVersion via a func.
+	domain.SetAppVersion(appVersion)
 
 	// Save the startup metadata persistently, see ADR-0012
-	database.SaveStartupTime(time.Now(), AppVersion, env.GetEnv())
+	database.SaveStartupTime(time.Now(), appVersion, env.GetEnv())
+
+	// log the server details
+	api.LogServerDetails(appVersion)
+
+	// load statistics and add results to cache
 
 	// Start a server which runs in the background, and waits for http requests
 	// to arrive at predefined routes.
 	// THIS IS A BLOCKING CALL, therefore server details are printed prior to starting the server
-	api.LogServerDetails(AppVersion)
+
 	api.StartAPIServer()
 }

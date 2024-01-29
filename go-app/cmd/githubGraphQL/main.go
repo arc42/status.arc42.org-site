@@ -7,7 +7,7 @@ import (
 
 func main() {
 
-	var stats4Repos = make([]types.RepoStats, len(types.Arc42sites))
+	var stats4Repos = make([]types.RepoStatsType, len(types.Arc42sites))
 
 	github.StatsForRepo("faq.arc42.org-site", &stats4Repos[0])
 	github.StatsForRepo("arc42.org-site", &stats4Repos[1])

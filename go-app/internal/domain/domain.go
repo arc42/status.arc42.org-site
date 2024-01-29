@@ -9,6 +9,7 @@ import (
 	"golang.org/x/text/message"
 	"sync"
 	"time"
+	"zgo.at/zcache/v2"
 )
 
 var AppVersion string
@@ -16,13 +17,28 @@ var AppVersion string
 // ArcStats collects all data
 var ArcStats types.Arc42Statistics
 
+// cache expiration should be 5 or 10 minutes
+// for testing, set expiration to a few seconds only
+const cacheExpirationTime = time.Second * 100
+
+// cacheStatsKey is the key under which the results are stored in the cache
+const cacheStatsKey = "arc42Stats"
+
+// create a cache with a default expiration time of 5 minutes, which
+// purges expired items every 5 minutes
+var cache = zcache.New[string, types.Arc42Statistics](cacheExpirationTime, cacheExpirationTime)
+
 func SetAppVersion(appVersion string) {
 	AppVersion = appVersion
 	log.Debug().Msg("App version set to " + appVersion)
 }
 
+func GetAppVersion() string {
+	return AppVersion
+}
+
 func setServerMetaInfo(a42s *types.Arc42Statistics) {
-	a42s.AppVersion = AppVersion
+	a42s.AppVersion = GetAppVersion()
 
 	location, _ := time.LoadLocation("Europe/Berlin")
 
@@ -33,6 +49,26 @@ func setServerMetaInfo(a42s *types.Arc42Statistics) {
 	a42s.LastUpdatedString = bielefeldTime.Format("2. January 2006, 15:04:03h")
 }
 
+// Stats4AllSites tries to return the value from the cache instead of calling
+// the external APIs.
+// If the value is expired, then new data is loaded.
+// If it is still available, the existing value is returned
+func Stats4AllSites() types.Arc42Statistics {
+
+	var a42s, found = cache.Get(cacheStatsKey)
+
+	// if not found, LoadStats4AllSites() again
+	if !found {
+		log.Info().Msg("cache miss, data expired")
+		a42s = LoadStats4AllSites()
+		cache.Set(cacheStatsKey, a42s)
+	} else {
+		log.Info().Msg("cache hit, data still valid")
+		a42s.HowLongDidItTake = "0 msec (cached result)"
+	}
+	return a42s
+}
+
 // LoadStats4AllSites retrieves the statistics for all sites from plausible.io and GitHub repositories.
 func LoadStats4AllSites() types.Arc42Statistics {
 
@@ -41,8 +77,8 @@ func LoadStats4AllSites() types.Arc42Statistics {
 
 	var a42s = types.Arc42Statistics{}
 
-	var Stats4Sites = make([]types.SiteStats, len(types.Arc42sites))
-	var Stats4Repos = make([]types.RepoStats, len(types.Arc42sites))
+	var Stats4Sites = make([]types.SiteStatsType, len(types.Arc42sites))
+	var Stats4Repos = make([]types.RepoStatsType, len(types.Arc42sites))
 
 	// 1.) set meta info
 	setServerMetaInfo(&a42s)
@@ -81,7 +117,7 @@ func LoadStats4AllSites() types.Arc42Statistics {
 	return a42s
 }
 
-func calculateTotals(stats [len(types.Arc42sites)]types.SiteStats) types.TotalsForAllSites {
+func calculateTotals(stats [len(types.Arc42sites)]types.SiteStatsType) types.TotalsForAllSites {
 	var totals types.TotalsForAllSites
 
 	for index := range types.Arc42sites {
@@ -118,7 +154,7 @@ func calculateTotals(stats [len(types.Arc42sites)]types.SiteStats) types.TotalsF
 
 // getUsageStatisticsForSite retrieves the statistics for a single site from plausible.io.
 // This func is called as Goroutine.
-func getUsageStatisticsForSite(site string, thisSiteStats *types.SiteStats, wg *sync.WaitGroup) {
+func getUsageStatisticsForSite(site string, thisSiteStats *types.SiteStatsType, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	// to avoid repeating the expression, introduce local var
@@ -129,7 +165,7 @@ func getUsageStatisticsForSite(site string, thisSiteStats *types.SiteStats, wg *
 
 }
 
-func getRepoStatisticsForSite(site string, thisRepoStats *types.RepoStats, wg *sync.WaitGroup) {
+func getRepoStatisticsForSite(site string, thisRepoStats *types.RepoStatsType, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	thisRepoStats.Site = site

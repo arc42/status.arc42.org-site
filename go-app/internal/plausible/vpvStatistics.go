@@ -62,7 +62,7 @@ func initPlausibleHandler() *plausible.Client {
 
 // StatsForSite collects all relevant statistics for a given site
 // (currently 7D, 30D and 12M)
-func StatsForSite(thisSite string, stats *types.SiteStats) {
+func StatsForSite(thisSite string, stats *types.SiteStatsType) {
 
 	// init the required handler
 	// the function ensures it's initialized only once.

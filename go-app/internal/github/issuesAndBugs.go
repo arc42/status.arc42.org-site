@@ -52,7 +52,7 @@ func initGitHubGraphQLClient() *githubv4.Client {
 
 }
 
-func StatsForRepo(thisSite string, stats *types.RepoStats) {
+func StatsForRepo(thisSite string, stats *types.RepoStatsType) {
 
 	// Initialize GitHub GraphQL client
 	client := initGitHubGraphQLClient()

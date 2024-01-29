@@ -14,8 +14,8 @@ var Arc42sites = [7]string{
 	"status.arc42.org",
 }
 
-// SiteStats contains visitor and pageviews statistics for a single arc42 site or subdomain.
-type SiteStats struct {
+// SiteStatsType contains visitor and pageviews statistics for a single arc42 site or subdomain.
+type SiteStatsType struct {
 	Site           string // site name
 	Visitors7d     string
 	Visitors7dNr   int
@@ -37,8 +37,8 @@ type SiteStats struct {
 	NrOfOpenPRs    int
 }
 
-// RepoStats contains information about the repository underlying the site
-type RepoStats struct {
+// RepoStatsType contains information about the repository underlying the site
+type RepoStatsType struct {
 	Site           string // site name
 	Repo           string // the URL of the GitHub repository
 	NrOfOpenBugs   int    // the number of open bugs in that repo
@@ -74,7 +74,7 @@ type Arc42Statistics struct {
 	AppVersion string
 
 	// LastUpdated contains the time.Time when the stats have
-	// been updated. Can help to avoid flooding plausible.io with requests.
+	// been updated.
 	LastUpdated       time.Time
 	LastUpdatedString string // as we cannot directly use Golang functions from templates
 
@@ -89,7 +89,7 @@ type Arc42Statistics struct {
 
 	// Stats4Site contains the statistics per site or subdomain
 	// it also contains Repo stats, like issues and bugs
-	Stats4Site [len(Arc42sites)]SiteStats
+	Stats4Site [len(Arc42sites)]SiteStatsType
 
 	// Totals: sum of all the statistics over all sites
 	Totals TotalsForAllSites
