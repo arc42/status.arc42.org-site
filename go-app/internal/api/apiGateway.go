@@ -4,7 +4,9 @@ import (
 	"arc42-status/internal/database"
 	"arc42-status/internal/domain"
 	"arc42-status/internal/fly"
+	"arc42-status/internal/slack"
 	"embed"
+	"fmt"
 	"github.com/rs/zerolog/log"
 	"html/template"
 	"net/http"
@@ -71,6 +73,10 @@ func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 		// TODO: make this async
 		// TODO: include real IP address
 		database.SaveInvocationParams(r.Host, r.RequestURI)
+
+		// 4b: inform owner via Slack
+		msg := fmt.Sprintf("Loaded arc42 statistics in %sms on %s", domain.ArcStats.HowLongDidItTake, time.Now)
+		slack.SendSlackMessage(msg)
 
 		// 5. finally, render the template
 		executeTemplate(w, filepath.Join(TemplatesDir, HtmlTableTmpl), domain.ArcStats)

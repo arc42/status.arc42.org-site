@@ -1,0 +1,72 @@
+<!-- golang template for arc42 usage statistics table -->
+<!-- with addons to make it sortable with DataTables -->
+<table id="sortableStatsTable" class="display">
+    <thead>
+    <tr>
+        <th rowspan="2"><img src="/images/minion-logo-100px.png" alt="Gopher logo"></th>
+        <th colspan="2" class="border-left-black text-center">7 Days</th>
+        <th colspan="2" class="border-left-black text-center">30 Days</th>
+        <th colspan="2" class="border-left-black text-center">12 Month</th>
+        <th colspan="2"  class="border-left-black text-center">Open Tasks</th>
+    </tr>
+    <tr>
+        <th class="border-left-black">Visitors</th>
+        <th>PageViews</th>
+        <th class="border-left-black">Visitors</th>
+        <th>PageViews</th>
+        <th class="border-left-black">Visitors</th>
+        <th>PageViews</th>
+        <th class="border-left-black">Issues</th>
+        <th>Bugs</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+    {{ range .Stats4Site }}
+        <tr>
+            <td><a href="https://{{.Site }}">{{.Site}}</a></td>
+            <td class="border-left-black">{{ .Visitors7d}}</td>
+            <td>{{ .PageViews7d}}</td>
+            <td class="border-left-black">{{ .Visitors30d}}</td>
+            <td>{{ .PageViews30d}}</td>
+            <td class="border-left-black">{{ .Visitors12m}}</td>
+            <td>{{ .PageViews12m}}</td>
+            <td class="border-left-black">
+                <a href="{{.Repo}}/issues">{{.NrOfOpenIssues}}</a>
+            </td>
+            <td >
+                {{if (gt .NrOfOpenBugs 0)}}
+                    <a href="{{.Repo}}/issues">{{.NrOfOpenBugs}}</a>
+                {{end}}
+            </td>
+        </tr>
+    {{ end }}
+    </tbody>
+
+    <tfoot> <tr>
+        <td class="border-top">Totals:</td>
+        <td class="border-top border-left-black">{{ .Totals.SumOfVisitors7d}}</td>
+        <td class="border-top">{{ .Totals.SumOfPageViews7d}}</td>
+        <td class="border-top border-left-black">{{ .Totals.SumOfVisitors30d}}</td>
+        <td class="border-top">{{ .Totals.SumOfPageViews30d}}</td>
+        <td class="border-top border-left-black">{{ .Totals.SumOfVisitors12m}}</td>
+        <td class="border-top">{{ .Totals.SumOfPageViews12m}}</td>
+        <td class="border-top border-left-black">{{ .Totals.TotalNrOfIssues}}</td>
+        <td class="border-top">{{ .Totals.TotalNrOfBugs}}</td>
+
+    </tr> </tfoot>
+</table>
+
+
+<br>
+<div style="font-size: 12px; padding-bottom: 14px;">
+    Data collected in {{ .HowLongDidItTake }} msecs by arc42 statistics service
+    (v. {{.AppVersion}}) at {{.LastUpdatedString }}
+    running {{if .FlyRegion}}
+        on <a href="https://fly.io" target="_blank"> fly.io </a>
+        in {{.WhereDoesItRun}} (region {{.FlyRegion}})
+    {{ else }}
+        {{.WhereDoesItRun}}
+    {{ end}}
+</div>
