@@ -5,6 +5,8 @@ import (
 	"arc42-status/internal/database"
 	"arc42-status/internal/domain"
 	"arc42-status/internal/env"
+	"arc42-status/internal/slack"
+	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"
@@ -85,10 +87,13 @@ func main() {
 	// Save the startup metadata persistently, see ADR-0012
 	database.SaveStartupTime(time.Now(), appVersion, env.GetEnv())
 
+	// tell Slack that an instance has been started
+	msg := fmt.Sprintf("Started arc42 statistics server on %s",
+		time.Now().Format("02 Jan 15:04"))
+	slack.SendSlackMessage(msg)
+
 	// log the server details
 	api.LogServerDetails(appVersion)
-
-	// load statistics and add results to cache
 
 	// Start a server which runs in the background, and waits for http requests
 	// to arrive at predefined routes.

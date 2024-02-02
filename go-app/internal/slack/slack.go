@@ -28,7 +28,7 @@ func getSlackAuthToken() string {
 		// we exit here, as we have no chance of recovery
 		log.Error().Msgf("CRITICAL ERROR: required Slack Auth token not set.\n" +
 			"You need to set the 'SLACK_AUTH_TOKEN' environment variable prior to launching this application.\n")
-		os.Exit(14)
+		//os.Exit(14)
 	}
 	return slackAuthToken
 }
@@ -70,7 +70,7 @@ func getSlackAPI() *slack.Client {
 			{
 				// this should never happen, as env.GetEnv() needs to care for valid environments
 				log.Error().Msgf("Invalid environment %s  specified for slack messages", env.GetEnv())
-				os.Exit(14)
+				// os.Exit(14)
 			}
 		}
 

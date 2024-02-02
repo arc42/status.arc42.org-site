@@ -75,7 +75,7 @@ func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 		database.SaveInvocationParams(r.Host, r.RequestURI)
 
 		// 4b: inform owner via Slack
-		msg := fmt.Sprintf("Loaded arc42 statistics in %sms on %s", domain.ArcStats.HowLongDidItTake, time.Now)
+		msg := fmt.Sprintf("Loaded arc42 statistics in %sms on %s", domain.ArcStats.HowLongDidItTake, time.Now().Format("02 Jan 15:04"))
 		slack.SendSlackMessage(msg)
 
 		// 5. finally, render the template
