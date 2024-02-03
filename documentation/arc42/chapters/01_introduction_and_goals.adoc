@@ -17,11 +17,22 @@ ifndef::imagesdir[:imagesdir: ../../images]
 
 === Requirements Overview
 
+[glossary]
+F-001:: publish current usage statistics of arc42 websites
 
+F-002:: publish current repository statistics (like issues, bugs) of arc42 websites
+
+F-003:: store important results and events persistently for future reference
+
+F-004:: inform owners of important system events
 
 === Quality Goals
 
-* Environmental friendly: Reduce computing resources used as much as possible.
+[glossary]
+
+Q-001:: Environmental friendly: Reduce computing resources used as much as possible.
+
+Q-002:: Available: statics are available via the website 24x7. Short periods (hours) of downtime can be allowed, in such cases cached or dated results shall be displayed.
 
 
 === Stakeholders

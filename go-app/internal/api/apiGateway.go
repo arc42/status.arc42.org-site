@@ -70,13 +70,12 @@ func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 		domain.ArcStats.FlyRegion, domain.ArcStats.WhereDoesItRun = fly.RegionAndLocation()
 
 		// 4. store request params in database
-		// TODO: make this async
 		// TODO: include real IP address
-		database.SaveInvocationParams(r.Host, r.RequestURI)
+		go database.SaveInvocationParams(r.Host, r.RequestURI)
 
-		// 4b: inform owner via Slack
+		// 4b: inform the owner via Slack
 		msg := fmt.Sprintf("Loaded arc42 statistics in %sms on %s", domain.ArcStats.HowLongDidItTake, time.Now().Format("02 Jan 15:04"))
-		slack.SendSlackMessage(msg)
+		go slack.SendSlackMessage(msg)
 
 		// 5. finally, render the template
 		executeTemplate(w, filepath.Join(TemplatesDir, HtmlTableTmpl), domain.ArcStats)

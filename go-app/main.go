@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const appVersion = "0.5.6"
+const appVersion = "0.5.7"
 
 // version history
 // 0.5.x rate limit: limit amount of queries to external APIs
@@ -22,6 +22,7 @@ const appVersion = "0.5.6"
 // 		 0.5.4: start with empty table on homepage
 // 		 0.5.5: caching with zcache
 //		 0.5.6: send slack message for important system events, starting with data acquisition
+//       0.5.7: performance optimization, initial database insert and Slack message now async
 // 0.4.7 replace most inline styles by css
 // 0.4.6 sortable table (a: initial, b...e: fix layout issues), f: fix #94
 // 0.4.5 fix missing separators in large numbers
