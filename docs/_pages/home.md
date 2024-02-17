@@ -56,7 +56,7 @@ doc-faq-quality:
 
 <div id="statsTable">
 
-Data is being collected by arc42 statistics service running on fly.io.
+Please be patient, we're busy sifting through the cloud (currently: fly.io) to grab current statistics for you....
 
 </div>
 
