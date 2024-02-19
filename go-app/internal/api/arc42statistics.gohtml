@@ -4,7 +4,7 @@
     <thead>
     <tr>
         <th rowspan="2"><img src="/images/minion-logo-100px.png" alt="Gopher logo"></th>
-        <th colspan="2" class="border-left-black text-center">7 Days</th>
+        <th colspan="2" class="border-left-black text-center">7 Days!</th>
         <th colspan="2" class="border-left-black text-center">30 Days</th>
         <th colspan="2" class="border-left-black text-center">12 Month</th>
         <th colspan="2"  class="border-left-black text-center">Open Tasks</th>
@@ -45,15 +45,15 @@
     </tbody>
 
     <tfoot> <tr>
-        <td style="text-align: right;" class="border-top">Totals:</td>
-        <td style="text-align: right;" class="border-top border-left-black">{{ .Totals.SumOfVisitors7d}}</td>
-        <td style="text-align: right;" class="border-top">{{ .Totals.SumOfPageViews7d}}</td>
-        <td style="text-align: right;" class="border-top border-left-black">{{ .Totals.SumOfVisitors30d}}</td>
-        <td style="text-align: right;" class="border-top">{{ .Totals.SumOfPageViews30d}}</td>
-        <td style="text-align: right;" class="border-top border-left-black">{{ .Totals.SumOfVisitors12m}}</td>
-        <td style="text-align: right;" class="border-top">{{ .Totals.SumOfPageViews12m}}</td>
-        <td style="text-align: right;" class="border-top border-left-black">{{ .Totals.TotalNrOfIssues}}</td>
-        <td style="text-align: right;" class="border-top">{{ .Totals.TotalNrOfBugs}}</td>
+        <td class="border-top text-right">Totals:</td>
+        <td class="border-top border-left-black text-right">{{ .Totals.SumOfVisitors7d}}</td>
+        <td class="border-top text-right">{{ .Totals.SumOfPageViews7d}}</td>
+        <td class="border-top border-left-black text-right">{{ .Totals.SumOfVisitors30d}}</td>
+        <td class="border-top text-right">{{ .Totals.SumOfPageViews30d}}</td>
+        <td class="border-top border-left-black text-right">{{ .Totals.SumOfVisitors12m}}</td>
+        <td class="border-top text-right">{{ .Totals.SumOfPageViews12m}}</td>
+        <td class="border-top border-left-black text-right">{{ .Totals.TotalNrOfIssues}}</td>
+        <td class="border-top text-right">{{ .Totals.TotalNrOfBugs}}</td>
 
     </tr> </tfoot>
 </table>
