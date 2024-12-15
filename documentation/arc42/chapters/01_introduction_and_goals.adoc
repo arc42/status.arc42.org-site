@@ -30,10 +30,17 @@ F-004:: inform owners of important system events
 
 [glossary]
 
-Q-001:: Environmental friendly: Reduce computing resources used as much as possible.
+Q-001:: Accurate: Site usage (like pageviews, visitor counts) results have to be correct. Spam- and bot traffic shall be excluded from counts. Error rates in data representation should be below 0.5% as measured by data quality checks.
 
-Q-002:: Available: statics are available via the website 24x7. Short periods (hours) of downtime can be allowed, in such cases cached or dated results shall be displayed.
+Q-002:: Understandable: At least 90% of users should be able to understand the displayed data without further instruction, as measured by a user survey.
 
+Q-003:: Environmental friendly: Reduce computing resources used as much as possible.
+
+Q-004:: Reliable: The system achieves a minimum uptime of 99.9% per month. System recovery from any single point of failure should not exceed 5 minutes. Error rates (including server errors, network timeouts, and data access issues) should not exceed 0.1% of all system transactions.
+
+Q-005:: Available: statics are available via the website 24x7. Short periods (hours) of downtime can be allowed, in such cases cached or dated results shall be displayed.
+
+Q-006:: Collection of statistics shall be compliant with European data privacy regulations as much as possible. It shall not use cookies. It shall not track personal user information (except browser and device type plus user geolocation)
 
 === Stakeholders
 

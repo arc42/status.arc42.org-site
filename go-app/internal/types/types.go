@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-var Arc42sites = [7]string{
+var Arc42sites = [8]string{
 	"arc42.org",
 	"arc42.de",
 	"docs.arc42.org",
@@ -12,6 +12,7 @@ var Arc42sites = [7]string{
 	"canvas.arc42.org",
 	"quality.arc42.org",
 	"status.arc42.org",
+	"pdfminion.arc42.org",
 }
 
 // SiteStatsType contains visitor and pageviews statistics for a single arc42 site or subdomain.

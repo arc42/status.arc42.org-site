@@ -2,8 +2,8 @@
 'https://plantuml.com/activity-diagram-beta
 
 start
-
 :init logger, db, cache;
+
 
 :siteStats = loadStats();
 

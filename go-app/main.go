@@ -13,9 +13,10 @@ import (
 	"time"
 )
 
-const appVersion = "0.5.9"
+const appVersion = "0.6.0"
 
 // version history
+// 0.6.0: added pdfminion.arc42.org to the list of sites
 // 0.5.x rate limit: limit amount of queries to external APIs
 //       0.5.2: distinct env package, distinct DB for DEV, handle OPTIONS request
 //		 0.5.3: BUG and BUGS are both recognized
