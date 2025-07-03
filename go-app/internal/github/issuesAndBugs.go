@@ -35,6 +35,9 @@ type BugsIssuesQuery struct {
 		Bugs struct {
 			TotalCount githubv4.Int
 		} `graphql:"bugs: issues(states:OPEN, labels:[\"bug\", \"bugs\", \"BUG\", \"BUGS\"])"`
+		PullRequests struct {
+			TotalCount githubv4.Int
+		} `graphql:"pullRequests(states:OPEN)"`
 	} `graphql:"repository(owner: $owner, name: $repo)"`
 }
 
@@ -86,10 +89,11 @@ func StatsForRepo(thisSite string, stats *types.RepoStatsType) {
 
 	stats.NrOfOpenBugs = int(query.Repository.Bugs.TotalCount)
 	stats.NrOfOpenIssues = int(query.Repository.Issues.TotalCount)
+	stats.NrOfPRs = int(query.Repository.PullRequests.TotalCount)
 
 	// reset timer
 	gitHubLastTimeCalled = time.Now()
 
-	log.Debug().Msgf("%s has %d open issues and %d bugs", thisSite, stats.NrOfOpenIssues, stats.NrOfOpenBugs)
+	log.Debug().Msgf("%s has %d open issues, %d bugs, and %d open PRs", thisSite, stats.NrOfOpenIssues, stats.NrOfOpenBugs, stats.NrOfPRs)
 
 }

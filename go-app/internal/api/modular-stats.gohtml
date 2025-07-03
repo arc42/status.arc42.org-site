@@ -7,7 +7,7 @@
         <th colspan="2" class="border-left-black text-center">7 Days</th>
         <th colspan="2" class="border-left-black text-center">30 Days</th>
         <th colspan="2" class="border-left-black text-center">12 Month</th>
-        <th colspan="2"  class="border-left-black text-center">Open Tasks</th>
+        <th colspan="3"  class="border-left-black text-center">Open Tasks</th>
     </tr>
     <tr>
         <th class="border-left-black">Visitors</th>
@@ -18,6 +18,7 @@
         <th>PageViews</th>
         <th class="border-left-black">Issues</th>
         <th>Bugs</th>
+        <th>PRs</th>
     </tr>
     </thead>
 
@@ -40,6 +41,11 @@
                     <a href="{{.Repo}}/issues">{{.NrOfOpenBugs}}</a>
                 {{end}}
             </td>
+            <td >
+                {{if (gt .NrOfOpenPRs 0)}}
+                    <a href="{{.Repo}}/pulls">{{.NrOfOpenPRs}}</a>
+                {{end}}
+            </td>
         </tr>
     {{ end }}
     </tbody>
@@ -54,6 +60,7 @@
         <td class="border-top">{{ .Totals.SumOfPageViews12m}}</td>
         <td class="border-top border-left-black">{{ .Totals.TotalNrOfIssues}}</td>
         <td class="border-top">{{ .Totals.TotalNrOfBugs}}</td>
+        <td class="border-top">{{ .Totals.TotalNrOfPRs}}</td>
 
     </tr> </tfoot>
 </table>
