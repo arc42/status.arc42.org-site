@@ -21,3 +21,6 @@
 go.work
 .DS_Store
 set-api-keys.sh
+
+# Binary built by go build
+arc42-status
