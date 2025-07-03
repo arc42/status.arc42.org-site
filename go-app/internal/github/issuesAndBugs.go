@@ -34,13 +34,18 @@ type BugsIssuesQuery struct {
 		} `graphql:"issues(states:OPEN)"`
 		Bugs struct {
 			TotalCount githubv4.Int
-		} `graphql:"bugs: issues(states:OPEN, labels:[\"BUG\", \"BUGS\"])"`
+		} `graphql:"bugs: issues(states:OPEN, labels:[\"bug\", \"bugs\", \"BUG\", \"BUGS\"])"`
 	} `graphql:"repository(owner: $owner, name: $repo)"`
 }
 
 func initGitHubGraphQLClient() *githubv4.Client {
 	// Set your GitHub API token here
 	apiToken := os.Getenv(GITHUB_GRAPHQL_API_KEY_NAME)
+	
+	if apiToken == "" {
+		log.Error().Msgf("GitHub API key not set. You need to set the '%s' environment variable to access GitHub repositories.", GITHUB_GRAPHQL_API_KEY_NAME)
+		return nil
+	}
 
 	src := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: apiToken},
@@ -56,6 +61,10 @@ func StatsForRepo(thisSite string, stats *types.RepoStatsType) {
 
 	// Initialize GitHub GraphQL client
 	client := initGitHubGraphQLClient()
+	if client == nil {
+		log.Error().Msgf("GitHub client initialization failed for repo %s - API key not available", thisSite)
+		return
+	}
 
 	// Declare an instance of the query struct
 	var query BugsIssuesQuery
@@ -69,7 +78,10 @@ func StatsForRepo(thisSite string, stats *types.RepoStatsType) {
 	// Perform the query
 	err := client.Query(context.Background(), &query, variables)
 	if err != nil {
-		log.Error().Msgf(err.Error(), query)
+		log.Error().Msgf("GitHub API call failed for repo %s: %v", thisSite, err)
+		// When API call fails, keep the existing values (which are 0 by default)
+		// This prevents overwriting with invalid/empty data
+		return
 	}
 
 	stats.NrOfOpenBugs = int(query.Repository.Bugs.TotalCount)
