@@ -107,9 +107,10 @@ func LoadStats4AllSites() types.Arc42Statistics {
 		a42s.Stats4Site[index] = Stats4Sites[index]
 		a42s.Stats4Site[index].NrOfOpenIssues = Stats4Repos[index].NrOfOpenIssues
 		a42s.Stats4Site[index].NrOfOpenBugs = Stats4Repos[index].NrOfOpenBugs
+		a42s.Stats4Site[index].NrOfOpenPRs = Stats4Repos[index].NrOfPRs
 		a42s.Stats4Site[index].Repo = Stats4Repos[index].Repo
 
-		log.Debug().Msgf("Repo %s has %d issues and %d bugs", Stats4Repos[index].Repo, Stats4Repos[index].NrOfOpenIssues, Stats4Repos[index].NrOfOpenBugs)
+		log.Debug().Msgf("Repo %s has %d issues, %d bugs, and %d PRs", Stats4Repos[index].Repo, Stats4Repos[index].NrOfOpenIssues, Stats4Repos[index].NrOfOpenBugs, Stats4Repos[index].NrOfPRs)
 	}
 
 	// now calculate totals
@@ -130,8 +131,7 @@ func calculateTotals(stats [len(types.Arc42sites)]types.SiteStatsType) types.Tot
 		totals.SumOfPageViews12mNr += stats[index].PageViews12mNr
 		totals.TotalNrOfIssues += stats[index].NrOfOpenIssues
 		totals.TotalNrOfBugs += stats[index].NrOfOpenBugs
-		// currently (Dec. 26th 2023), PRs are ignored
-		//totals.TotalNrOfPRs += stats[index].NrOfOpenPRs
+		totals.TotalNrOfPRs += stats[index].NrOfOpenPRs
 	}
 
 	// now convert numbers to strings-with-separators
@@ -148,7 +148,7 @@ func calculateTotals(stats [len(types.Arc42sites)]types.SiteStatsType) types.Tot
 	totals.SumOfPageViews12m = p.Sprintf("%d", totals.SumOfPageViews12mNr)
 
 	log.Debug().Msgf("Total visits and pageviews (V/PV, 7d, 30d, 12m)= %d/%d, %d/%d, %d/%d", totals.SumOfVisitors7dNr, totals.SumOfPageViews7dNr, totals.SumOfVisitors30dNr, totals.SumOfPageViews30dNr, totals.SumOfVisitors12mNr, totals.SumOfPageViews12mNr)
-	log.Debug().Msgf("Total %d issues and %d bugs", totals.TotalNrOfIssues, totals.TotalNrOfBugs)
+	log.Debug().Msgf("Total %d issues, %d bugs, and %d PRs", totals.TotalNrOfIssues, totals.TotalNrOfBugs, totals.TotalNrOfPRs)
 
 	return totals
 }

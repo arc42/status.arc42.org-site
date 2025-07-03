@@ -24,3 +24,4 @@ set-api-keys.sh
 
 # Binary built by go build
 arc42-status
+test-binary
