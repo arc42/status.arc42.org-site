@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
+	"strings"
 	"sync"
 	"time"
 	"zgo.at/zcache/v2"
@@ -95,7 +96,7 @@ func LoadStats4AllSites() types.Arc42Statistics {
 	for index, site := range types.Arc42sites {
 		wg.Add(1)
 
-		go getRepoStatisticsForSite(site+"-site", &Stats4Repos[index], &wg)
+		go getRepoStatisticsForSite(siteNameToRepoName(site), &Stats4Repos[index], &wg)
 	}
 
 	wg.Wait()
@@ -165,12 +166,33 @@ func getUsageStatisticsForSite(site string, thisSiteStats *types.SiteStatsType, 
 
 }
 
-func getRepoStatisticsForSite(site string, thisRepoStats *types.RepoStatsType, wg *sync.WaitGroup) {
+// siteNameToRepoName maps site names to their corresponding GitHub repository names.
+// Most sites follow the pattern "sitename-site", but some have different names.
+func siteNameToRepoName(siteName string) string {
+	switch siteName {
+	case "pdfminion.arc42.org":
+		return "PDFminion"
+	default:
+		return siteName + "-site"
+	}
+}
+
+func getRepoStatisticsForSite(repoName string, thisRepoStats *types.RepoStatsType, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	thisRepoStats.Site = site
-	thisRepoStats.Repo = github.GithubArc42URL + site
+	// Extract the original site name from the repository name
+	// This preserves the original site name for display purposes
+	var siteName string
+	if repoName == "PDFminion" {
+		siteName = "pdfminion.arc42.org"
+	} else {
+		// Remove "-site" suffix to get the original site name
+		siteName = strings.TrimSuffix(repoName, "-site")
+	}
 
-	github.StatsForRepo(site, thisRepoStats)
+	thisRepoStats.Site = siteName
+	thisRepoStats.Repo = github.GithubArc42URL + repoName
+
+	github.StatsForRepo(repoName, thisRepoStats)
 
 }
