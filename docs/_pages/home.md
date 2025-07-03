@@ -10,7 +10,7 @@ header:
     - label: "&#8594; arc42.org"
       url: "https://www.arc42.org"
     - label: "&#8594; arc42-Docu"
-      url: "/arc42build"
+      url: "https://docs.arc42.org"
 
 
 
