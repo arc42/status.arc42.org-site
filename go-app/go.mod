@@ -4,12 +4,16 @@ go 1.21
 
 require (
 	github.com/andrerfcsantos/go-plausible v0.3.1
+	github.com/mattn/go-sqlite3 v1.14.19
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/rs/zerolog v1.31.0
 	github.com/shurcooL/githubv4 v0.0.0-20230704064427-599ae7bbf278
+	github.com/slack-go/slack v0.12.3
 	github.com/tursodatabase/libsql-client-go v0.0.0-20231216154754-8383a53d618f
 	golang.org/x/net v0.20.0
 	golang.org/x/oauth2 v0.14.0
 	golang.org/x/text v0.14.0
+	zgo.at/zcache/v2 v2.1.0
 )
 
 require (
@@ -21,18 +25,12 @@ require (
 	github.com/libsql/sqlite-antlr4-parser v0.0.0-20230802215326-5cb5bb604475 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-sqlite3 v1.14.19 // indirect
-	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/shurcooL/graphql v0.0.0-20230722043721-ed46e5a46466 // indirect
-	github.com/slack-go/slack v0.12.3 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.50.0 // indirect
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e // indirect
-	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
-	golang.org/x/tools v0.17.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
-	zgo.at/zcache/v2 v2.1.0 // indirect
 )
