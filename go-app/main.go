@@ -13,10 +13,11 @@ import (
 	"time"
 )
 
-const appVersion = "1.0.0"
+const appVersion = "1.1.0"
 
 // version history
-// 1.0.0: version bump to 1.0.0 marking first stable release
+// 1.1.0: added support for GitHub PRs (pull requests).
+// 1.0.0: version bump to 1.0.0 marking first stable release. Number of bugs and issues now fixed.
 // 0.6.0: added pdfminion.arc42.org to the list of sites
 // 0.5.x rate limit: limit amount of queries to external APIs
 //       0.5.2: distinct env package, distinct DB for DEV, handle OPTIONS request
