@@ -1,6 +1,6 @@
 {
-    "name": "",
-    "short_name": "",
+    "name": "arc42 Status",
+    "short_name": "arc42 Status",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
@@ -13,7 +13,7 @@
             "type": "image/png"
         }
     ],
-    "theme_color": "#ffffff",
+    "theme_color": "#3a4550",
     "background_color": "#ffffff",
     "display": "standalone"
 }
