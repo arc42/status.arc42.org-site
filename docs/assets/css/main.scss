@@ -5,9 +5,57 @@ search: false
 
 @charset "utf-8";
 
+// ============================================================================
+// The one stylesheet the site loads. Import order is load-bearing:
+//
+//   1. type variables   — every variable in the vendored theme's
+//                         _variables.scss carries `!default`, so ours only
+//                         take effect if they are assigned FIRST
+//   2. @font-face       — the self-hosted family faces
+//   3. skin + theme     — vendored minimal-mistakes 4.24.0, see
+//                         _sass/minimal-mistakes/VENDORING.md
+//   4. this site        — the status vocabulary and the family identity,
+//                         both of which must beat the theme
+//
+// `@import "all.css"` (FontAwesome) was removed on 2026-08-04 together with
+// the kit script in _includes/head/custom.html; assets/css/all.css and
+// assets/webfonts/ went with it.
+// ============================================================================
+
+// ---- 1. arc42 family type stack (BRAND.md, family constant #1) -------------
+// Fallback order matters: Atkinson Hyperlegible Next, then the older Atkinson
+// Hyperlegible, then system-ui — their metrics differ, and the order is the
+// difference between a graceful fallback and a jarring one.
+$serif: "Libre Caslon Text", Georgia, "Times New Roman", Times, serif;
+$sans-serif: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui,
+  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+  Arial, sans-serif;
+$monospace: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
+  "Liberation Mono", monospace;
+
+$global-font-family: $sans-serif; // body and UI
+$header-font-family: $serif; // headings only
+$caption-font-family: $sans-serif; // captions are UI, not headings
+
+// ---- 2. the faces themselves -----------------------------------------------
+@import "fonts";
+
+// ---- 3. the vendored theme -------------------------------------------------
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 @import "minimal-mistakes"; // main partials
 
+// ---- 4. this site ----------------------------------------------------------
+// The status vocabulary (tiles, status tokens, skeletons). Keep the `.css`
+// extension: it makes Sass forward this as a plain `@import url(...)` resolved
+// against main.css's own directory, which is the only way to reach a file that
+// lives in assets/css/ — the Sass load path is _sass/ alone, so dropping the
+// extension fails the build outright. Ruby Sass 3.7 hoists the at-rule above
+// every declaration, so it lands where CSS requires it and the browser really
+// does load it (verified: .status-token--up gets its border-radius).
+// Consequence worth knowing: it loads BEFORE the theme, so the theme wins ties
+// with it — the reverse of the family partial below.
 @import "arc42-status-style.css";
 
-@import "all.css"; // fontawesome
+// The arc42 family identity — masthead band, footer, brand tokens. Last, so
+// it wins over the theme by source order alone.
+@import "arc42-family";

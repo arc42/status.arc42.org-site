@@ -1,8 +1,28 @@
+{%- comment -%}
+  Masthead — the arc42 family band.
+
+  LOCAL OVERRIDE of the vendored minimal-mistakes 4.24.0 include of the same
+  name. Differences from the theme's version, all deliberate:
+    · no visible-links / hidden-links lists — this site has no navigation to
+      show, and those empty <ul>s were the only work greedy-navigation.js had
+      here (the theme scripts are not loaded at all, see _layouts/default.html)
+    · no search toggle: it was the theme's one remaining FontAwesome glyph
+      (`<i class="fas fa-search">`), and site.search is false anyway
+    · the logo is the family's arc42-logo-white.svg — an SVG that draws in
+      #fff, so it only works on a solid band, which _sass/_arc42-family.scss
+      supplies (slate #3a4550, white on it 9.78:1; BRAND.md / ADR-0007).
+
+  The favicons are NOT touched here or anywhere else: they are this site's
+  designed identity (slate ground, full-spectrum rim) and stay byte-identical.
+{%- endcomment -%}
+
 <div class="masthead">
   <div class="masthead__inner-wrap">
     <div class="masthead__menu">
       <nav id="site-nav" class="greedy-nav">
-        <a class="site-title" href="{{ '/' | absolute_url }}"><img src="/images/arc42-logo-100.webp" width="100" alt="{{ site.title }}"/></a>
+        <a class="site-logo" href="{{ '/' | relative_url }}">
+          <img src="{{ '/assets/images/brand/arc42-logo-white.svg' | relative_url }}" alt="arc42 — status home" width="150" height="42">
+        </a>
 
         <button class="greedy-nav__toggle hidden" type="button">
           <span class="visually-hidden">{{ site.data.ui-text[site.locale].menu_label | default: "Toggle Menu" }}</span>

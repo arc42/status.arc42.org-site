@@ -1,7 +1,18 @@
 # Jekyll technical configuration!
 #
 
-remote_theme: "mmistakes/minimal-mistakes@4.24.0"
+# No `theme:` and no `remote_theme:` on purpose.
+#
+# Until 2026-08-04 this said `remote_theme: "mmistakes/minimal-mistakes@4.24.0"`,
+# which made every build — local, CI and anyone's first clone — download a
+# tarball from GitHub before it could render a single page. minimal-mistakes
+# 4.24.0 is now vendored into _layouts/, _includes/, _sass/ and assets/js/, so
+# the site builds with no network at all. Baseline, licence and the list of
+# local overrides: _sass/minimal-mistakes/VENDORING.md.
+#
+# Nothing else had to be dropped for this: jekyll-remote-theme was never listed
+# under `plugins`/`whitelist` here, it came in with the github-pages gem and is
+# simply no longer asked to do anything.
 github: metadata
 
 minimal_mistakes_skin    : "default" 
@@ -22,6 +33,13 @@ baseurl         : ""  # the subpath of your site, e.g. "/blog"
 stats_api       : "https://arc42-stats.fly.dev"
 repository      : "arc42/status.arc42.org-site" # GitHub username/repo-name
 teaser          :  # path of fallback teaser image, e.g. "/assets/images/500x300.png"
+
+# The family's square logo. _includes/seo.html uses it as the schema.org
+# Organization logo and as the fallback social-card image; before this the site
+# had neither, so a shared link rendered blank. The favicons are NOT derived
+# from it and are not touched — they are this site's designed identity
+# (slate ground, full-spectrum rim; meta.arc42.org ADR-0007).
+og_image        : "/assets/images/brand/arc42logosquare.webp"
 breadcrumbs     : false # true, false (default)
 words_per_minute : 200
 permalink       : none
