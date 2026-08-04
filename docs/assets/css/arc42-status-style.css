@@ -2,6 +2,290 @@
     text-align: center;
 }
 
+/* ==========================================================================
+   Availability status vocabulary
+   --------------------------------------------------------------------------
+   One shared set of states for the whole site: the static page uses them
+   while the statistics service is unreachable, the service uses them per
+   site once ADR-0019 (GitHub-Actions prober) delivers real data.
+
+   Every state is encoded three times over -- shape, text and colour -- so it
+   survives greyscale printing, colour blindness and high-contrast mode.
+   ========================================================================== */
+
+:root {
+    --arc42-petrol: #004153;
+    --status-ink: #3d4144;
+    --status-muted: #5a6a70;
+    --status-up: #0b6e4f;
+    --status-degraded: #8a5000;
+    --status-down: #b3261e;
+    --status-unknown: #5a6a70;
+    --status-surface-warn: #fdf6ec;
+    --status-border-warn: #d9b382;
+    --status-skeleton: #e7eaec;
+    --status-skeleton-hi: #f3f5f6;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* --- the token itself ---------------------------------------------------- */
+
+.status-token {
+    display: inline-block;
+    width: 0.75em;
+    height: 0.75em;
+    position: relative;
+    vertical-align: baseline;
+    flex: none;
+}
+
+.status-token--up {
+    border-radius: 50%;
+    background: var(--status-up);
+}
+
+/* half-filled disc: up, but slow or serving unexpected content */
+.status-token--degraded {
+    border-radius: 50%;
+    background: linear-gradient(90deg, var(--status-degraded) 50%, transparent 50%);
+    box-shadow: inset 0 0 0 1.5px var(--status-degraded);
+}
+
+.status-token--down {
+    border-radius: 50%;
+    background: var(--status-down);
+}
+
+/* the slash makes "down" legible without colour */
+.status-token--down::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 15%;
+    width: 70%;
+    height: 1.5px;
+    margin-top: -0.75px;
+    background: #fff;
+    transform: rotate(-45deg);
+}
+
+.status-token--unknown {
+    border-radius: 50%;
+    border: 1.5px dashed var(--status-unknown);
+}
+
+/* not monitored yet: a dash, deliberately the quietest mark on the page */
+.status-token--unmonitored {
+    width: 0.7em;
+    height: 2px;
+    background: var(--status-muted);
+    vertical-align: middle;
+}
+
+/* --- the verdict line ---------------------------------------------------- */
+
+.status-verdict {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55em;
+    margin: 0 0 1em;
+    padding: 0.6em 0.85em;
+    border: 1px solid #e2e5e7;
+    border-radius: 3px;
+    background: #fbfcfc;
+    color: var(--status-ink);
+    font-size: 0.82em;
+    line-height: 1.5;
+}
+
+.status-verdict .status-token {
+    position: relative;
+    top: -0.15em;
+}
+
+.status-verdict b {
+    font-weight: 700;
+}
+
+/* --- the status column in the statistics table --------------------------- */
+
+.status-cell {
+    text-align: center !important;
+    white-space: nowrap;
+}
+
+.status-cell .status-token {
+    vertical-align: middle;
+}
+
+/* --- loading skeleton ---------------------------------------------------- */
+
+.stats-skeleton {
+    /* the theme sets `table { display: block }` for responsive tables, which
+       shrink-wraps empty cells to nothing -- put this one back on the table
+       algorithm so the placeholder actually has the shape of the real table */
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.stats-skeleton td {
+    border: 1px solid #dddddd;
+    padding: 8px;
+}
+
+/* row heights match what the service actually returns (measured): two tall
+   header rows, then data rows -- so the swap costs ~20px of shift, not 260px */
+.stats-skeleton tr {
+    height: 43px;
+}
+
+.stats-skeleton tr:nth-child(-n+2) {
+    height: 61px;
+}
+
+.stats-skeleton .skeleton-bar {
+    display: block;
+    width: 100%;
+    height: 0.7em;
+    border-radius: 2px;
+    background: var(--status-skeleton);
+    animation: statsSkeletonPulse 1.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.stats-skeleton tr:nth-child(odd) td {
+    background-color: #dbe2fc;
+}
+
+/* the placeholder predicts the real row: a wide site name, a small status
+   mark, then right-aligned figures */
+.skeleton-cell--number .skeleton-bar {
+    width: 55%;
+    margin-left: auto;
+}
+
+.skeleton-cell--status .skeleton-bar {
+    width: 0.7em;
+    margin: 0 auto;
+}
+
+.stats-skeleton .skeleton-bar--head {
+    background: #cfd5d8;
+}
+
+@keyframes statsSkeletonPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .stats-skeleton .skeleton-bar {
+        animation: none;
+        opacity: 0.8;
+    }
+}
+
+.stats-loading-note {
+    margin: 0.6em 0 0;
+    font-size: 0.78em;
+    color: var(--status-muted);
+}
+
+/* --- service unreachable panel ------------------------------------------- */
+
+.stats-panel {
+    display: flex;
+    gap: 0.9em;
+    align-items: flex-start;
+    padding: 1.1em 1.2em;
+    border: 1px solid var(--status-border-warn);
+    border-radius: 3px;
+    background: var(--status-surface-warn);
+    color: var(--status-ink);
+}
+
+.stats-panel__icon {
+    flex: none;
+    width: 1.5em;
+    height: 1.5em;
+    color: var(--status-degraded);
+}
+
+.stats-panel__body {
+    min-width: 0;
+}
+
+.stats-panel__title {
+    margin: 0 0 0.35em;
+    font-size: 1em;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.stats-panel__text {
+    margin: 0 0 0.5em;
+    font-size: 0.85em;
+    line-height: 1.55;
+    overflow-wrap: break-word;
+}
+
+.stats-panel__detail {
+    margin: 0 0 0.9em;
+    font-size: 0.78em;
+    color: var(--status-muted);
+}
+
+.stats-panel__retry {
+    display: inline-block;
+    min-height: 44px;
+    padding: 0.55em 1.1em;
+    border: 1px solid var(--arc42-petrol);
+    border-radius: 3px;
+    background: #fff;
+    color: var(--arc42-petrol);
+    font-size: 0.85em;
+    font-weight: 700;
+    line-height: 1.8;
+    cursor: pointer;
+}
+
+.stats-panel__retry:hover,
+.stats-panel__retry:focus-visible {
+    background: var(--arc42-petrol);
+    color: #fff;
+}
+
+.stats-panel__retry[disabled] {
+    opacity: 0.55;
+    cursor: progress;
+}
+
+/* the statistics table can be wider than a phone; let it scroll itself
+   instead of dragging the whole document sideways */
+.stats-region {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+@media (max-width: 600px) {
+    .status-verdict {
+        font-size: 0.78em;
+    }
+}
+
 .supported-by-innoq {
     margin-bottom: 13px;
     width: 140px;
