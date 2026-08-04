@@ -665,9 +665,11 @@
 /* an unlabelled item is the tile's alarm: nobody has classified it, however
    old it is. Marked by a keyline as well as by the word, so it survives
    greyscale and colour blindness. */
-.tile__item--unlabelled {
-    padding-left: 0.5em;
-    border-left: 2px solid var(--status-degraded);
+/* No coloured left-rule here: the word "unlabelled" already carries the
+   meaning in text and colour, so a 2px accent bar was decoration doing a job
+   already done. The item is marked by its meta line, not by a stripe. */
+.tile__item--unlabelled .tile__unlabelled {
+    font-weight: 700;
 }
 
 /* recently closed: the same list one notch quieter. Closed work is context,
