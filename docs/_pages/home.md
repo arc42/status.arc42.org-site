@@ -4,7 +4,9 @@ layout: splash
 permalink: /
 header:
   overlay_image: /images/statistics-splash.webp
-  overlay_filter: rgba(0, 65, 83, 0.7)
+  # slate #3a4550 at .75 = 5.32:1 for white hero text, matching the 5.37:1
+  # the retired petrol overlay gave. See ADR-0007 / BRAND.md deny-list.
+  overlay_filter: rgba(58, 69, 80, 0.75)
 
   actions:
     - label: "&#8594; arc42.org"

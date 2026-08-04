@@ -14,7 +14,11 @@
    ========================================================================== */
 
 :root {
-    --arc42-petrol: #004153;
+    /* status' own slate ground (ADR-0007). NOT petrol #004153, which BRAND.md
+       retired to the CI deny-list after the petrol/apricot experiment collided
+       with faq's teal territory. Slate is this site's registered ground, so it
+       borrows no other site's signature hue. */
+    --status-slate: #3a4550;
     --status-ink: #3d4144;
     --status-muted: #5a6a70;
     --status-up: #0b6e4f;
@@ -261,10 +265,10 @@
     display: inline-block;
     min-height: 44px;
     padding: 0.55em 1.1em;
-    border: 1px solid var(--arc42-petrol);
+    border: 1px solid var(--status-slate);
     border-radius: 3px;
     background: #fff;
-    color: var(--arc42-petrol);
+    color: var(--status-slate);
     font-size: 0.85em;
     font-weight: 700;
     line-height: 1.8;
@@ -273,7 +277,7 @@
 
 .stats-panel__retry:hover,
 .stats-panel__retry:focus-visible {
-    background: var(--arc42-petrol);
+    background: var(--status-slate);
     color: #fff;
 }
 
