@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# TEMPLATE -- copy to set-api-keys.sh and fill in the real values:
+#
+#     cp set-api-keys.sh.template set-api-keys.sh
+#
+# set-api-keys.sh contains live secrets and is listed in go-app/.gitignore.
+# It has never been committed; keep it that way. This template is the only
+# version of the file that belongs in git.
+#
+# `make backend` sources it for you. To run the service by hand instead:
+#
+#     source ./set-api-keys.sh && go run main.go
+
+# Plausible.io API key -- read access to the arc42 site statistics.
+export PLAUSIBLE_API_KEY=<plausible-api-key>
+
+# GitHub personal access token, used for the issues/bugs/PRs GraphQL queries.
+# Named GITHUB_API_KEY here; in GitHub Actions the same secret is called
+# GRAPHQL_API_TOKEN, because GitHub forbids secret names starting with GITHUB_.
+export GITHUB_API_KEY=<github-personal-access-token>
+
+# Slack bot token, for the notifications described in ADR-0016.
+export SLACK_AUTH_TOKEN=<slack-bot-token>
+
+# Long-lived Turso token, created on the command line with
+#   turso db tokens create arc42-statistics
+export TURSO_AUTH_TOKEN="<turso-auth-token>"
+
+# DEV keeps the service on the development database and off the production
+# one. Anything starting with DEV, TEST or PROD is recognised; see
+# internal/env/environment.go.
+export ENVIRONMENT="DEV"
+
+# zerolog levels, highest to lowest:
+#   panic, fatal, error, warn, info, debug, trace
+export LOGLEVEL="INFO"
+
+echo "API tokens set (from set-api-keys.sh)."
+echo "  ENVIRONMENT: ${ENVIRONMENT}"
+echo "  LOGLEVEL:    ${LOGLEVEL}"

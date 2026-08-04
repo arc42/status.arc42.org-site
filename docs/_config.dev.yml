@@ -1,0 +1,12 @@
+# Local development overrides.
+#
+# Loaded *on top of* _config.yml by the dev server only:
+#   bundle exec jekyll serve --config _config.yml,_config.dev.yml
+# which is what `make site` (via docker-compose.yml) does.
+#
+# GitHub Pages never reads this file, so nothing here can reach production.
+
+# Talk to the Go service started by `make backend` instead of the deployed
+# one on fly.io. Without this, a locally served page shows production data
+# and your backend changes stay invisible.
+stats_api: "http://localhost:8043"

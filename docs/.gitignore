@@ -1,0 +1,5 @@
+# The root .gitignore excludes Gemfile.lock everywhere. The Jekyll dev image
+# pins gems from this lockfile (COPY Gemfile Gemfile.lock + bundle install
+# --frozen), so here it must be tracked -- same as arc42.org-site and
+# docs.arc42.org-site. Without it a fresh clone cannot build the image.
+!Gemfile.lock

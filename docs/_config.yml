@@ -14,6 +14,12 @@ name            : ""
 description     : ""
 url             : "https://status.arc42.org" # the base hostname & protocol for your site
 baseurl         : ""  # the subpath of your site, e.g. "/blog"
+
+# Base URL of the statistics service that renders the stats table fragment.
+# Overridden to http://localhost:8043 by _config.dev.yml, which only the
+# local dev server loads (`make site`). GitHub Pages reads _config.yml alone,
+# so the deployed site always talks to fly.io.
+stats_api       : "https://arc42-stats.fly.dev"
 repository      : "arc42/status.arc42.org-site" # GitHub username/repo-name
 teaser          :  # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 breadcrumbs     : false # true, false (default)

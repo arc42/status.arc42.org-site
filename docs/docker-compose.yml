@@ -1,16 +1,33 @@
 # docker-compose definition for developing the site.
 #
-version: '3'
+# The dev server loads _config.dev.yml on top of _config.yml, which points
+# the statistics fragment at the locally running Go service (`make backend`)
+# instead of the deployed one on fly.io. GitHub Pages only ever reads
+# _config.yml, so production is unaffected.
 
 services:
-  gernotstarke-jekyll:
+  jekyll:
     build: .
-    image: canvas-arc42-site
-    command: jekyll serve --trace --host 0.0.0.0 --watch --incremental --config _config.yml
+    image: status-arc42-site:latest
+    init: true
     environment:
-      - JEKYLL_ENV=development
-    ports:
-      - 4000:4000
+      JEKYLL_ENV: development
+      POLLING: "--force_polling"
     volumes:
-      - .:/srv/jekyll
-  
+      - .:/site
+      - jekyll_cache:/site/.jekyll-cache
+      - sass_cache:/site/.sass-cache
+    ports:
+      - '4000:4000'
+    # No --incremental: full rebuild on change. Incremental silently
+    # leaves stale/relocated output when permalinks or front matter change.
+    #
+    # Keep this on ONE line. In a folded (>) scalar YAML preserves the newline
+    # before a more-indented continuation line, and `sh -c` then reads it as a
+    # second command -- which starts jekyll without the --config flags and
+    # silently drops the dev override.
+    command: sh -c "bundle exec jekyll serve --host 0.0.0.0 --watch --config _config.yml,_config.dev.yml $${POLLING}"
+
+volumes:
+  jekyll_cache:
+  sass_cache:

@@ -62,7 +62,7 @@ doc-faq-quality:
 </p>
 
 <div id="statsTable"
-     hx-get="https://arc42-stats.fly.dev/statsTable"
+     hx-get="{{ site.stats_api }}/statsTable"
      hx-trigger="load"
      hx-swap="outerHTML">
 
@@ -93,7 +93,7 @@ doc-faq-quality:
 <script>
 (function () {
     var region = document.getElementById('stats-region');
-    var ENDPOINT = 'https://arc42-stats.fly.dev/statsTable';
+    var ENDPOINT = '{{ site.stats_api }}/statsTable';
 
     if (!region || !window.htmx) { return; }
 
@@ -121,25 +121,29 @@ doc-faq-quality:
         region.setAttribute('aria-busy', 'false');
     }
 
+    // name the host the page is actually talking to -- fly.io in production,
+    // localhost when served by `make site` against a local backend
+    var HOST = ENDPOINT.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+
     var SITES_FINE = 'The arc42 sites themselves are unaffected — only these numbers are missing.';
     var SLEEPS = 'The statistics service sleeps when nobody is looking at this page, so the first request of the day can need a moment.';
 
     region.addEventListener('htmx:timeout', function () {
         showPanel('The statistics service did not answer',
-                  'arc42-stats.fly.dev took longer than 15 seconds to respond. ' + SITES_FINE,
+                  HOST + ' took longer than 15 seconds to respond. ' + SITES_FINE,
                   SLEEPS);
     });
 
     region.addEventListener('htmx:sendError', function () {
         showPanel('The statistics service is unreachable',
-                  'Your browser could not reach arc42-stats.fly.dev at all. ' + SITES_FINE,
+                  'Your browser could not reach ' + HOST + ' at all. ' + SITES_FINE,
                   'This is either a network problem on your side, or the service is down.');
     });
 
     region.addEventListener('htmx:responseError', function (event) {
         var status = (event.detail && event.detail.xhr) ? event.detail.xhr.status : 0;
         showPanel('The statistics service reported a problem',
-                  'arc42-stats.fly.dev answered with HTTP ' + status + '. ' + SITES_FINE,
+                  HOST + ' answered with HTTP ' + status + '. ' + SITES_FINE,
                   'Nothing you can do from here; the service needs a look.');
     });
 

@@ -11,6 +11,28 @@ This is a _multi-repo_, and the directories are organized as follows:
 
 ![Repo overview with logos](documentation/images/0-repo-overview.drawio.png)
 
+## Local development
+
+This site is two processes, so development needs two terminals:
+
+```bash
+make backend    # terminal 1: the Go statistics service on :8043
+make site       # terminal 2: the Jekyll dev server on :4000
+make doctor     # check the local setup (Docker, Go, secrets, ports)
+make help       # every available target
+```
+
+`make site` loads `docs/_config.dev.yml`, which points the page at the local
+backend instead of fly.io. GitHub Pages only reads `_config.yml`, so the
+deployed site is unaffected.
+
+The backend needs `go-app/set-api-keys.sh`, which holds live secrets and is
+therefore gitignored. Create it once from the committed template:
+
+```bash
+cp go-app/set-api-keys.sh.template go-app/set-api-keys.sh
+```
+
 ## Technologies used
 
 ![Plausible Analytics Badge](https://img.shields.io/badge/Plausible%20Analytics-5850EC?logo=plausibleanalytics&logoColor=fff&style=plastic)

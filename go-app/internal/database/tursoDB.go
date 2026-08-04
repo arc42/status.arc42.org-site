@@ -160,7 +160,7 @@ func SaveInvocationParams(requestIP string, route string) {
 
 	_, err := GetDB().Exec(insertStatement)
 	if err != nil {
-		log.Error().Msgf("Error inserting invocation parameters %s:%s:%s\n ", TableTimeOfSystemStart, err)
+		log.Error().Msgf("Error inserting invocation parameters into %s: %s", TableTimeOfInvocation, err)
 	} else {
 		log.Info().Msg("wrote request parameters to database")
 	}
