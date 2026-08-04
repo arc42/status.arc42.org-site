@@ -60,6 +60,36 @@ func initPlausibleHandler() *plausible.Client {
 	}
 }
 
+// MarkUnmeasured fills a site's usage statistics with the same representation a
+// failed API call produces: types.NotAvailable, and zero for the numbers that
+// feed the totals. It is for sites that have no Plausible site at all, so no
+// query is made and no error is logged - see domain.sitesWithoutPlausible.
+//
+// HasTraffic stays false, which is how templates tell "nobody visited" (a
+// measurement) from "nobody counts" (the absence of one).
+func MarkUnmeasured(stats *types.SiteStatsType) {
+	stats.HasTraffic = false
+
+	stats.Visitors7d, stats.PageViews7d = types.NotAvailable, types.NotAvailable
+	stats.Visitors30d, stats.PageViews30d = types.NotAvailable, types.NotAvailable
+	stats.Visitors12m, stats.PageViews12m = types.NotAvailable, types.NotAvailable
+
+	stats.Visitors7dNr, stats.PageViews7dNr = 0, 0
+	stats.Visitors30dNr, stats.PageViews30dNr = 0, 0
+	stats.Visitors12mNr, stats.PageViews12mNr = 0, 0
+}
+
+// formatMetric renders a measured number with thousands separators, but passes
+// types.NotAvailable through untouched. Before this, every value went through
+// the printer, so an API error - which SiteMetricsConcurrent reports as "n/a"
+// with a zero number - reached the page as a confident "0".
+func formatMetric(p *message.Printer, measured string, nr int) string {
+	if measured == types.NotAvailable {
+		return types.NotAvailable
+	}
+	return p.Sprintf("%d", nr)
+}
+
 // StatsForSite collects all relevant statistics for a given site
 // (currently 7D, 30D and 12M)
 func StatsForSite(thisSite string, stats *types.SiteStatsType) {
@@ -93,19 +123,21 @@ func StatsForSite(thisSite string, stats *types.SiteStatsType) {
 	p := message.NewPrinter(language.German)
 
 	// now process results
-	// before #55 these assignments read: stats.Visitors7d = stats7D.Visitors
-	stats.Visitors7d = p.Sprintf("%d", stats7D.VisitorNr)
-	stats.PageViews7d = p.Sprintf("%d", stats7D.PageViewNr)
+	// before #55 these assignments read: stats.Visitors7d = stats7D.Visitors,
+	// which lost the thousands separators; formatMetric keeps them while still
+	// letting an unavailable value stay unavailable.
+	stats.Visitors7d = formatMetric(p, stats7D.Visitors, stats7D.VisitorNr)
+	stats.PageViews7d = formatMetric(p, stats7D.PageViews, stats7D.PageViewNr)
 	stats.Visitors7dNr = stats7D.VisitorNr
 	stats.PageViews7dNr = stats7D.PageViewNr
 
-	stats.Visitors30d = p.Sprintf("%d", stats30D.VisitorNr)
-	stats.PageViews30d = p.Sprintf("%d", stats30D.PageViewNr)
+	stats.Visitors30d = formatMetric(p, stats30D.Visitors, stats30D.VisitorNr)
+	stats.PageViews30d = formatMetric(p, stats30D.PageViews, stats30D.PageViewNr)
 	stats.Visitors30dNr = stats30D.VisitorNr
 	stats.PageViews30dNr = stats30D.PageViewNr
 
-	stats.Visitors12m = p.Sprintf("%d", stats12M.VisitorNr)
-	stats.PageViews12m = p.Sprintf("%d", stats12M.PageViewNr)
+	stats.Visitors12m = formatMetric(p, stats12M.Visitors, stats12M.VisitorNr)
+	stats.PageViews12m = formatMetric(p, stats12M.PageViews, stats12M.PageViewNr)
 	stats.Visitors12mNr = stats12M.VisitorNr
 	stats.PageViews12mNr = stats12M.PageViewNr
 }
@@ -130,9 +162,9 @@ func SiteMetricsConcurrent(siteHandler *plausible.Site, period plausible.TimePer
 	if err != nil {
 		log.Error().Msgf("Error performing query to plausible.io: %v", err)
 		// in this case, we don't add anything to the Sums
-		vApvs.PageViews = "n/a"
+		vApvs.PageViews = types.NotAvailable
 		vApvs.PageViewNr = 0
-		vApvs.Visitors = "n/a"
+		vApvs.Visitors = types.NotAvailable
 		vApvs.VisitorNr = 0
 	} else {
 		log.Debug().Msgf("%s had %d visitors for period %s", siteHandler.ID(), result.Visitors, period.Period)

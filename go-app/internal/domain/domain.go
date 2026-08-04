@@ -8,7 +8,6 @@ import (
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 	"sort"
-	"strings"
 	"sync"
 	"time"
 	"zgo.at/zcache/v2"
@@ -97,7 +96,7 @@ func LoadStats4AllSites() types.Arc42Statistics {
 	for index, site := range types.Arc42sites {
 		wg.Add(1)
 
-		go getRepoStatisticsForSite(siteNameToRepoName(site), &Stats4Repos[index], &wg)
+		go getRepoStatisticsForSite(site, &Stats4Repos[index], &wg)
 	}
 
 	wg.Wait()
@@ -110,7 +109,8 @@ func LoadStats4AllSites() types.Arc42Statistics {
 		a42s.Stats4Site[index].NrOfOpenBugs = Stats4Repos[index].NrOfOpenBugs
 		a42s.Stats4Site[index].NrOfOpenPRs = Stats4Repos[index].NrOfPRs
 		a42s.Stats4Site[index].Repo = Stats4Repos[index].Repo
-		a42s.Stats4Site[index].Untriaged = Stats4Repos[index].Untriaged
+		a42s.Stats4Site[index].OpenItems = Stats4Repos[index].OpenItems
+		a42s.Stats4Site[index].RecentlyClosed = Stats4Repos[index].RecentlyClosed
 		a42s.Stats4Site[index].NrUntriaged = Stats4Repos[index].NrUntriaged
 		a42s.Stats4Site[index].IsHub = isHub(types.Arc42sites[index])
 
@@ -157,6 +157,15 @@ func calculateTotals(stats [len(types.Arc42sites)]types.SiteStatsType) types.Tot
 	return totals
 }
 
+// sitesWithoutPlausible lists the properties that have no Plausible site at all.
+// Asking Plausible about them would produce an API error on every single
+// collection run - an error that says nothing, because nothing is broken: the
+// site simply is not measured. meta.arc42.org is the brand and decision home,
+// read by maintainers rather than by an audience, so it was never registered.
+var sitesWithoutPlausible = map[string]bool{
+	"meta.arc42.org": true,
+}
+
 // getUsageStatisticsForSite retrieves the statistics for a single site from plausible.io.
 // This func is called as Goroutine.
 func getUsageStatisticsForSite(site string, thisSiteStats *types.SiteStatsType, wg *sync.WaitGroup) {
@@ -164,6 +173,16 @@ func getUsageStatisticsForSite(site string, thisSiteStats *types.SiteStatsType, 
 
 	// to avoid repeating the expression, introduce local var
 	thisSiteStats.Site = site
+
+	if sitesWithoutPlausible[site] {
+		// no site_id, no query, no numbers - and deliberately no error:
+		// "not measured" is a fact about the site, not a failure of this run.
+		plausible.MarkUnmeasured(thisSiteStats)
+		log.Debug().Msgf("%s has no Plausible site, visitor numbers are %s", site, types.NotAvailable)
+		return
+	}
+
+	thisSiteStats.HasTraffic = true
 
 	// get statistic data from plausible.io
 	plausible.StatsForSite(site, thisSiteStats)
@@ -199,34 +218,44 @@ func TilesInAttentionOrder(a42s types.Arc42Statistics) []types.SiteStatsType {
 	return tiles
 }
 
-// siteNameToRepoName maps site names to their corresponding GitHub repository names.
-// Most sites follow the pattern "sitename-site", but some have different names.
-func siteNameToRepoName(siteName string) string {
-	switch siteName {
-	case "pdfminion.arc42.org":
-		return "PDFminion"
-	default:
-		return siteName + "-site"
-	}
+// repoNameExceptions lists the sites whose repository is not simply
+// "<host>-site". This map, plus that default rule, is the ONLY place the
+// site-to-repository relation is written down.
+//
+// It used to be written down twice - here and, inverted, in
+// getRepoStatisticsForSite, which reconstructed the host from the repository
+// name by trimming "-site". Two descriptions of one fact can disagree, and with
+// meta.arc42.org they immediately would have: its repository carries no "-site"
+// suffix, so trimming would have left the host unchanged by luck rather than by
+// design, while PDFminion needed a hand-written special case on both sides.
+// The inverse is now gone entirely: the host is carried through, never derived.
+var repoNameExceptions = map[string]string{
+	"pdfminion.arc42.org": "PDFminion",      // the tool predates its subdomain
+	"meta.arc42.org":      "meta.arc42.org", // brand/decision home, no "-site" suffix
 }
 
-func getRepoStatisticsForSite(repoName string, thisRepoStats *types.RepoStatsType, wg *sync.WaitGroup) {
+// RepoNameForSite maps a site host to the GitHub repository behind it.
+// Most sites follow the pattern "<host>-site"; the exceptions are listed above.
+func RepoNameForSite(siteName string) string {
+	if repoName, isException := repoNameExceptions[siteName]; isException {
+		return repoName
+	}
+	return siteName + "-site"
+}
+
+// getRepoStatisticsForSite collects everything the dashboard knows about the
+// repository behind a site: the open counts, the newest open items, and what
+// closed most recently. This func is called as Goroutine.
+func getRepoStatisticsForSite(siteName string, thisRepoStats *types.RepoStatsType, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	// Extract the original site name from the repository name
-	// This preserves the original site name for display purposes
-	var siteName string
-	if repoName == "PDFminion" {
-		siteName = "pdfminion.arc42.org"
-	} else {
-		// Remove "-site" suffix to get the original site name
-		siteName = strings.TrimSuffix(repoName, "-site")
-	}
+	repoName := RepoNameForSite(siteName)
 
 	thisRepoStats.Site = siteName
 	thisRepoStats.Repo = github.GithubArc42URL + repoName
 
 	github.StatsForRepo(repoName, thisRepoStats)
-	github.UntriagedForRepo(repoName, thisRepoStats)
+	github.OpenItemsForRepo(repoName, thisRepoStats)
+	github.RecentlyClosedForRepo(repoName, thisRepoStats)
 
 }

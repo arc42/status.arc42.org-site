@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-var Arc42sites = [8]string{
+var Arc42sites = [10]string{
 	"arc42.org",
 	"arc42.de",
 	"docs.arc42.org",
@@ -13,17 +13,34 @@ var Arc42sites = [8]string{
 	"quality.arc42.org",
 	"status.arc42.org",
 	"pdfminion.arc42.org",
+	"trainings.arc42.org",
+	"meta.arc42.org",
 }
 
-// UntriagedItem is an open issue or pull request that nobody has classified yet:
-// it either arrived inside the untriaged window, or it carries no label at all.
-// An unlabelled issue is one no maintainer has looked at, however old it is.
-type UntriagedItem struct {
+// NotAvailable is what a metric reads when it could not be measured at all -
+// either the external API refused to answer, or the site is not measured in
+// the first place. It is deliberately not "0": a site nobody visited and a
+// site nobody counts are different facts.
+const NotAvailable = "n/a"
+
+// RepoItem is one open issue or pull request as a dashboard tile lists it.
+// Unlabelled marks an item no maintainer has classified, however old it is.
+type RepoItem struct {
 	Title      string
 	URL        string
 	AgeString  string // human-readable, e.g. "3 days", "5 weeks"
 	IsPR       bool
 	Unlabelled bool
+}
+
+// ClosedItem is a recently closed (or merged) issue or pull request. It is the
+// counterweight to the open list: a tile showing only what is open reads like a
+// site where nothing ever happens.
+type ClosedItem struct {
+	Title     string
+	URL       string
+	IsPR      bool
+	ClosedAgo string // human-readable phrase, e.g. "3 days ago", "today"
 }
 
 // TilesData is what the dashboard template renders: the sites already in the
@@ -35,7 +52,13 @@ type TilesData struct {
 
 // SiteStatsType contains visitor and pageviews statistics for a single arc42 site or subdomain.
 type SiteStatsType struct {
-	Site           string // site name
+	Site string // site name
+
+	// HasTraffic tells "measured zero" apart from "not measured at all".
+	// meta.arc42.org has no Plausible site, so its numbers are NotAvailable
+	// rather than 0, and templates must not present them as a reading.
+	HasTraffic bool
+
 	Visitors7d     string
 	Visitors7dNr   int
 	PageViews7d    string
@@ -56,15 +79,16 @@ type SiteStatsType struct {
 	NrOfOpenPRs    int
 
 	// dashboard tile data
-	IsHub       bool            // arc42.org and arc42.de are the hubs; the rest are satellites
-	Untriaged   []UntriagedItem // newest first, capped for display
-	NrUntriaged int             // total, may exceed len(Untriaged)
+	IsHub          bool         // arc42.org and arc42.de are the hubs; the rest are satellites
+	OpenItems      []RepoItem   // newest open issues and PRs, capped at github.MaxOpenShown
+	RecentlyClosed []ClosedItem // most recently closed, capped at github.MaxClosedShown
+	NrUntriaged    int          // how many open items nobody has classified
 }
 
-// MoreUntriaged is how many untriaged items exist beyond the ones the tile
+// MoreOpen is how many open issues and PRs exist beyond the ones the tile
 // lists. Templates cannot do arithmetic, so it is computed here.
-func (s SiteStatsType) MoreUntriaged() int {
-	if n := s.NrUntriaged - len(s.Untriaged); n > 0 {
+func (s SiteStatsType) MoreOpen() int {
+	if n := s.NrOfOpenIssues + s.NrOfOpenPRs - len(s.OpenItems); n > 0 {
 		return n
 	}
 	return 0
@@ -78,8 +102,9 @@ type RepoStatsType struct {
 	NrOfOpenIssues int    // number of open issues
 	NrOfPRs        int    // number of open pull-requests
 
-	Untriaged   []UntriagedItem // open issues and PRs nobody has classified
-	NrUntriaged int
+	OpenItems      []RepoItem   // the newest open issues and PRs, for the tile list
+	RecentlyClosed []ClosedItem // the most recently closed issues and PRs
+	NrUntriaged    int          // how many open items nobody has classified
 }
 
 // TotalsForAllSites contains the sum of all the distinct statistics,

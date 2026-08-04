@@ -13,9 +13,12 @@ import (
 	"time"
 )
 
-const appVersion = "1.1.0"
+const appVersion = "1.2.0"
 
 // version history
+// 1.2.0: ten properties (added trainings.arc42.org and meta.arc42.org, the latter
+//        without Plausible measurement); tiles list open and recently closed items;
+//        the statistics table drops the "Open Tasks" columns.
 // 1.1.0: added support for GitHub PRs (pull requests).
 // 1.0.0: version bump to 1.0.0 marking first stable release. Number of bugs and issues now fixed.
 // 0.6.0: added pdfminion.arc42.org to the list of sites

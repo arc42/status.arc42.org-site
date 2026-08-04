@@ -48,13 +48,18 @@ type BugsIssuesQuery struct {
 // an unlabelled issue is one no maintainer has classified.
 const UntriagedWindow = 30 * 24 * time.Hour
 
-// MaxUntriagedShown caps how many items a dashboard tile lists; the count is
+// MaxOpenShown caps how many open items a dashboard tile lists; the counts are
 // reported in full regardless.
-const MaxUntriagedShown = 3
+const MaxOpenShown = 5
 
-// untriagedNode is one open issue or pull request with just enough detail to
-// decide whether anybody has triaged it.
-type untriagedNode struct {
+// MaxClosedShown caps how many recently closed items a tile lists. Three is
+// enough to show that a repository is alive without turning the tile into a
+// changelog.
+const MaxClosedShown = 3
+
+// openNode is one open issue or pull request with just enough detail to list it
+// and to decide whether anybody has triaged it.
+type openNode struct {
 	Title     githubv4.String
 	URL       githubv4.URI
 	CreatedAt githubv4.DateTime
@@ -63,21 +68,48 @@ type untriagedNode struct {
 	} `graphql:"labels(first: 1)"`
 }
 
-// untriagedQuery walks the repository's own issue and pull-request connections.
+// openItemsQuery walks the repository's own issue and pull-request connections.
 //
 // It deliberately does NOT use the GraphQL `search` connection, which would be
 // the tidier way to get issues and PRs in one list: search returns an empty
 // node set for fine-grained personal access tokens (`github_pat_…`) — with no
 // error, just no results — and that is the kind of token this service uses.
-// The repository connections work with both token types.
-type untriagedQuery struct {
+// The repository connections work with both token types. The same holds for
+// closedItemsQuery below.
+type openItemsQuery struct {
 	Repository struct {
 		Issues struct {
-			Nodes []untriagedNode
+			Nodes []openNode
 		} `graphql:"issues(states: OPEN, first: 50, orderBy: {field: CREATED_AT, direction: DESC})"`
 		PullRequests struct {
-			Nodes []untriagedNode
+			Nodes []openNode
 		} `graphql:"pullRequests(states: OPEN, first: 50, orderBy: {field: CREATED_AT, direction: DESC})"`
+	} `graphql:"repository(owner: $owner, name: $repo)"`
+}
+
+// closedNode is one closed issue or pull request. ClosedAt is set for both
+// closed and merged pull requests, which is why it - and not MergedAt - is what
+// the list sorts on.
+type closedNode struct {
+	Title    githubv4.String
+	URL      githubv4.URI
+	ClosedAt githubv4.DateTime
+}
+
+// closedItemsQuery asks each connection for its most recently touched closed
+// items. GitHub cannot order by CLOSED_AT, so it orders by UPDATED_AT and the
+// merge below re-sorts by ClosedAt: a stale item that got a late comment would
+// otherwise jump the queue. Pull requests need [CLOSED, MERGED] because in
+// GitHub's vocabulary a merged PR is not a closed one, while to a maintainer
+// reading the tile it plainly is.
+type closedItemsQuery struct {
+	Repository struct {
+		Issues struct {
+			Nodes []closedNode
+		} `graphql:"issues(states: CLOSED, orderBy: {field: UPDATED_AT, direction: DESC}, first: 3)"`
+		PullRequests struct {
+			Nodes []closedNode
+		} `graphql:"pullRequests(states: [CLOSED, MERGED], orderBy: {field: UPDATED_AT, direction: DESC}, first: 3)"`
 	} `graphql:"repository(owner: $owner, name: $repo)"`
 }
 
@@ -100,29 +132,43 @@ func humanAge(t time.Time) string {
 	}
 }
 
-// UntriagedForRepo collects the open issues and pull requests that nobody has
-// classified: opened within UntriagedWindow, or carrying no label at all.
+// humanAgo is humanAge as a phrase pointing backwards: "today", "1 day ago",
+// "3 weeks ago". Kept separate because "today ago" is not English.
+func humanAgo(t time.Time) string {
+	age := humanAge(t)
+	if age == "today" {
+		return "today"
+	}
+	return age + " ago"
+}
+
+// OpenItemsForRepo lists the newest open issues and pull requests (capped at
+// MaxOpenShown) and counts, in passing, the ones nobody has classified:
+// opened within UntriagedWindow, or carrying no label at all.
+//
+// One query serves both, because both need the same nodes: the list is what the
+// tile shows, the count is what decides whether the tile calls for attention.
 //
 // Note the ceiling: each connection returns at most 50 open items, so a repo
 // with more than 50 open issues (or 50 open PRs) could hide an old unlabelled
 // one beyond that page. The arc42 repos are far below this today; the largest
 // has 19 open issues.
-func UntriagedForRepo(repoName string, stats *types.RepoStatsType) {
+func OpenItemsForRepo(repoName string, stats *types.RepoStatsType) {
 	client := initGitHubGraphQLClient()
 	if client == nil {
 		log.Error().Msgf("GitHub client initialization failed for repo %s - API key not available", repoName)
 		return
 	}
 
-	var query untriagedQuery
+	var query openItemsQuery
 	variables := map[string]interface{}{
 		"owner": githubv4.String("arc42"),
 		"repo":  githubv4.String(repoName),
 	}
 
 	if err := client.Query(context.Background(), &query, variables); err != nil {
-		log.Error().Msgf("GitHub untriaged query failed for repo %s: %v", repoName, err)
-		// leave Untriaged empty; the tile renders its "no repo data" state
+		log.Error().Msgf("GitHub open-items query failed for repo %s: %v", repoName, err)
+		// leave OpenItems empty; the tile renders its "nothing open" state
 		return
 	}
 
@@ -130,7 +176,7 @@ func UntriagedForRepo(repoName string, stats *types.RepoStatsType) {
 
 	// collect issues and PRs together, newest first across both
 	type candidate struct {
-		node untriagedNode
+		node openNode
 		isPR bool
 	}
 	candidates := make([]candidate, 0,
@@ -149,13 +195,12 @@ func UntriagedForRepo(repoName string, stats *types.RepoStatsType) {
 		unlabelled := int(c.node.Labels.TotalCount) == 0
 		created := c.node.CreatedAt.Time
 
-		if !unlabelled && created.Before(cutoff) {
-			continue // triaged and not recent: nothing to flag
+		if unlabelled || created.After(cutoff) {
+			stats.NrUntriaged++
 		}
 
-		stats.NrUntriaged++
-		if len(stats.Untriaged) < MaxUntriagedShown {
-			stats.Untriaged = append(stats.Untriaged, types.UntriagedItem{
+		if len(stats.OpenItems) < MaxOpenShown {
+			stats.OpenItems = append(stats.OpenItems, types.RepoItem{
 				Title:      string(c.node.Title),
 				URL:        c.node.URL.String(),
 				AgeString:  humanAge(created),
@@ -166,6 +211,59 @@ func UntriagedForRepo(repoName string, stats *types.RepoStatsType) {
 	}
 
 	log.Debug().Msgf("%s: %d open items, %d untriaged", repoName, len(candidates), stats.NrUntriaged)
+}
+
+// RecentlyClosedForRepo lists the most recently closed issues and pull requests
+// (capped at MaxClosedShown), merged from the two connections and re-sorted by
+// the time they actually closed.
+func RecentlyClosedForRepo(repoName string, stats *types.RepoStatsType) {
+	client := initGitHubGraphQLClient()
+	if client == nil {
+		log.Error().Msgf("GitHub client initialization failed for repo %s - API key not available", repoName)
+		return
+	}
+
+	var query closedItemsQuery
+	variables := map[string]interface{}{
+		"owner": githubv4.String("arc42"),
+		"repo":  githubv4.String(repoName),
+	}
+
+	if err := client.Query(context.Background(), &query, variables); err != nil {
+		log.Error().Msgf("GitHub closed-items query failed for repo %s: %v", repoName, err)
+		// leave RecentlyClosed empty; the tile simply omits the section
+		return
+	}
+
+	type candidate struct {
+		node closedNode
+		isPR bool
+	}
+	candidates := make([]candidate, 0,
+		len(query.Repository.Issues.Nodes)+len(query.Repository.PullRequests.Nodes))
+	for _, n := range query.Repository.Issues.Nodes {
+		candidates = append(candidates, candidate{n, false})
+	}
+	for _, n := range query.Repository.PullRequests.Nodes {
+		candidates = append(candidates, candidate{n, true})
+	}
+	sort.SliceStable(candidates, func(i, j int) bool {
+		return candidates[i].node.ClosedAt.Time.After(candidates[j].node.ClosedAt.Time)
+	})
+
+	for _, c := range candidates {
+		if len(stats.RecentlyClosed) >= MaxClosedShown {
+			break
+		}
+		stats.RecentlyClosed = append(stats.RecentlyClosed, types.ClosedItem{
+			Title:     string(c.node.Title),
+			URL:       c.node.URL.String(),
+			IsPR:      c.isPR,
+			ClosedAgo: humanAgo(c.node.ClosedAt.Time),
+		})
+	}
+
+	log.Debug().Msgf("%s: %d recently closed items listed", repoName, len(stats.RecentlyClosed))
 }
 
 func initGitHubGraphQLClient() *githubv4.Client {
