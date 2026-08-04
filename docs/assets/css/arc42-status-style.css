@@ -130,6 +130,15 @@
     vertical-align: middle;
 }
 
+/* A site with no Plausible property at all reads "n/a" across the row. Quiet
+   it, so an unmeasured row is never mistaken for a measured zero -- the two
+   are different facts and the table must not blur them. The class is emitted
+   by the service's table fragment. */
+.row--unmeasured td {
+    color: var(--status-muted);
+    font-style: italic;
+}
+
 /* --- loading skeleton ---------------------------------------------------- */
 
 .stats-skeleton {
@@ -277,19 +286,67 @@
    Dashboard tiles
    --------------------------------------------------------------------------
    One tile per property: hubs first, then satellites ordered by untriaged
-   count. Identity lives at the rim, meaning at the centre -- the signature
-   hue is a keyline and never encodes state, because on this page amber and
-   red already mean "degraded" and "down" (BRAND.md, ADR-0007).
+   count.
 
-   The hues live here and only here: the service emits a data-site key and no
-   colour at all, so CSS custom properties stay the single token interface
-   (ADR-0003).
+   IDENTITY IN THE BAND, MEANING IN THE BODY. Each tile carries a coloured
+   title band in the house pattern of meta.arc42.org/brand-manual.html
+   (.site / .site-band / .site-body): the band holds the site name in that
+   property's registered band colour with its measured on-band ink; the body
+   below stays neutral paper and carries every piece of state. The hue never
+   encodes status, because on this page amber and red already mean "degraded"
+   and "down" -- and canvas *is* amber (BRAND.md, ADR-0007).
+
+   The colours live here and only here: the service emits a data-site key and
+   no colour at all, so CSS custom properties stay the single token interface
+   (ADR-0003). Values are copied from the registry of record,
+   meta.arc42.org/BRAND.md -- band = that site's "Masthead fill" column,
+   ink = its "On-band text" column. Nothing here is invented.
+
+   MARKUP CONTRACT -- this is the contract tiles.gohtml actually emits; the Go
+   template is authoritative and emits no colour value at all:
+
+     .tile-grid                              grid wrapper == #tileGrid
+     .tile-allclear                          grid-level "nothing is waiting"
+     article.tile[data-site="<host>"]        one card per property
+       .tile--hub                            hub twin: spans two columns >700px
+       .tile--attention                      untriaged count > 0
+       > .tile__band                         the coloured identity band
+           h3.tile__site > a.tile__sitelink
+           span.tile__role                   "hub", hubs only
+       > .tile__body                         neutral, carries all state
+           p.tile__stats > a.tile__stat
+               > span.tile__statnr + span.tile__statlabel
+           p.tile__lead (.tile__lead--clear)
+               > span.tile__count + span.tile__leadlabel
+           ul.tile__items > li.tile__item (.tile__item--unlabelled)
+               > a.tile__itemlink + span.tile__meta
+                   > span.tile__kind, span.tile__age, span.tile__unlabelled
+           h4.tile__subhead                  "Recently closed"
+           ul.tile__closed > li.tile__closeditem
+               > a.tile__itemlink + span.tile__meta
+                   > span.tile__kind, span.tile__ago
+           p.tile__empty                     "nothing open"
+       > p.tile__more > a.tile__morelink     link to /site/<host>/
+
+   Note .tile__more is a sibling of .tile__body, not a child of it -- hence the
+   fallback padding rule further down, which also keeps any future direct child
+   of .tile off the border.
+
+   The template emits NO separator characters between the meta spans; the
+   middots are added here with ::after, so the separator is presentational and
+   never lands in a screen reader or a copied string.
+
+   MEASURED CONTRAST (ADR-0002: accessibility is measured at the declaration
+   site, not assumed). WCAG 2.1 ratios, computed 2026-08-04 against the exact
+   pairs shipped below. AA for normal text is 4.5:1; a band carries 7:1 where
+   the registry could reach it.
    ========================================================================== */
 
 .tile-grid {
-    --tile-rim: var(--status-muted);
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    /* min(270px, 100%) rather than a bare 270px: below a 270px content box the
+       track would otherwise refuse to shrink and push the document sideways */
+    grid-template-columns: repeat(auto-fill, minmax(min(270px, 100%), 1fr));
     /* tiles take their natural height rather than stretching to the tallest in
        the row: a quiet tile beside a busy one should look quiet, not like a
        300px void */
@@ -298,67 +355,240 @@
     margin: 0 0 1.6em;
 }
 
-/* signature hues — registry of record: meta.arc42.org/BRAND.md */
-.tile[data-site="arc42.org"],
-.tile[data-site="arc42.de"]            { --tile-rim: #374769; } /* hub navy */
-.tile[data-site="docs.arc42.org"]      { --tile-rim: #1675b9; }
-.tile[data-site="quality.arc42.org"]   { --tile-rim: #682d63; }
-.tile[data-site="faq.arc42.org"]       { --tile-rim: #1b5648; }
-.tile[data-site="canvas.arc42.org"]    { --tile-rim: #ffc95c; }
-.tile[data-site="trainings.arc42.org"] { --tile-rim: #a04c5e; }
-.tile[data-site="pdfminion.arc42.org"] { --tile-rim: #8a4b2a; }
+/* Neutral default -- an unregistered or unknown property gets a grey band,
+   never a borrowed hue (ADR-0001: no site may wear another's colour). Set on
+   both consumers of the registry: the dashboard tile and the per-site
+   subpage's identity band, so the two can never disagree about a colour. */
+.tile,
+.site-page {
+    --tile-band: var(--status-muted);
+    --tile-ink: #ffffff;
+    --tile-hue: var(--status-muted);
+}
 
 .tile {
     display: flex;
     flex-direction: column;
-    padding: 0.9rem 1rem 0.8rem;
+    overflow: hidden; /* clips the band to the tile's corner radius */
     border: 1px solid #e2e5e7;
-    border-top: 3px solid var(--tile-rim);
-    border-radius: 3px;
+    border-radius: 4px;
     background: #fff;
     font-size: 0.86rem;
     line-height: 1.5;
 }
 
-/* status owns a device, not a hue: the property that reports on all the
-   others wears all the colours (ADR-0007) */
-.tile[data-site="status.arc42.org"] {
+/* --- the registry, one declaration per property -------------------------- */
+
+/* hub twins share the brand navy; band = masthead fill #2b3a57
+   white on #2b3a57 ......................................... 11.38:1 AAA */
+[data-site="arc42.org"],
+[data-site="arc42.de"] {
+    --tile-band: #2b3a57;
+    --tile-ink: #ffffff;
+    --tile-hue: #374769;
+}
+
+/* docs: signal blue #1675b9, band = masthead fill #0e4f80
+   #eaf4fc on #0e4f80 ........................................ 7.70:1 AAA */
+[data-site="docs.arc42.org"] {
+    --tile-band: #0e4f80;
+    --tile-ink: #eaf4fc;
+    --tile-hue: #1675b9;
+}
+
+/* quality: violet, signature hue and masthead fill are the same value
+   #fbf6ef on #682d63 ........................................ 9.11:1 AAA */
+[data-site="quality.arc42.org"] {
+    --tile-band: #682d63;
+    --tile-ink: #fbf6ef;
+    --tile-hue: #682d63;
+}
+
+/* faq: deep teal derived from arc42-teal #5fb49c
+   #eaf6f2 on #1b5648 ........................................ 7.67:1 AAA
+   (the registry's own measured value -- the earlier ~#2a6f5f estimate could
+   not reach it, which is the case ADR-0002 exists for) */
+[data-site="faq.arc42.org"] {
+    --tile-band: #1b5648;
+    --tile-ink: #eaf6f2;
+    --tile-hue: #1b5648;
+}
+
+/* canvas: the one light band, so the ink goes dark instead of white
+   #4a3a0a on #ffc95c ........................................ 7.24:1 AAA
+   (white on this amber measures 1.68:1 and is never used) */
+[data-site="canvas.arc42.org"] {
+    --tile-band: #ffc95c;
+    --tile-ink: #4a3a0a;
+    --tile-hue: #ffc95c;
+}
+
+/* trainings: dusty rose, the coral hue at 59% chroma -- deliberately not the
+   shared error token #c22b47, because a status page must keep "this failed"
+   in a colour no masthead owns
+   white on #a04c5e .......................................... 5.69:1 AA */
+[data-site="trainings.arc42.org"] {
+    --tile-band: #a04c5e;
+    --tile-ink: #ffffff;
+    --tile-hue: #a04c5e;
+}
+
+/* pdfminion: sienna #8a4b2a, band stepped down to the registry fill
+   white on #5f321b ......................................... 10.72:1 AAA
+   (white on the signature #8a4b2a measures 6.73:1 -- fine, but the fill is
+   what the registry names for a band) */
+[data-site="pdfminion.arc42.org"] {
+    --tile-band: #5f321b;
+    --tile-ink: #ffffff;
+    --tile-hue: #8a4b2a;
+}
+
+/* status: a device, not a hue (ADR-0007). Slate is only 8.9 dE00 from the
+   masthead navy, so it makes no claim as a signature hue; recognition comes
+   from the full-spectrum rim below, which no other site may use.
+   white on #3a4550 .......................................... 9.78:1 AAA */
+[data-site="status.arc42.org"] {
+    --tile-band: #3a4550;
+    --tile-ink: #ffffff;
+    --tile-hue: #3a4550;
+}
+
+/* meta: NOT in the registry. Neutral band on purpose -- inventing a signature
+   hue for an unregistered property is exactly what ADR-0001 forbids, and it
+   would burn one of the few unspent hues without an ADR.
+   white on #5a6a70 (--status-muted) ......................... 5.63:1 AA */
+[data-site="meta.arc42.org"] {
+    --tile-band: var(--status-muted);
+    --tile-ink: #ffffff;
+    --tile-hue: var(--status-muted);
+}
+
+/* --- the band ------------------------------------------------------------ */
+
+.tile__band {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6em;
+    padding: 0.55rem 0.85rem;
+    background: var(--tile-band);
+    color: var(--tile-ink);
+}
+
+/* status.arc42.org wears the full-spectrum rim on the band's top edge, the
+   exact gradient the brand manual ships. Kept off the text for the reason the
+   favicon records: white on the rainbow measures 1.53:1 on the yellow. */
+.tile[data-site="status.arc42.org"] .tile__band {
     border-top: 3px solid transparent;
     border-image: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675b9, #374769, #682d63) 1;
     border-image-width: 3px 0 0 0;
+}
+
+/* meta's band says "unregistered" in a way that is not a colour, so it cannot
+   be mistaken for a signature: a hairline underscore rather than a hue */
+.tile[data-site="meta.arc42.org"] .tile__band {
+    box-shadow: inset 0 -2px 0 0 rgba(255, 255, 255, 0.35);
 }
 
 .tile--hub {
     grid-column: span 2;
 }
 
-.tile__head {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5em;
-    margin-bottom: 0.5em;
-}
+/* .tile--attention is emitted but deliberately carries no rule: the untriaged
+   count is already the loudest thing in the body, and a second treatment on
+   the tile itself would be a colour saying "state" a few pixels from a band
+   saying "identity". The hook is here for when something needs it. */
 
 .tile__site {
     margin: 0;
+    min-width: 0;
     font-size: 0.95rem;
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1.25;
+    overflow-wrap: break-word;
 }
 
-.tile__site a {
-    color: var(--status-ink);
+.tile__sitelink,
+.tile__sitelink:visited {
+    color: inherit;
     text-decoration: none;
 }
 
-.tile__site a:hover,
-.tile__site a:focus-visible {
+.tile__sitelink:hover,
+.tile__sitelink:focus-visible {
     text-decoration: underline;
 }
 
+/* quiet on-band label. 0.90, not 0.82: composited over the band, .82 measures
+   4.41:1 on trainings and 4.40:1 on meta and fails AA. At .90 the weakest pair
+   is trainings at 4.95:1 -- the value BRAND.md records for exactly this text.
+   Composited ratios: hub 9.55 · docs 6.60 · quality 7.71 · faq 6.57 ·
+   canvas 5.76 · trainings 4.95 · pdfminion 9.05 · status 8.27 · meta 4.93 */
 .tile__role {
     margin-left: auto;
+    flex: none;
     font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tile-ink);
+    opacity: 0.9;
+}
+
+/* --- the body ------------------------------------------------------------ */
+
+.tile__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    padding: 0.75rem 0.85rem 0.7rem;
+    color: var(--status-ink);
+}
+
+/* .tile__more is a sibling of .tile__body, and any future direct child of the
+   tile will be too -- give everything that is neither band nor body the same
+   horizontal inset, so nothing can end up flush against the border */
+.tile > :not(.tile__band):not(.tile__body) {
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+}
+
+/* repo health, read first because it is the same two numbers on every tile:
+   a quiet strip, not a headline -- the untriaged count below is the headline */
+.tile__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3em 1.1em;
+    margin: 0 0 0.55em;
+}
+
+.tile__stat {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3em;
+    text-decoration: none;
+}
+
+.tile__stat:hover .tile__statlabel,
+.tile__stat:focus-visible .tile__statlabel {
+    text-decoration: underline;
+}
+
+.tile__statnr {
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.tile__statlabel {
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    color: var(--status-muted);
+}
+
+.tile__subhead {
+    margin: 0.2em 0 0.3em;
+    font-size: 0.68rem;
+    font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--status-muted);
@@ -389,19 +619,21 @@
     top: -0.1em;
 }
 
-.tile__items {
+.tile__items,
+.tile__closed {
     margin: 0 0 0.5em;
     padding: 0;
     list-style: none;
 }
 
-.tile__item {
+.tile__item,
+.tile__closeditem {
     margin-bottom: 0.45em;
     font-size: 0.8rem;
     line-height: 1.4;
 }
 
-.tile__item a {
+.tile__itemlink {
     overflow-wrap: break-word;
 }
 
@@ -411,41 +643,54 @@
     color: var(--status-muted);
 }
 
+/* The template emits the meta spans with no separator between them, on
+   purpose: a middot belongs to the presentation, not to the sentence a screen
+   reader reads out or that a user copies. So the separators are generated, and
+   only between spans -- never trailing. */
+.tile__meta > span + span::before {
+    content: "\00b7";
+    margin: 0 0.4em;
+    color: var(--status-muted);
+}
+
 .tile__unlabelled {
     font-weight: 700;
     color: var(--status-degraded);
 }
 
-.tile__more {
+/* an unlabelled item is the tile's alarm: nobody has classified it, however
+   old it is. Marked by a keyline as well as by the word, so it survives
+   greyscale and colour blindness. */
+.tile__item--unlabelled {
+    padding-left: 0.5em;
+    border-left: 2px solid var(--status-degraded);
+}
+
+/* recently closed: the same list one notch quieter. Closed work is context,
+   not a call to action, so it never competes with the open list above it. */
+.tile__closeditem,
+.tile__closeditem .tile__itemlink {
+    color: var(--status-muted);
+}
+
+.tile__closeditem::before {
+    content: "\2713\00a0";
+    color: var(--status-up);
+}
+
+/* "nothing open" -- a sentence, not a zero. A zero here would read as a
+   measurement; this is the absence of one. */
+.tile__empty {
     margin: 0 0 0.5em;
+    font-size: 0.8rem;
+    color: var(--status-muted);
+}
+
+/* "... more" -- the tile's own way into /site/<host>/. Sits outside
+   .tile__body, so it gets its inset from the fallback rule above. */
+.tile__more {
+    margin: auto 0 0.75rem;
     font-size: 0.75rem;
-}
-
-.tile__health {
-    display: flex;
-    gap: 1.1em;
-    margin: auto 0 0.6em;
-    padding-top: 0.6em;
-    border-top: 1px solid #eceff1;
-}
-
-.tile__health dt {
-    font-size: 0.68rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--status-muted);
-}
-
-.tile__health dd {
-    margin: 0;
-    font-size: 0.95rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-}
-
-.tile__zero {
-    color: var(--status-muted);
-    font-weight: 400;
 }
 
 .tile__foot {
@@ -469,28 +714,67 @@
     font-size: 0.86rem;
 }
 
-/* tile skeleton, same grid so the swap does not move the page */
+/* Tile skeleton: same grid, same anatomy -- band block on top, padded body
+   below -- so the swap to the real tile costs almost no layout shift. */
 .tile-skeleton {
     display: flex;
     flex-direction: column;
-    gap: 0.5em;
     /* measured against a real render: tiles listing untriaged work run tall,
        and the grid row stretches to the tallest tile in it */
     min-height: 320px;
-    padding: 0.9rem 1rem;
+    overflow: hidden;
     border: 1px solid #e2e5e7;
-    border-top: 3px solid var(--status-skeleton);
-    border-radius: 3px;
+    border-radius: 4px;
+    background: #fff;
+}
+
+/* the band's own height: 0.55rem + 0.55rem padding around a 1.25 line of
+   0.95rem text -- the same box .tile__band produces */
+.tile-skeleton__band {
+    display: block;
+    height: calc(0.95rem * 1.25 + 1.1rem);
+    background: var(--status-skeleton);
+    animation: statsSkeletonPulse 1.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.tile-skeleton__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    padding: 0.75rem 0.85rem 0.7rem;
+}
+
+.tile-skeleton .skeleton-bar {
+    display: block;
+    height: 0.7em;
+    border-radius: 2px;
+    background: var(--status-skeleton);
+    animation: statsSkeletonPulse 1.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
 
 .tile-skeleton--hub {
     grid-column: span 2;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .tile-skeleton__band,
+    .tile-skeleton .skeleton-bar {
+        animation: none;
+        opacity: 0.8;
+    }
+}
+
 @media (max-width: 700px) {
     .tile--hub,
     .tile-skeleton--hub {
         grid-column: auto;
+    }
+
+    /* one tile per row, so ten placeholders stack and every over-estimate is
+       paid ten times over. Measured on a full ten-tile render at 390px: 320px
+       over-reserves ~230px across the grid, 300px lands within ~40px. */
+    .tile-skeleton {
+        min-height: 300px;
     }
 }
 
@@ -505,6 +789,158 @@
     .status-verdict {
         font-size: 0.78em;
     }
+}
+
+/* ==========================================================================
+   Per-site subpages at /site/<host>/
+   --------------------------------------------------------------------------
+   The same identity band as the tile, one size up: a visitor arriving from a
+   tile should recognise the page as the same property before reading a word.
+   It consumes the very same --tile-band / --tile-ink custom properties, so the
+   registry above stays the single declaration site for every colour.
+   ========================================================================== */
+
+.site-page {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin: 0 0 1.4em;
+    border: 1px solid #e2e5e7;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.site-page__band {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.2em 0.8em;
+    padding: 0.9rem 1.1rem;
+    background: var(--tile-band);
+    color: var(--tile-ink);
+}
+
+/* status wears the full-spectrum rim rather than a hue -- the same gradient
+   the brand manual ships, and no other property may use it (ADR-0007) */
+.site-page[data-site="status.arc42.org"] .site-page__band {
+    border-top: 3px solid transparent;
+    border-image: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675b9, #374769, #682d63) 1;
+    border-image-width: 3px 0 0 0;
+}
+
+.site-page[data-site="meta.arc42.org"] .site-page__band {
+    box-shadow: inset 0 -2px 0 0 rgba(255, 255, 255, 0.35);
+}
+
+.site-page__name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+/* same 0.90 composite as .tile__role; weakest pair is trainings at 4.95:1 */
+.site-page__host {
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    color: var(--tile-ink);
+    opacity: 0.9;
+}
+
+.site-page__body {
+    padding: 0.85rem 1.1rem 0.9rem;
+    color: var(--status-ink);
+}
+
+.site-page__tagline {
+    margin: 0 0 0.6em;
+    font-size: 0.9rem;
+}
+
+.site-page__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em 1.2em;
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+.site-page__link {
+    white-space: nowrap;
+}
+
+/* the honest empty state: no share link exists, and saying so is cheaper than
+   an iframe that renders a blank rectangle (ADR-0002 in spirit -- report what
+   is, not what is convenient) */
+.site-page__nodata {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55em;
+    margin: 0 0 1em;
+    padding: 0.8em 1em;
+    border: 1px solid #e2e5e7;
+    border-radius: 3px;
+    background: #fbfcfc;
+    color: var(--status-ink);
+    font-size: 0.85em;
+    line-height: 1.55;
+}
+
+.site-page__dashlink {
+    margin: 0 0 0.7em;
+    font-size: 0.85em;
+    color: var(--status-muted);
+}
+
+/* the embed is a fixed 1600px frame; it may not drag the document sideways */
+.site-plausible {
+    display: block;
+    max-width: 100%;
+    border: 0;
+}
+
+.site-availability {
+    margin: 0 0 1.2em;
+}
+
+/* --- the per-site index on the home page --------------------------------- */
+
+.site-index {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+    gap: 0.3em 1.2em;
+    margin: 0 0 1.4em;
+    padding: 0;
+    list-style: none;
+}
+
+.site-index__item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5em;
+    font-size: 0.86rem;
+}
+
+/* the registered colour as a 3px keyline, so the index reads as the same
+   family as the tiles without repeating a whole band */
+.site-index__item::before {
+    content: "";
+    flex: none;
+    width: 3px;
+    align-self: stretch;
+    min-height: 1em;
+    background: var(--tile-band, var(--status-muted));
+}
+
+.site-index__meta {
+    margin-left: auto;
+    font-size: 0.72rem;
+    color: var(--status-muted);
+}
+
+.site-index__note {
+    margin: 0 0 0.6em;
+    font-size: 0.85em;
+    color: var(--status-muted);
 }
 
 .supported-by-innoq {
