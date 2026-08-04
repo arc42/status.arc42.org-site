@@ -1,6 +1,13 @@
 <!-- start custom head snippets -->
 
-<script src="https://kit.fontawesome.com/d7c33eb127.js" crossorigin="anonymous"></script>
+{%- comment -%}
+  A FontAwesome kit script from kit.fontawesome.com used to load here, and
+  assets/css/main.scss imported a vendored copy of all.css on top of it.
+  Both are gone (2026-08-04). Nothing on this site drew a FontAwesome glyph
+  any more: the footer icons went when the footer became the family one, and
+  the theme's own glyphs are removed in the vendored tree. Any icon that IS
+  needed is inline SVG from assets/icons/ui.svg via _includes/icon.html.
+{%- endcomment -%}
 
 <!-- plausible, to collect statistics -->
 <script defer data-domain="status.arc42.org" src="https://plausible.io/js/script.js"></script>
@@ -16,7 +23,10 @@
 
 <style>
     table {
-        font-family: arial, sans-serif;
+        /* no font-family here: the table inherits the family body face
+           (Atkinson Hyperlegible Next, _sass/_fonts.scss). It used to say
+           `arial, sans-serif`, which quietly opted the one substantial piece
+           of content on this site out of the brand typography. */
         border-collapse: collapse;
         width: auto;
 

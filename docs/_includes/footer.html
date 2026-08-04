@@ -1,20 +1,57 @@
-<div class="page__footer-follow center">
-   
-  <a href="https://www.innoq.com" target="_blank" rel="noopener noreferrer nofollow"><img class="supported-by-innoq" src="/images/supported-by-innoq--petrol-apricot.svg"></a>
+{%- comment -%}
+  Site footer — the arc42 family footer.
 
-  <ul class="social-icons">
-    
-    <li><a target="_blank" rel="noopener noreferrer nofollow" href="https://github.com/gernotstarke"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
-      
-    <li><a target="_blank" rel="noopener noreferrer nofollow" href="https://arc42.org/imprint/"><i class="fas fa-fw fa-gavel" style="color:Tomato" aria-hidden="true"></i> Imprint</a></li>
+  LOCAL OVERRIDE of the vendored minimal-mistakes 4.24.0 include of the same
+  name. The theme's version renders site.author's social profiles as a row of
+  FontAwesome glyphs; this one is the family footer, ported from
+  docs.arc42.org-site/_includes/site-footer.html and cross-checked against
+  arc42.org-site/_includes/footer.html.
 
-  </ul>
-</div>
+  Adapted for this site: docs' Contact link and its own /imprint/ point at
+  arc42.org instead, which is where this site's imprint lives —
+  status.arc42.org is a dashboard, not a content site, and has no pages of its
+  own to link to. Its Status link is dropped, because this *is* status.
 
-<div class="page__footer-copyright center">&copy; {{ site.time | date: '%Y' }} {{ site.name | default: site.title }}. {{ site.data.ui-text[site.locale].powered_by | default: "Powered by" }}
-  <a href="https://jekyllrb.com" target="_blank" rel="noopener noreferrer nofollow">Jekyll</a>,
-  <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" target="_blank" rel="noopener noreferrer nofollow">Minimal Mistakes</a> &amp;
-  <a href="https://go.dev" target="_blank" rel="noopener noreferrer nofollow">Go</a>.
+  Two things the previous footer carried are kept deliberately:
+    · the CC BY-SA 4.0 statement (README.md; the licence of the arc42
+      material this site reports on), and
+    · the INNOQ support credit — now on the family's monochrome asset, not
+      the retired petrol/apricot one (BRAND.md, "Sponsor mark": both of its
+      hexes are on the CI deny-list).
 
-  Supported by <a target="_blank" rel="noopener noreferrer" href="https://kroener-starke.ch/projekte/"><b>Kröner & Starke</b></a>.
+  No icons. At footer size the labels carry all the meaning and the glyphs
+  only added noise — the same call the whole family made on 2026-07-30, and
+  part of why FontAwesome could leave this site entirely.
+
+  Styles: _sass/_arc42-family.scss (.supported-by-innoq is declared in
+  assets/css/arc42-status-style.css and is not re-declared there).
+{%- endcomment -%}
+
+<div class="footer-inner">
+  <p class="footer-icons">
+    <a href="https://www.innoq.com" target="_blank" rel="noopener noreferrer nofollow">
+      <img class="supported-by-innoq" src="{{ '/assets/images/brand/supported-by-innoq.svg' | relative_url }}" alt="Supported by INNOQ" width="140" height="50">
+    </a>
+  </p>
+
+  <nav class="footer-links" aria-label="Site">
+    <a href="https://arc42.org">arc42.org</a>
+    <a href="https://docs.arc42.org">Documentation</a>
+    <a href="https://arc42.org/imprint/">Imprint + Privacy</a>
+    <a href="https://github.com/{{ site.repository }}" target="_blank" rel="noopener noreferrer nofollow">GitHub</a>
+  </nav>
+
+  <p class="footer-legal">
+    &copy; {{ site.time | date: '%Y' }} Dr. Peter Hruschka and Dr. Gernot Starke.
+    arc42 material is licensed
+    <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer nofollow">CC BY-SA 4.0</a>.
+  </p>
+
+  <p class="footer-maintainer">
+    Maintained by <a target="_blank" rel="noopener noreferrer nofollow" href="https://gernotstarke.de">Gernot Starke</a>,
+    supported by <a target="_blank" rel="noopener noreferrer" href="https://kroener-starke.ch/projekte/">Kröner &amp; Starke</a>.
+    Built with <a href="https://jekyllrb.com" target="_blank" rel="noopener noreferrer nofollow">Jekyll</a>,
+    <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" target="_blank" rel="noopener noreferrer nofollow">Minimal Mistakes</a>
+    and <a href="https://go.dev" target="_blank" rel="noopener noreferrer nofollow">Go</a>.
+  </p>
 </div>

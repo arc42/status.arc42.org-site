@@ -1,0 +1,204 @@
+// ============================================================================
+// arc42 family identity, layered on top of minimal-mistakes.
+//
+// Loaded LAST from assets/css/main.scss, so it wins over the vendored theme
+// without any of the theme's own files being edited for cosmetics. Anything
+// that is genuinely a theme change lives in the vendored tree and carries an
+// "arc42 change to the vendored theme" comment; anything that is this site's
+// own look lives here.
+//
+// Registry of record for every value below: meta.arc42.org/BRAND.md.
+// status.arc42.org owns a device, not a hue (ADR-0007): slate #3a4550 ground,
+// full-spectrum rim on the favicon. So this file uses slate for the band and
+// takes no signature colour of its own.
+// ============================================================================
+
+// Tokens as custom properties, never as loose hex literals downstream
+// (ADR-0003). Kept to the few this site's chrome actually needs; the status
+// vocabulary's own tokens live in assets/css/arc42-status-style.css.
+:root {
+  --arc42-slate: #3a4550;      // masthead fill / band, white on it 9.78:1
+  --arc42-on-band: #ffffff;
+  --arc42-band-muted: rgba(255, 255, 255, 0.78);
+}
+
+// ---- Masthead --------------------------------------------------------------
+// The family signature treatment: a solid band, light logo on it. The theme
+// ships a white masthead with a grey hairline, which leaves the white arc42
+// logo invisible — band and logo are one change, not two.
+
+.masthead {
+  background: var(--arc42-slate);
+  border-bottom: 0;
+
+  .site-title,
+  .site-title:hover,
+  .site-title:visited {
+    color: var(--arc42-on-band);
+  }
+
+  // The logo is an SVG that draws in #fff; height drives it, the viewBox
+  // (450.47 × 126.4) supplies the width.
+  .site-logo img {
+    display: block;
+    width: auto;
+    height: 42px;
+    max-height: none; // the theme caps logos at 2rem
+    margin: 0;
+  }
+
+  // The hamburger is drawn in CSS, not with a glyph; on the dark band it has
+  // to flip to white or it disappears.
+  .greedy-nav {
+    background: transparent;
+
+    .navicon,
+    .navicon:before,
+    .navicon:after {
+      background: var(--arc42-on-band);
+    }
+
+    a {
+      color: var(--arc42-band-muted);
+
+      &:hover {
+        color: var(--arc42-on-band);
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .masthead .site-logo img {
+    height: 32px;
+  }
+}
+
+// ---- Footer ----------------------------------------------------------------
+// Ported from docs.arc42.org-site/_includes/site-footer.html + _sass/_footer.scss
+// and cross-checked against arc42.org-site/_includes/footer.html. The layout is
+// the family's; the values are re-expressed in the theme's own variables,
+// because this site has no design-token layer of its own to borrow --surface-1
+// and --deep from.
+
+.page__footer {
+  background-color: $lighter-gray;
+  color: $text-color;
+  // The one place besides the masthead where the band colour appears at full
+  // strength: it closes the page against the band that opened it.
+  border-top: 3px solid var(--arc42-slate);
+  margin-top: 3em;
+
+  footer {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  a {
+    color: $text-color;
+  }
+}
+
+.footer-inner {
+  max-width: $max-width;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  font-family: $global-font-family;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.footer-icons {
+  margin: 0;
+  flex: none;
+}
+
+// .supported-by-innoq (width + hover) is declared once, in
+// assets/css/arc42-status-style.css. Do not re-declare it here.
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+
+  a {
+    color: $text-color;
+    text-decoration: none;
+  }
+
+  // Middot separators (matches docs' .footer-links and arc42.org's). Pseudo
+  // content, so a screen reader hears the links and not a row of dots.
+  a + a::before {
+    content: "\00B7";
+    margin-right: 0.4rem;
+    color: $muted-text-color;
+  }
+
+  a:hover,
+  a:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+.footer-legal,
+.footer-maintainer {
+  flex-basis: 100%;
+  margin: 0;
+  color: $muted-text-color;
+
+  a {
+    color: $muted-text-color;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+.footer-legal {
+  padding-top: 0.75rem;
+  border-top: 1px solid $border-color;
+}
+
+.footer-maintainer {
+  padding-top: 0.35rem;
+}
+
+@media (max-width: 800px) {
+  .footer-inner {
+    padding: 1.25rem 1rem;
+    gap: 0.75rem;
+  }
+}
+
+// ---- Loading indicator -----------------------------------------------------
+// Replaces the theme's `<i class="fas fa-spinner fa-spin">`, which was a
+// FontAwesome glyph animated by a FontAwesome class. Both are gone.
+
+.loading-spinner {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+  border: 2px solid $border-color;
+  border-top-color: $primary-color;
+  border-radius: 50%;
+  animation: arc42-spin 0.8s linear infinite;
+}
+
+@keyframes arc42-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
+  }
+}
