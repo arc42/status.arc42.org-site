@@ -4,6 +4,7 @@
 package main
 
 import (
+	"arc42-status/internal/domain"
 	"arc42-status/internal/types"
 	"html/template"
 	"os"
@@ -58,13 +59,52 @@ func main() {
 		TotalNrOfIssues: 55, TotalNrOfBugs: 7, TotalNrOfPRs: 7,
 	}
 
-	tpl := template.Must(template.ParseFiles("internal/api/arc42statistics.gohtml"))
-	out, err := os.Create(os.Args[1])
+	render("internal/api/arc42statistics.gohtml", os.Args[1], stats)
+
+	// tiles, with untriaged work
+	tiles := make([]types.SiteStatsType, 0, len(rows))
+	for i, r := range rows {
+		r.IsHub = r.Site == "arc42.org" || r.Site == "arc42.de"
+		switch i {
+		case 0:
+			r.NrUntriaged = 4
+			r.Untriaged = []types.UntriagedItem{
+				{Title: "Move jQuery and DataTables.js from CDN to local directory", URL: "https://example.invalid/1", AgeString: "1 years", IsPR: true, Unlabelled: true},
+				{Title: "add (private) entry page with statistics for more sites", URL: "https://example.invalid/2", AgeString: "1 years", Unlabelled: true},
+				{Title: "A deliberately long issue title that has to wrap inside a narrow tile without pushing anything sideways", URL: "https://example.invalid/3", AgeString: "3 days"},
+			}
+		case 2:
+			r.NrUntriaged = 1
+			r.Untriaged = []types.UntriagedItem{
+				{Title: "build(deps): bump json from 2.21.1 to 2.21.2", URL: "https://example.invalid/4", AgeString: "today", IsPR: true},
+			}
+		}
+		tiles = append(tiles, r)
+	}
+	var ts types.Arc42Statistics
+	copy(ts.Stats4Site[:], tiles)
+	render("internal/api/tiles.gohtml", os.Args[2], types.TilesData{Tiles: domain.TilesInAttentionOrder(ts)})
+
+	// tiles, all clear
+	clear := make([]types.SiteStatsType, 0, len(rows))
+	for _, r := range rows {
+		r.IsHub = r.Site == "arc42.org" || r.Site == "arc42.de"
+		r.NrUntriaged, r.Untriaged = 0, nil
+		clear = append(clear, r)
+	}
+	var cs types.Arc42Statistics
+	copy(cs.Stats4Site[:], clear)
+	render("internal/api/tiles.gohtml", os.Args[3], types.TilesData{Tiles: domain.TilesInAttentionOrder(cs)})
+}
+
+func render(tplPath, outPath string, data any) {
+	tpl := template.Must(template.ParseFiles(tplPath))
+	out, err := os.Create(outPath)
 	if err != nil {
 		panic(err)
 	}
 	defer func() { _ = out.Close() }()
-	if err := tpl.Execute(out, stats); err != nil {
+	if err := tpl.Execute(out, data); err != nil {
 		panic(err)
 	}
 }

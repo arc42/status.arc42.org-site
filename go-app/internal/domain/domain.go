@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -109,6 +110,9 @@ func LoadStats4AllSites() types.Arc42Statistics {
 		a42s.Stats4Site[index].NrOfOpenBugs = Stats4Repos[index].NrOfOpenBugs
 		a42s.Stats4Site[index].NrOfOpenPRs = Stats4Repos[index].NrOfPRs
 		a42s.Stats4Site[index].Repo = Stats4Repos[index].Repo
+		a42s.Stats4Site[index].Untriaged = Stats4Repos[index].Untriaged
+		a42s.Stats4Site[index].NrUntriaged = Stats4Repos[index].NrUntriaged
+		a42s.Stats4Site[index].IsHub = isHub(types.Arc42sites[index])
 
 		log.Debug().Msgf("Repo %s has %d issues, %d bugs, and %d PRs", Stats4Repos[index].Repo, Stats4Repos[index].NrOfOpenIssues, Stats4Repos[index].NrOfOpenBugs, Stats4Repos[index].NrOfPRs)
 	}
@@ -166,6 +170,35 @@ func getUsageStatisticsForSite(site string, thisSiteStats *types.SiteStatsType, 
 
 }
 
+// isHub reports whether a site is one of the two hubs. BRAND.md (ADR-0001)
+// defines arc42.org and arc42.de as hub twins sharing the brand navy; every
+// other property is a satellite owning one signature hue. The dashboard shows
+// hubs first because they are the family's front door.
+func isHub(siteName string) bool {
+	return siteName == "arc42.org" || siteName == "arc42.de"
+}
+
+// TilesInAttentionOrder returns the sites arranged the way the dashboard reads
+// them: hubs first, then satellites sorted by untriaged count descending and
+// alphabetically within equal counts, so the eye lands on work and the order
+// stays stable when nothing needs attention.
+func TilesInAttentionOrder(a42s types.Arc42Statistics) []types.SiteStatsType {
+	tiles := make([]types.SiteStatsType, 0, len(a42s.Stats4Site))
+	tiles = append(tiles, a42s.Stats4Site[:]...)
+
+	sort.SliceStable(tiles, func(i, j int) bool {
+		if tiles[i].IsHub != tiles[j].IsHub {
+			return tiles[i].IsHub
+		}
+		if tiles[i].NrUntriaged != tiles[j].NrUntriaged {
+			return tiles[i].NrUntriaged > tiles[j].NrUntriaged
+		}
+		return tiles[i].Site < tiles[j].Site
+	})
+
+	return tiles
+}
+
 // siteNameToRepoName maps site names to their corresponding GitHub repository names.
 // Most sites follow the pattern "sitename-site", but some have different names.
 func siteNameToRepoName(siteName string) string {
@@ -194,5 +227,6 @@ func getRepoStatisticsForSite(repoName string, thisRepoStats *types.RepoStatsTyp
 	thisRepoStats.Repo = github.GithubArc42URL + repoName
 
 	github.StatsForRepo(repoName, thisRepoStats)
+	github.UntriagedForRepo(repoName, thisRepoStats)
 
 }

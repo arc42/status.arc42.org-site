@@ -1,0 +1,68 @@
+<!-- golang template for the arc42 dashboard tiles -->
+<!--
+  One tile per property. The tile leads with the untriaged count, because the
+  site's own name is already carried by its rim and mark (BRAND.md / ADR-0007).
+  No colour is emitted here: the rim hue comes from a CSS custom property keyed
+  on data-site, so the brand tokens stay in CSS alone (ADR-0003).
+-->
+<div id="tileGrid" class="tile-grid">
+
+    {{ $hasWork := false }}
+    {{ range .Tiles }}{{ if gt .NrUntriaged 0 }}{{ $hasWork = true }}{{ end }}{{ end }}
+
+    {{ if not $hasWork }}
+    <p class="tile-allclear" role="status">
+        <span class="status-token status-token--up" role="img" aria-label="all clear"></span>
+        <span><b>Nothing is waiting for you.</b> No unlabelled issues, and nothing new
+        in the last 30 days across {{ len .Tiles }} properties.</span>
+    </p>
+    {{ end }}
+
+    {{ range .Tiles }}
+    <article class="tile{{ if .IsHub }} tile--hub{{ end }}{{ if gt .NrUntriaged 0 }} tile--attention{{ end }}"
+             data-site="{{ .Site }}">
+
+        <header class="tile__head">
+            <h3 class="tile__site"><a href="https://{{ .Site }}">{{ .Site }}</a></h3>
+            {{ if .IsHub }}<span class="tile__role">hub</span>{{ end }}
+        </header>
+
+        {{ if gt .NrUntriaged 0 }}
+        <p class="tile__lead">
+            <span class="tile__count">{{ .NrUntriaged }}</span>
+            <span class="tile__leadlabel">untriaged</span>
+        </p>
+        <ul class="tile__items">
+            {{ range .Untriaged }}
+            <li class="tile__item">
+                <a href="{{ .URL }}">{{ .Title }}</a>
+                <span class="tile__meta">
+                    {{ if .IsPR }}PR{{ else }}issue{{ end }} ·
+                    {{ .AgeString }}{{ if .Unlabelled }} · <span class="tile__unlabelled">unlabelled</span>{{ end }}
+                </span>
+            </li>
+            {{ end }}
+        </ul>
+        {{ if gt .MoreUntriaged 0 }}
+        <p class="tile__more"><a href="{{ .Repo }}/issues">and {{ .MoreUntriaged }} more</a></p>
+        {{ end }}
+        {{ else }}
+        <p class="tile__lead tile__lead--clear">
+            <span class="status-token status-token--up" role="img" aria-label="clear"></span>
+            <span class="tile__leadlabel">nothing untriaged</span>
+        </p>
+        {{ end }}
+
+        <dl class="tile__health">
+            <div><dt>Issues</dt><dd><a href="{{ .Repo }}/issues">{{ .NrOfOpenIssues }}</a></dd></div>
+            <div><dt>Bugs</dt><dd>{{ if gt .NrOfOpenBugs 0 }}<a href="{{ .Repo }}/issues">{{ .NrOfOpenBugs }}</a>{{ else }}<span class="tile__zero">0</span>{{ end }}</dd></div>
+            <div><dt>PRs</dt><dd>{{ if gt .NrOfOpenPRs 0 }}<a href="{{ .Repo }}/pulls">{{ .NrOfOpenPRs }}</a>{{ else }}<span class="tile__zero">0</span>{{ end }}</dd></div>
+        </dl>
+
+        <!-- The availability slot goes here once ADR-0019 collects data. It is
+             deliberately absent while nothing is measured: the verdict line
+             above the grid says "not monitored" once, and repeating it on every
+             tile would be nine copies of the same non-information. -->
+    </article>
+    {{ end }}
+</div>

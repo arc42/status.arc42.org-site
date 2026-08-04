@@ -5,6 +5,7 @@ import (
 	"arc42-status/internal/domain"
 	"arc42-status/internal/fly"
 	"arc42-status/internal/slack"
+	"arc42-status/internal/types"
 	"embed"
 	"fmt"
 	"github.com/rs/zerolog/log"
@@ -24,6 +25,7 @@ const homeIP = "0.0.0.0"
 const TemplatesDir = ""
 const HtmlTableTmpl = "arc42statistics.gohtml"
 const PingTmpl = "ping.gohtml"
+const TilesTmpl = "tiles.gohtml"
 
 func init() {
 	log.Debug().Msg("apiGateway initialized ")
@@ -80,6 +82,31 @@ func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 		// 5. finally, render the template
 		executeTemplate(w, filepath.Join(TemplatesDir, HtmlTableTmpl), domain.ArcStats)
 	}
+}
+
+// tilesHandler returns the dashboard tiles: one per property, ordered so the
+// eye lands on work (hubs first, then by untriaged count).
+// It reuses the same cached statistics as the table, so asking for both costs
+// one collection run, not two.
+func tilesHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Debug().Msg("received tiles request")
+
+	SetCORSHeaders(&w, r)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	domain.ArcStats = domain.Stats4AllSites()
+
+	go database.SaveInvocationParams(r.Host, r.RequestURI)
+
+	executeTemplate(w, filepath.Join(TemplatesDir, TilesTmpl), types.TilesData{
+		Tiles:             domain.TilesInAttentionOrder(domain.ArcStats),
+		LastUpdatedString: domain.ArcStats.LastUpdatedString,
+	})
 }
 
 // pingHandler returns a message and the time
@@ -175,6 +202,7 @@ func StartAPIServer() {
 	mux.HandleFunc("/statsTable", statsHTMLTableHandler)
 	mux.HandleFunc("/statistics", statsHTMLTableHandler)
 	mux.HandleFunc("/stats", statsHTMLTableHandler)
+	mux.HandleFunc("/tiles", tilesHandler)
 	mux.HandleFunc("/ping", pingHandler)
 
 	// wrap ServeMux with logging

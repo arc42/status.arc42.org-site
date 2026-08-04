@@ -46,10 +46,41 @@ doc-faq-quality:
 
 
 <!--
-  The statistics table is fetched from the Go service and swapped in by htmx.
-  #stats-region is NOT swapped: it stays put so screen readers keep a stable
-  live region, and so an error panel has somewhere to live when the service
-  cannot be reached. Only #statsTable is replaced.
+  Layer 1: the tiles. Per-site, heterogeneous, repo-centric — they answer
+  "what needs me". The table below answers "how is the family doing" with
+  numbers you read down a column. Split by data type, so the two never
+  answer the same question.
+-->
+<div id="tiles-region" aria-live="polite" aria-busy="true">
+
+<div id="tileGrid"
+     hx-get="{{ site.stats_api }}/tiles"
+     hx-trigger="load"
+     hx-swap="outerHTML">
+  <div class="tile-grid" aria-hidden="true">
+    {% comment %}
+      8 properties, the first two spanning two columns like the hub tiles, so
+      the grid the skeleton draws is the grid that arrives.
+    {% endcomment %}
+    {% for tile in (1..8) %}
+    <div class="tile-skeleton{% if tile <= 2 %} tile-skeleton--hub{% endif %}">
+      <span class="skeleton-bar" style="width:55%"></span>
+      <span class="skeleton-bar" style="width:30%;height:1.4em"></span>
+      <span class="skeleton-bar" style="width:85%"></span>
+      <span class="skeleton-bar" style="width:70%"></span>
+    </div>
+    {% endfor %}
+  </div>
+  <p class="stats-loading-note">Asking GitHub what nobody has looked at yet&hellip;</p>
+</div>
+
+</div>
+
+<!--
+  Layer 2: the table. Commensurable numbers, read down a column.
+  Neither region is swapped itself: each stays put so screen readers keep a
+  stable live region, and so an error panel has somewhere to live when the
+  service cannot be reached. Only the inner #tileGrid / #statsTable is replaced.
 -->
 <div id="stats-region" class="stats-region" aria-live="polite" aria-busy="true">
 
@@ -92,10 +123,9 @@ doc-faq-quality:
 
 <script>
 (function () {
-    var region = document.getElementById('stats-region');
-    var ENDPOINT = '{{ site.stats_api }}/statsTable';
+    var API = '{{ site.stats_api }}';
 
-    if (!region || !window.htmx) { return; }
+    if (!window.htmx) { return; }
 
     // htmx 1.x has no hx-timeout attribute; without this a hanging service
     // would leave the loading state on screen forever.
@@ -107,58 +137,70 @@ doc-faq-quality:
                '<path d="M12 3 1.8 20.5h20.4L12 3Z"/><path d="M12 9.5v5"/><path d="M12 18h.01"/></svg>';
     }
 
-    function showPanel(title, text, detail) {
-        var slot = document.getElementById('statsTable');
-        if (!slot) { return; }
-        slot.innerHTML =
-            '<div class="stats-panel" role="alert">' + icon() +
-            '<div class="stats-panel__body">' +
-            '<p class="stats-panel__title">' + title + '</p>' +
-            '<p class="stats-panel__text">' + text + '</p>' +
-            '<p class="stats-panel__detail">' + detail + '</p>' +
-            '<button type="button" class="stats-panel__retry">Try again</button>' +
-            '</div></div>';
-        region.setAttribute('aria-busy', 'false');
-    }
-
     // name the host the page is actually talking to -- fly.io in production,
     // localhost when served by `make site` against a local backend
-    var HOST = ENDPOINT.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+    var HOST = API.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
 
-    var SITES_FINE = 'The arc42 sites themselves are unaffected — only these numbers are missing.';
+    var SITES_FINE = 'The arc42 sites themselves are unaffected — only this is missing.';
     var SLEEPS = 'The statistics service sleeps when nobody is looking at this page, so the first request of the day can need a moment.';
 
-    region.addEventListener('htmx:timeout', function () {
-        showPanel('The statistics service did not answer',
-                  HOST + ' took longer than 15 seconds to respond. ' + SITES_FINE,
-                  SLEEPS);
-    });
+    // Both fragments -- the tiles and the statistics table -- get the same
+    // three states from one implementation, so they can never drift apart.
+    function wire(regionId, slotId, path, noun) {
+        var region = document.getElementById(regionId);
+        if (!region) { return; }
 
-    region.addEventListener('htmx:sendError', function () {
-        showPanel('The statistics service is unreachable',
-                  'Your browser could not reach ' + HOST + ' at all. ' + SITES_FINE,
-                  'This is either a network problem on your side, or the service is down.');
-    });
+        var endpoint = API + path;
 
-    region.addEventListener('htmx:responseError', function (event) {
-        var status = (event.detail && event.detail.xhr) ? event.detail.xhr.status : 0;
-        showPanel('The statistics service reported a problem',
-                  HOST + ' answered with HTTP ' + status + '. ' + SITES_FINE,
-                  'Nothing you can do from here; the service needs a look.');
-    });
+        function showPanel(title, text, detail) {
+            var slot = document.getElementById(slotId);
+            if (!slot) { return; }
+            slot.innerHTML =
+                '<div class="stats-panel" role="alert">' + icon() +
+                '<div class="stats-panel__body">' +
+                '<p class="stats-panel__title">' + title + '</p>' +
+                '<p class="stats-panel__text">' + text + '</p>' +
+                '<p class="stats-panel__detail">' + detail + '</p>' +
+                '<button type="button" class="stats-panel__retry">Try again</button>' +
+                '</div></div>';
+            region.setAttribute('aria-busy', 'false');
+        }
 
-    region.addEventListener('htmx:afterSwap', function () {
-        region.setAttribute('aria-busy', 'false');
-    });
+        region.addEventListener('htmx:timeout', function () {
+            showPanel('The statistics service did not answer',
+                      HOST + ' took longer than 15 seconds to send the ' + noun + '. ' + SITES_FINE,
+                      SLEEPS);
+        });
 
-    region.addEventListener('click', function (event) {
-        var button = event.target.closest('.stats-panel__retry');
-        if (!button) { return; }
-        button.disabled = true;
-        button.textContent = 'Trying…';
-        region.setAttribute('aria-busy', 'true');
-        htmx.ajax('GET', ENDPOINT, { target: '#statsTable', swap: 'outerHTML' });
-    });
+        region.addEventListener('htmx:sendError', function () {
+            showPanel('The statistics service is unreachable',
+                      'Your browser could not reach ' + HOST + ' at all. ' + SITES_FINE,
+                      'This is either a network problem on your side, or the service is down.');
+        });
+
+        region.addEventListener('htmx:responseError', function (event) {
+            var status = (event.detail && event.detail.xhr) ? event.detail.xhr.status : 0;
+            showPanel('The statistics service reported a problem',
+                      HOST + ' answered with HTTP ' + status + '. ' + SITES_FINE,
+                      'Nothing you can do from here; the service needs a look.');
+        });
+
+        region.addEventListener('htmx:afterSwap', function () {
+            region.setAttribute('aria-busy', 'false');
+        });
+
+        region.addEventListener('click', function (event) {
+            var button = event.target.closest('.stats-panel__retry');
+            if (!button) { return; }
+            button.disabled = true;
+            button.textContent = 'Trying…';
+            region.setAttribute('aria-busy', 'true');
+            htmx.ajax('GET', endpoint, { target: '#' + slotId, swap: 'outerHTML' });
+        });
+    }
+
+    wire('tiles-region', 'tileGrid', '/tiles', 'tiles');
+    wire('stats-region', 'statsTable', '/statsTable', 'table');
 })();
 </script>
 

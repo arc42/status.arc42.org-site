@@ -273,6 +273,227 @@
     cursor: progress;
 }
 
+/* ==========================================================================
+   Dashboard tiles
+   --------------------------------------------------------------------------
+   One tile per property: hubs first, then satellites ordered by untriaged
+   count. Identity lives at the rim, meaning at the centre -- the signature
+   hue is a keyline and never encodes state, because on this page amber and
+   red already mean "degraded" and "down" (BRAND.md, ADR-0007).
+
+   The hues live here and only here: the service emits a data-site key and no
+   colour at all, so CSS custom properties stay the single token interface
+   (ADR-0003).
+   ========================================================================== */
+
+.tile-grid {
+    --tile-rim: var(--status-muted);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    /* tiles take their natural height rather than stretching to the tallest in
+       the row: a quiet tile beside a busy one should look quiet, not like a
+       300px void */
+    align-items: start;
+    gap: 0.9rem;
+    margin: 0 0 1.6em;
+}
+
+/* signature hues — registry of record: meta.arc42.org/BRAND.md */
+.tile[data-site="arc42.org"],
+.tile[data-site="arc42.de"]            { --tile-rim: #374769; } /* hub navy */
+.tile[data-site="docs.arc42.org"]      { --tile-rim: #1675b9; }
+.tile[data-site="quality.arc42.org"]   { --tile-rim: #682d63; }
+.tile[data-site="faq.arc42.org"]       { --tile-rim: #1b5648; }
+.tile[data-site="canvas.arc42.org"]    { --tile-rim: #ffc95c; }
+.tile[data-site="trainings.arc42.org"] { --tile-rim: #a04c5e; }
+.tile[data-site="pdfminion.arc42.org"] { --tile-rim: #8a4b2a; }
+
+.tile {
+    display: flex;
+    flex-direction: column;
+    padding: 0.9rem 1rem 0.8rem;
+    border: 1px solid #e2e5e7;
+    border-top: 3px solid var(--tile-rim);
+    border-radius: 3px;
+    background: #fff;
+    font-size: 0.86rem;
+    line-height: 1.5;
+}
+
+/* status owns a device, not a hue: the property that reports on all the
+   others wears all the colours (ADR-0007) */
+.tile[data-site="status.arc42.org"] {
+    border-top: 3px solid transparent;
+    border-image: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675b9, #374769, #682d63) 1;
+    border-image-width: 3px 0 0 0;
+}
+
+.tile--hub {
+    grid-column: span 2;
+}
+
+.tile__head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.tile__site {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.tile__site a {
+    color: var(--status-ink);
+    text-decoration: none;
+}
+
+.tile__site a:hover,
+.tile__site a:focus-visible {
+    text-decoration: underline;
+}
+
+.tile__role {
+    margin-left: auto;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--status-muted);
+}
+
+.tile__lead {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45em;
+    margin: 0 0 0.5em;
+}
+
+.tile__count {
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--status-ink);
+}
+
+.tile__leadlabel {
+    font-size: 0.8rem;
+    color: var(--status-muted);
+}
+
+.tile__lead--clear .status-token {
+    position: relative;
+    top: -0.1em;
+}
+
+.tile__items {
+    margin: 0 0 0.5em;
+    padding: 0;
+    list-style: none;
+}
+
+.tile__item {
+    margin-bottom: 0.45em;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.tile__item a {
+    overflow-wrap: break-word;
+}
+
+.tile__meta {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--status-muted);
+}
+
+.tile__unlabelled {
+    font-weight: 700;
+    color: var(--status-degraded);
+}
+
+.tile__more {
+    margin: 0 0 0.5em;
+    font-size: 0.75rem;
+}
+
+.tile__health {
+    display: flex;
+    gap: 1.1em;
+    margin: auto 0 0.6em;
+    padding-top: 0.6em;
+    border-top: 1px solid #eceff1;
+}
+
+.tile__health dt {
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--status-muted);
+}
+
+.tile__health dd {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.tile__zero {
+    color: var(--status-muted);
+    font-weight: 400;
+}
+
+.tile__foot {
+    display: flex;
+    align-items: center;
+    gap: 0.45em;
+    font-size: 0.72rem;
+    color: var(--status-muted);
+}
+
+.tile-allclear {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    gap: 0.55em;
+    margin: 0;
+    padding: 0.7em 0.9em;
+    border: 1px solid #cfe3d8;
+    border-radius: 3px;
+    background: #f4faf7;
+    font-size: 0.86rem;
+}
+
+/* tile skeleton, same grid so the swap does not move the page */
+.tile-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    /* measured against a real render: tiles listing untriaged work run tall,
+       and the grid row stretches to the tallest tile in it */
+    min-height: 320px;
+    padding: 0.9rem 1rem;
+    border: 1px solid #e2e5e7;
+    border-top: 3px solid var(--status-skeleton);
+    border-radius: 3px;
+}
+
+.tile-skeleton--hub {
+    grid-column: span 2;
+}
+
+@media (max-width: 700px) {
+    .tile--hub,
+    .tile-skeleton--hub {
+        grid-column: auto;
+    }
+}
+
 /* the statistics table can be wider than a phone; let it scroll itself
    instead of dragging the whole document sideways */
 .stats-region {

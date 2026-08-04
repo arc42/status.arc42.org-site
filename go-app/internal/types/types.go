@@ -15,6 +15,24 @@ var Arc42sites = [8]string{
 	"pdfminion.arc42.org",
 }
 
+// UntriagedItem is an open issue or pull request that nobody has classified yet:
+// it either arrived inside the untriaged window, or it carries no label at all.
+// An unlabelled issue is one no maintainer has looked at, however old it is.
+type UntriagedItem struct {
+	Title      string
+	URL        string
+	AgeString  string // human-readable, e.g. "3 days", "5 weeks"
+	IsPR       bool
+	Unlabelled bool
+}
+
+// TilesData is what the dashboard template renders: the sites already in the
+// order the grid reads them (see domain.TilesInAttentionOrder).
+type TilesData struct {
+	Tiles             []SiteStatsType
+	LastUpdatedString string
+}
+
 // SiteStatsType contains visitor and pageviews statistics for a single arc42 site or subdomain.
 type SiteStatsType struct {
 	Site           string // site name
@@ -36,6 +54,20 @@ type SiteStatsType struct {
 	NrOfOpenBugs   int    // the number of open bugs in that repo
 	NrOfOpenIssues int    // number of open issues
 	NrOfOpenPRs    int
+
+	// dashboard tile data
+	IsHub       bool            // arc42.org and arc42.de are the hubs; the rest are satellites
+	Untriaged   []UntriagedItem // newest first, capped for display
+	NrUntriaged int             // total, may exceed len(Untriaged)
+}
+
+// MoreUntriaged is how many untriaged items exist beyond the ones the tile
+// lists. Templates cannot do arithmetic, so it is computed here.
+func (s SiteStatsType) MoreUntriaged() int {
+	if n := s.NrUntriaged - len(s.Untriaged); n > 0 {
+		return n
+	}
+	return 0
 }
 
 // RepoStatsType contains information about the repository underlying the site
@@ -46,6 +78,8 @@ type RepoStatsType struct {
 	NrOfOpenIssues int    // number of open issues
 	NrOfPRs        int    // number of open pull-requests
 
+	Untriaged   []UntriagedItem // open issues and PRs nobody has classified
+	NrUntriaged int
 }
 
 // TotalsForAllSites contains the sum of all the distinct statistics,
