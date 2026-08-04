@@ -1,0 +1,106 @@
+# The arc42 family, one record per property.
+# --------------------------------------------------------------------------
+# Single source of truth for the per-site subpages at /site/<host>/. Each page
+# under _pages/site-*.md is a stub carrying nothing but `host:`; every fact
+# below is looked up from here, so a changed repo name or a re-issued Plausible
+# token is a one-line edit in one file.
+#
+# `plausible_embed` is the *verbatim* share URL that used to sit in the front
+# matter of home.md. Where the field is absent the property genuinely has no
+# Plausible share link -- the subpage then says so in words rather than
+# rendering an empty frame. No token is ever invented (ADR-0002: report what
+# was measured, not what would be convenient).
+#
+# `hue` is documentation only: the rendering authority is
+# assets/css/arc42-status-style.css, keyed on data-site, per ADR-0003
+# (brand values enter a site as CSS custom properties, never as data).
+
+- host: arc42.org
+  name: arc42
+  tagline: The flagship. Method, template, downloads.
+  role: hub
+  url: https://www.arc42.org
+  repo: https://github.com/arc42/arc42.org-site
+  hue: "hub navy #374769, band #2b3a57"
+  plausible_embed: "https://plausible.io/share/arc42.org?auth=tNNpNN0VqPh9xbjkaEPrx&embed=true&theme=light"
+
+- host: arc42.de
+  name: arc42 (deutsch)
+  tagline: Der Hub-Zwilling. Same method, German voice.
+  role: hub
+  url: https://www.arc42.de
+  repo: https://github.com/arc42/arc42.de-site
+  hue: "hub navy #374769, band #2b3a57"
+  plausible_embed: "https://plausible.io/share/arc42.de?auth=IYzUmMI8s2PYKgggJhO7q&embed=true&theme=light"
+
+- host: docs.arc42.org
+  name: arc42 Documentation
+  tagline: The field guide — the long-form documentation of the method.
+  role: satellite
+  url: https://docs.arc42.org
+  repo: https://github.com/arc42/docs.arc42.org-site
+  hue: "signal blue #1675b9, band #0e4f80"
+  plausible_embed: "https://plausible.io/share/docs.arc42.org?auth=D_6pSvlKkq_hTlttpTOtz&embed=true&theme=light"
+
+- host: faq.arc42.org
+  name: arc42 FAQ
+  tagline: Questions people actually ask, answered short.
+  role: satellite
+  url: https://faq.arc42.org
+  repo: https://github.com/arc42/faq.arc42.org-site
+  hue: "deep teal #1b5648"
+  plausible_embed: "https://plausible.io/share/faq.arc42.org?auth=wc065ryr-3YNoYFluaqGh&embed=true&theme=light"
+
+- host: canvas.arc42.org
+  name: arc42 Canvas
+  tagline: One page, one workshop — architecture on a single sheet.
+  role: satellite
+  url: https://canvas.arc42.org
+  repo: https://github.com/arc42/canvas.arc42.org-site
+  hue: "amber #ffc95c with dark ink #4a3a0a"
+  plausible_embed: "https://plausible.io/share/canvas.arc42.org?auth=sAJkIzBTeFg-a5ndJenA4&embed=true&theme=light"
+
+- host: quality.arc42.org
+  name: arc42 Quality
+  tagline: The annotated atlas of quality requirements and attributes.
+  role: satellite
+  url: https://quality.arc42.org
+  repo: https://github.com/arc42/quality.arc42.org-site
+  hue: "violet #682d63"
+  plausible_embed: "https://plausible.io/share/quality.arc42.org?auth=cjoKlapPdw3czFugGy6jM&embed=true&theme=light"
+
+# ---- properties with no Plausible share link -----------------------------
+# Not an omission and not a bug: no share link has been issued for these four.
+# The subpage says that in words. See the report in the page body.
+
+- host: status.arc42.org
+  name: arc42 Status
+  tagline: This site — the one that watches the others.
+  role: satellite
+  url: https://status.arc42.org
+  repo: https://github.com/arc42/status.arc42.org-site
+  hue: "slate ground #3a4550 plus the full-spectrum rim (a device, not a hue)"
+
+- host: pdfminion.arc42.org
+  name: PDFminion
+  tagline: A CLI for document work — the tooling satellite.
+  role: satellite
+  url: https://pdfminion.arc42.org
+  repo: https://github.com/arc42/PDFminion
+  hue: "sienna #8a4b2a, band #5f321b"
+
+- host: trainings.arc42.org
+  name: arc42 Trainings
+  tagline: Course dates — the single source the hubs consume.
+  role: satellite
+  url: https://trainings.arc42.org
+  repo: https://github.com/arc42/trainings.arc42.org-site
+  hue: "dusty rose #a04c5e"
+
+- host: meta.arc42.org
+  name: arc42 Meta
+  tagline: The family's brand, design decisions and ADRs.
+  role: satellite
+  url: https://meta.arc42.org
+  repo: https://github.com/arc42/meta.arc42.org
+  hue: "unregistered — no signature hue in BRAND.md; the tile band is neutral"

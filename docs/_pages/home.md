@@ -11,76 +11,21 @@ header:
       url: "https://www.arc42.org"
     - label: "&#8594; arc42-Docu"
       url: "https://docs.arc42.org"
-
-
-
-de-org-canvas:
-  - title: "arc42.de"
-    excerpt: '
-  <iframe plausible-embed src="https://plausible.io/share/arc42.de?auth=IYzUmMI8s2PYKgggJhO7q&embed=true&theme=light" height="1600" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
-  '
-  - title: "arc42.org"
-    excerpt: '
-<iframe plausible-embed src="https://plausible.io/share/arc42.org?auth=tNNpNN0VqPh9xbjkaEPrx&embed=true&theme=light" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
-'
-  - title: "canvas.arc42.org"
-    excerpt: '
-<iframe plausible-embed src="https://plausible.io/share/canvas.arc42.org?auth=sAJkIzBTeFg-a5ndJenA4&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
-'
-
-
-
-doc-faq-quality:
-  - title: "docs.arc42.org"
-    excerpt: '
-  <iframe plausible-embed src="https://plausible.io/share/docs.arc42.org?auth=D_6pSvlKkq_hTlttpTOtz&embed=true&theme=light" heigth="1600" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%;height: 1600px;"></iframe>
-  '
-  - title: "faq.arc42.org"
-    excerpt: '<iframe plausible-embed src="https://plausible.io/share/faq.arc42.org?auth=wc065ryr-3YNoYFluaqGh&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
-  '
-  - title: "quality.arc42.org"
-    excerpt: '<iframe plausible-embed src="https://plausible.io/share/quality.arc42.org?auth=cjoKlapPdw3czFugGy6jM&embed=true&theme=light" scrolling="no" frameborder="0" loading="lazy" style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
-'
-
 ---
 
-
 <!--
-  Layer 1: the tiles. Per-site, heterogeneous, repo-centric — they answer
-  "what needs me". The table below answers "how is the family doing" with
-  numbers you read down a column. Split by data type, so the two never
+  Layer 1: the table. Commensurable numbers, read down a column -- it answers
+  "how is the family doing". The tiles below answer "what needs me": per-site,
+  heterogeneous, repo-centric. The split is by data type, so the two can never
   answer the same question.
--->
-<div id="tiles-region" aria-live="polite" aria-busy="true">
 
-<div id="tileGrid"
-     hx-get="{{ site.stats_api }}/tiles"
-     hx-trigger="load"
-     hx-swap="outerHTML">
-  <div class="tile-grid" aria-hidden="true">
-    {% comment %}
-      8 properties, the first two spanning two columns like the hub tiles, so
-      the grid the skeleton draws is the grid that arrives.
-    {% endcomment %}
-    {% for tile in (1..8) %}
-    <div class="tile-skeleton{% if tile <= 2 %} tile-skeleton--hub{% endif %}">
-      <span class="skeleton-bar" style="width:55%"></span>
-      <span class="skeleton-bar" style="width:30%;height:1.4em"></span>
-      <span class="skeleton-bar" style="width:85%"></span>
-      <span class="skeleton-bar" style="width:70%"></span>
-    </div>
-    {% endfor %}
-  </div>
-  <p class="stats-loading-note">Asking GitHub what nobody has looked at yet&hellip;</p>
-</div>
+  Table above tiles is an owner decision (2026-08-04) and reverses the earlier
+  "tiles first" recommendation in the surface brief -- the brief's own §5 now
+  records the reversal.
 
-</div>
-
-<!--
-  Layer 2: the table. Commensurable numbers, read down a column.
   Neither region is swapped itself: each stays put so screen readers keep a
   stable live region, and so an error panel has somewhere to live when the
-  service cannot be reached. Only the inner #tileGrid / #statsTable is replaced.
+  service cannot be reached. Only the inner #statsTable / #tileGrid is replaced.
 -->
 <div id="stats-region" class="stats-region" aria-live="polite" aria-busy="true">
 
@@ -102,12 +47,13 @@ doc-faq-quality:
   <table class="stats-skeleton" aria-hidden="true">
     <tbody>
     {% comment %}
-      11 rows x 11 columns: two header rows, eight sites, one totals row --
-      the same shape the service returns, so the page barely moves when it lands.
+      13 rows x 8 columns: two header rows, ten sites, one totals row, and the
+      site / status / 3x(visitors, pageviews) columns the service returns --
+      the same shape, so the page barely moves when the real table lands.
     {% endcomment %}
-    {% for row in (1..11) %}
+    {% for row in (1..13) %}
       <tr>
-        {% for col in (1..11) %}
+        {% for col in (1..8) %}
         <td class="{% if col == 1 %}skeleton-cell--site{% elsif col == 2 %}skeleton-cell--status{% else %}skeleton-cell--number{% endif %}"><span
            class="skeleton-bar{% if row <= 2 %} skeleton-bar--head{% endif %}"></span></td>
         {% endfor %}
@@ -117,6 +63,41 @@ doc-faq-quality:
   </table>
   <p class="stats-loading-note">Sifting through the cloud (currently: fly.io) for current statistics&hellip;</p>
 
+</div>
+
+</div>
+
+<!--
+  Layer 2: the tiles. Identity in the band, meaning in the body -- each tile
+  wears its property's registered band colour (BRAND.md) and carries all state
+  neutrally below it. The hue never encodes status: on this page amber and red
+  already mean "degraded" and "down".
+-->
+<div id="tiles-region" aria-live="polite" aria-busy="true">
+
+<div id="tileGrid"
+     hx-get="{{ site.stats_api }}/tiles"
+     hx-trigger="load"
+     hx-swap="outerHTML">
+  <div class="tile-grid" aria-hidden="true">
+    {% comment %}
+      10 properties, the first two spanning two columns like the hub tiles, so
+      the grid the skeleton draws is the grid that arrives. Each placeholder
+      carries a band block of its own, because the real tile does.
+    {% endcomment %}
+    {% for tile in (1..10) %}
+    <div class="tile-skeleton{% if tile <= 2 %} tile-skeleton--hub{% endif %}">
+      <span class="tile-skeleton__band"></span>
+      <span class="tile-skeleton__body">
+        <span class="skeleton-bar" style="width:30%;height:1.4em"></span>
+        <span class="skeleton-bar" style="width:85%"></span>
+        <span class="skeleton-bar" style="width:70%"></span>
+        <span class="skeleton-bar" style="width:55%"></span>
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+  <p class="stats-loading-note">Asking GitHub what nobody has looked at yet&hellip;</p>
 </div>
 
 </div>
@@ -144,7 +125,7 @@ doc-faq-quality:
     var SITES_FINE = 'The arc42 sites themselves are unaffected — only this is missing.';
     var SLEEPS = 'The statistics service sleeps when nobody is looking at this page, so the first request of the day can need a moment.';
 
-    // Both fragments -- the tiles and the statistics table -- get the same
+    // Both fragments -- the statistics table and the tiles -- get the same
     // three states from one implementation, so they can never drift apart.
     function wire(regionId, slotId, path, noun) {
         var region = document.getElementById(regionId);
@@ -199,31 +180,30 @@ doc-faq-quality:
         });
     }
 
-    wire('tiles-region', 'tileGrid', '/tiles', 'tiles');
     wire('stats-region', 'statsTable', '/statsTable', 'table');
+    wire('tiles-region', 'tileGrid', '/tiles', 'tiles');
 })();
 </script>
 
-## Breakdown for Sites
+<!--
+  The six embedded Plausible dashboards used to live here, six 1600px iframes
+  deep. They now sit one per property at /site/<host>/, together with the
+  availability detail ADR-0019 will produce. This index keeps every subpage
+  reachable without the tiles -- the tile fragment covers eight properties,
+  this list covers all ten.
+-->
+<h2 id="per-site-detail">Per-site detail</h2>
 
-* [arc42.org](#de-org-canvas)
-* [arc42.de](#de-org-canvas)
-* [docs.arc42.org](#doc-faq-quality)
-* [faq.arc42.org](#doc-faq-quality)
-* [quality.arc42.org](#doc-faq-quality)
-* [canvas.arc42.org](#de-org-canvas)
+<p class="site-index__note">Traffic dashboards and availability, one page per property.</p>
 
-<a id="de-org-canvas"/>
-## German and International Site, canvas
-
-{% include feature_row id="de-org-canvas" %}
-
-
-<a id="doc-faq-quality"/>
-## Subdomain Sites
-{% include feature_row id="doc-faq-quality" %}
-
-
+<ul class="site-index">
+{% for s in site.data.arc42_sites %}
+  <li class="site-index__item" data-site="{{ s.host }}">
+    <a href="{{ '/site/' | append: s.host | append: '/' | relative_url }}">{{ s.host }}</a>
+    <span class="site-index__meta">{% if s.plausible_embed %}traffic dashboard{% else %}no dashboard{% endif %}</span>
+  </li>
+{% endfor %}
+</ul>
 
 The page was generated on {{ site.time }}.
 
