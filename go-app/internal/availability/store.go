@@ -14,14 +14,20 @@ import (
 // them; nothing else touches the three status tables. All take *sql.DB so
 // tests run against in-memory SQLite; callers pass database.GetDB().
 //
-// Every DATETIME column is read as CAST(... AS TEXT). Times are stored as
-// text in database.DateTimeLayout, and that is what libsql hands back in
-// production - but mattn/go-sqlite3 (the in-memory test driver, and the
-// local dev driver) converts columns *declared* DATETIME into time.Time,
-// which then arrives here as RFC3339 and fails to parse. The cast is a
-// no-op on the stored text and keeps one parse path, the production one,
-// under both drivers. Comparisons stay on the raw column so the indexes
-// are still used.
+// Every DATETIME column is read as CAST(... AS TEXT), and that cast is
+// load-bearing in production as well as in tests - do not "simplify" it
+// away. Times are stored as text in database.DateTimeLayout, but both
+// drivers this code runs on silently convert a column whose declared type
+// is DATETIME (or TIMESTAMP) into a time.Time before database/sql sees
+// it: mattn/go-sqlite3 from the local decltype, libsql-client-go from the
+// decltype the server reports with each column (hrana Value.ToValue).
+// Scanned into a string, such a value arrives here formatted as RFC3339
+// and fails to parse against DateTimeLayout - in dev and against Turso
+// alike. Casting denies both drivers the decltype they key off, so the
+// stored text comes through untouched and there is a single parse path,
+// exercised identically by the tests and by production. Only the
+// projected value is cast; WHERE and ORDER BY still name the raw column,
+// so the indexes are unaffected.
 
 func LastState(db *sql.DB, site string) (string, time.Time, bool, error) {
 	var status, at string
