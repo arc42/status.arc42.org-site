@@ -25,11 +25,11 @@
     --status-degraded: #8a5000;
     --status-down: #b3261e;
     --status-unknown: #5a6a70;
-    --state-up: #0b6e4f;
-    --state-degraded: #8a5000;
-    --state-down: #b3261e;
-    --state-unknown: #5a6a70;
-    --state-unmonitored: #5a6a70;
+    --state-up: var(--status-up);
+    --state-degraded: var(--status-degraded);
+    --state-down: var(--status-down);
+    --state-unknown: var(--status-unknown);
+    --state-unmonitored: var(--status-muted);
     --status-surface-warn: #fdf6ec;
     --status-border-warn: #d9b382;
     --status-skeleton: #e7eaec;
