@@ -16,10 +16,29 @@
   rather than more complete. Their numbers are on their own subpages. The totals
   row sums exactly the rows above it, so the reader can check it by adding up.
 -->
+{{ with .Availability }}
+<!-- The verdict is rendered by the service, not by Jekyll: only the
+     process that read the data may summarise it. When the service is
+     unreachable the static shell shows its error panel instead, so a
+     stale build can never claim anything (ADR-0019 honesty chain). -->
+<p class="status-verdict">
+    <span class="status-token status-token--{{ .Token }}" role="img" aria-label="{{ .Token }}"></span>
+    <span>{{ if not .Measured }}<b>Availability is not measured yet.</b>
+        The prober has not recorded any data; the Status column fills itself
+        from its first run onward.
+    {{ else if .Stale }}<b>Availability data is stale.</b>
+        Last successful check {{ .LastCheckedAgo }} &mdash; showing the last
+        known state as &ldquo;unknown&rdquo;, not as green.
+    {{ else if .AllUp }}<b>All {{ .NrMonitored }} monitored sites up.</b>
+        Checked every ~15 minutes; last check {{ .LastCheckedAgo }}.
+    {{ else }}<b>{{ if .NrDown }}{{ .NrDown }} down{{ end }}{{ if and .NrDown .NrDegraded }}, {{ end }}{{ if .NrDegraded }}{{ .NrDegraded }} degraded{{ end }}</b>
+        of {{ .NrMonitored }} monitored sites. Last check {{ .LastCheckedAgo }}.{{ end }}</span>
+</p>
+{{ end }}
 <table id="sortableStatsTable" class="display">
     <caption class="visually-hidden">
         Visitors and page views per arc42 site, over 7 days, 30 days and 12 months.
-        Availability is not measured yet, so every site shows "not monitored".
+        The Status column shows current availability and 30-day uptime; "n/a" means the measurement window is not filled yet.
         Sites without traffic measurement show "n/a" rather than zero.
         Properties reported only on their own detail page are not listed here.
     </caption>
@@ -51,8 +70,12 @@
              for a measured zero. -->
         <tr{{ if not .HasTraffic }} class="row--unmeasured"{{ end }}>
             <th scope="row"><a href="https://{{ .Host }}">{{ .Site }}</a></th>
-            <td class="status-cell border-left-black">
-                <span class="status-token status-token--unmonitored" role="img" aria-label="availability not monitored"></span>
+            <td class="status-cell border-left-black" data-order="{{ printf "%.2f" .Availability.Uptime30dNr }}">
+                <a class="status-cell__link" href="/site/{{ .Site }}/#availability"
+                   aria-label="availability of {{ .Site }}: {{ .Availability.Token }}, 30 days {{ .Availability.Uptime30d }}">
+                    <span class="status-token status-token--{{ .Availability.Token }}" role="img" aria-hidden="true"></span><span
+                       class="status-cell__pct">{{ .Availability.Uptime30d }}</span>
+                </a>
             </td>
             <td class="border-left-black">{{ .Visitors7d}}</td>
             <td>{{ .PageViews7d}}</td>

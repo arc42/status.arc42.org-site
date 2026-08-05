@@ -31,14 +31,6 @@ header:
 -->
 <div id="stats-region" class="stats-region" aria-live="polite" aria-busy="true">
 
-<p class="status-verdict">
-  <span class="status-token status-token--unmonitored" role="img" aria-label="not monitored"></span>
-  <span><b>Availability is not measured yet.</b> This page reports usage and repository health only.
-  The dash in the <i>Status</i> column means no uptime data has been collected for that site &mdash;
-  see <a href="https://github.com/arc42/status.arc42.org-site/blob/main/documentation/adrs/0019-availability-monitoring-with-github-actions-prober.md">ADR&nbsp;19</a>
-  for how that is going to work.</span>
-</p>
-
 <div id="statsTable"
      hx-get="{{ site.stats_api }}/statsTable"
      hx-trigger="load"
@@ -152,9 +144,7 @@ document.body.addEventListener('htmx:load', function(event) {
                 searching: false,
                 paging: false,
                 ordering: true,
-                language: {"decimal": "-", "thousands": "." },
-               // column 1 is Status: identical in every row until ADR-19 lands
-               columnDefs: [{ orderable: false, targets: [1] }] 
+                language: {"decimal": "-", "thousands": "." }
             });
         }
     });

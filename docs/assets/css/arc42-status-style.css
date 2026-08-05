@@ -134,6 +134,23 @@
     vertical-align: middle;
 }
 
+/* Status column with data: token + 30d percentage, one click target to
+   the property's availability section. */
+.status-cell__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  text-decoration: none;
+  color: inherit;
+}
+.status-cell__link:hover .status-cell__pct {
+  text-decoration: underline;
+}
+.status-cell__pct {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85em;
+}
+
 /* A site with no Plausible property at all reads "n/a" across the row. Quiet
    it, so an unmeasured row is never mistaken for a measured zero -- the two
    are different facts and the table must not blur them. The class is emitted
