@@ -18,7 +18,7 @@ SHELL := /bin/bash
 
 .PHONY: help backend site doctor stop clean build test lint \
         build-site build-image install update shell logs check-secrets \
-        db-apply-dev
+        db-apply-dev probe
 
 SITE_DIR  := docs
 APP_DIR   := go-app
@@ -121,6 +121,9 @@ test: ## Run the Go tests
 
 lint: ## Run golangci-lint over the Go service
 	cd $(APP_DIR) && golangci-lint run
+
+probe: check-secrets ## Run the availability prober once against the dev DB
+	cd $(APP_DIR) && source ./set-api-keys.sh && go run ./cmd/probe
 
 db-apply-dev: ## Apply schema.hcl to the local dev database (needs atlas CLI)
 	@command -v atlas >/dev/null 2>&1 || { \
