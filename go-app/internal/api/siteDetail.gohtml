@@ -18,10 +18,13 @@
     .detail                      wrapper == #siteDetail
       .detail__stats > .detail__stat (.detail__stat--flagged)
                        > .detail__statnr + .detail__statlabel
+      .detail__note              what "untriaged" means
+      .detail__columns           open issues and open PRs, side by side
       .detail__section           one titled block
         .detail__heading
-        .detail__items > .detail__item (.detail__item--unlabelled)
+        .detail__items > .detail__item (.detail__item--untriaged)
                        > .detail__itemlink + .detail__meta
+                         > .detail__age, .detail__untriaged
         .detail__empty           "nothing open" and friends
       .detail__foot              when this was collected
 -->
@@ -36,43 +39,57 @@
             <span class="detail__statlabel">untriaged</span></span>
     </p>
 
-    <section class="detail__section">
-        <h3 class="detail__heading">Open issues</h3>
-        {{ with .Site.OpenIssues }}
-        <ul class="detail__items">
-            {{ range . }}
-            <li class="detail__item{{ if .Unlabelled }} detail__item--unlabelled{{ end }}">
-                <a class="detail__itemlink" href="{{ .URL }}">{{ .Title }}</a>
-                <span class="detail__meta">
-                    <span class="detail__age">opened {{ .AgeString }}{{ if ne .AgeString "today" }} ago{{ end }}</span>
-                    {{ if .Unlabelled }}<span class="detail__unlabelled">unlabelled</span>{{ end }}
-                </span>
-            </li>
-            {{ end }}
-        </ul>
-        {{ else }}
-        <p class="detail__empty">No open issues.</p>
-        {{ end }}
-    </section>
+    <!-- The count and the marks in the lists below are the same predicate, so a
+         reader can check one against the other. Saying what the predicate is
+         costs one line and stops the question the two words used to raise. -->
+    <p class="detail__note">Untriaged: no label yet, or opened within the last 30 days
+        &mdash; the items marked below.</p>
 
-    <section class="detail__section">
-        <h3 class="detail__heading">Open pull requests</h3>
-        {{ with .Site.OpenPRs }}
-        <ul class="detail__items">
-            {{ range . }}
-            <li class="detail__item{{ if .Unlabelled }} detail__item--unlabelled{{ end }}">
-                <a class="detail__itemlink" href="{{ .URL }}">{{ .Title }}</a>
-                <span class="detail__meta">
-                    <span class="detail__age">opened {{ .AgeString }}{{ if ne .AgeString "today" }} ago{{ end }}</span>
-                    {{ if .Unlabelled }}<span class="detail__unlabelled">unlabelled</span>{{ end }}
-                </span>
-            </li>
+    <!-- Issues and pull requests side by side rather than stacked: they are two
+         lists of the same kind of thing, and reading one after the other made
+         the page twice as long as it needed to be for no gain. They stack again
+         below 720px. -->
+    <div class="detail__columns">
+
+        <section class="detail__section">
+            <h3 class="detail__heading">Open issues</h3>
+            {{ with .Site.OpenIssues }}
+            <ul class="detail__items">
+                {{ range . }}
+                <li class="detail__item{{ if .Untriaged }} detail__item--untriaged{{ end }}">
+                    <a class="detail__itemlink" href="{{ .URL }}">{{ .Title }}</a>
+                    <span class="detail__meta">
+                        <span class="detail__age">opened {{ .AgeString }}{{ if ne .AgeString "today" }} ago{{ end }}</span>
+                        {{ if .Untriaged }}<span class="detail__untriaged">untriaged{{ if .Unlabelled }}, no label{{ end }}</span>{{ end }}
+                    </span>
+                </li>
+                {{ end }}
+            </ul>
+            {{ else }}
+            <p class="detail__empty">No open issues.</p>
             {{ end }}
-        </ul>
-        {{ else }}
-        <p class="detail__empty">No open pull requests.</p>
-        {{ end }}
-    </section>
+        </section>
+
+        <section class="detail__section">
+            <h3 class="detail__heading">Open pull requests</h3>
+            {{ with .Site.OpenPRs }}
+            <ul class="detail__items">
+                {{ range . }}
+                <li class="detail__item{{ if .Untriaged }} detail__item--untriaged{{ end }}">
+                    <a class="detail__itemlink" href="{{ .URL }}">{{ .Title }}</a>
+                    <span class="detail__meta">
+                        <span class="detail__age">opened {{ .AgeString }}{{ if ne .AgeString "today" }} ago{{ end }}</span>
+                        {{ if .Untriaged }}<span class="detail__untriaged">untriaged{{ if .Unlabelled }}, no label{{ end }}</span>{{ end }}
+                    </span>
+                </li>
+                {{ end }}
+            </ul>
+            {{ else }}
+            <p class="detail__empty">No open pull requests.</p>
+            {{ end }}
+        </section>
+
+    </div>
 
     {{ if gt .Site.HiddenOpen 0 }}
     <!-- The collector reads at most 50 issues and 50 pull requests per
@@ -84,7 +101,7 @@
 
     <section class="detail__section">
         <h3 class="detail__heading">Recently closed</h3>
-        {{ with .Site.RecentlyClosed }}
+        {{ with .Site.SubpageClosed }}
         <ul class="detail__items detail__items--closed">
             {{ range . }}
             <li class="detail__item">

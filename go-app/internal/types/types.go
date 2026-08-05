@@ -82,13 +82,23 @@ var Arc42properties = [11]Property{
 // site nobody counts are different facts.
 const NotAvailable = "n/a"
 
-// RepoItem is one open issue or pull request as a dashboard tile lists it.
-// Unlabelled marks an item no maintainer has classified, however old it is.
+// RepoItem is one open issue or pull request as the dashboard lists it.
+//
+// Untriaged is the same predicate the NrUntriaged count uses, carried per item
+// so the count and the marks in the list can be checked against each other. It
+// used to be Unlabelled, which was a narrower thing: an item opened yesterday
+// and given a label counts as untriaged (nobody has looked at it yet) but is
+// not unlabelled. A tile saying "6 untriaged" over a list marking three items
+// "unlabelled" was inviting exactly the question it could not answer.
+//
+// Unlabelled is kept because it is the reason for most untriaged items and the
+// only one a maintainer can act on directly.
 type RepoItem struct {
 	Title      string
 	URL        string
 	AgeString  string // human-readable, e.g. "3 days", "5 weeks"
 	IsPR       bool
+	Untriaged  bool
 	Unlabelled bool
 }
 
@@ -168,6 +178,16 @@ const (
 	TileClosedShown = 2
 )
 
+// SubpageClosedShown is how many recently closed items a per-site page lists.
+// Closed work is context, not a call to action; three is enough to show a
+// repository is alive without turning the page into a changelog.
+//
+// It is a display rule, deliberately separate from github.MaxClosedStored,
+// which is how many the collector keeps. They happen to be the same number
+// today. Leaning on that would mean a later change made for the collector's
+// benefit silently changed what every subpage shows.
+const SubpageClosedShown = 3
+
 // TopOpen is the slice of open items a tile shows.
 func (s SiteStatsType) TopOpen() []RepoItem {
 	if len(s.OpenItems) > TileOpenShown {
@@ -178,10 +198,19 @@ func (s SiteStatsType) TopOpen() []RepoItem {
 
 // TopClosed is the slice of recently closed items a tile shows.
 func (s SiteStatsType) TopClosed() []ClosedItem {
-	if len(s.RecentlyClosed) > TileClosedShown {
-		return s.RecentlyClosed[:TileClosedShown]
+	return firstClosed(s.RecentlyClosed, TileClosedShown)
+}
+
+// SubpageClosed is the slice a per-site page shows.
+func (s SiteStatsType) SubpageClosed() []ClosedItem {
+	return firstClosed(s.RecentlyClosed, SubpageClosedShown)
+}
+
+func firstClosed(items []ClosedItem, n int) []ClosedItem {
+	if len(items) > n {
+		return items[:n]
 	}
-	return s.RecentlyClosed
+	return items
 }
 
 // MoreOpen is how many open issues and PRs exist beyond the ones the tile

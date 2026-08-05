@@ -131,8 +131,8 @@ func fixtureRows() []types.SiteStatsType {
 			Visitors12m: "121.581", PageViews12m: "288.375", Repo: "https://github.com/arc42/arc42.org-site",
 			NrOfOpenIssues: 4, NrOfOpenBugs: 1, NrOfOpenPRs: 2, NrUntriaged: 3,
 			OpenItems: []types.RepoItem{
-				{Title: "Move jQuery and DataTables.js from CDN to local directory", URL: "https://example.invalid/1", AgeString: "1 years", IsPR: true, Unlabelled: true},
-				{Title: "add (private) entry page with statistics for more sites", URL: "https://example.invalid/2", AgeString: "1 years", Unlabelled: true},
+				{Title: "Move jQuery and DataTables.js from CDN to local directory", URL: "https://example.invalid/1", AgeString: "1 years", IsPR: true, Untriaged: true, Unlabelled: true},
+				{Title: "add (private) entry page with statistics for more sites", URL: "https://example.invalid/2", AgeString: "1 years", Untriaged: true, Unlabelled: true},
 				{Title: longTitle, URL: "https://example.invalid/3", AgeString: "3 days"},
 				{Title: "Tiny", URL: "https://example.invalid/4", AgeString: "today"},
 				{Title: "build(deps): bump nokogiri from 1.16.5 to 1.16.7", URL: "https://example.invalid/5", AgeString: "5 weeks", IsPR: true},
@@ -157,10 +157,10 @@ func fixtureRows() []types.SiteStatsType {
 			Visitors12m: "5", PageViews12m: "6", Repo: "https://github.com/arc42/docs.arc42.org-site",
 			NrOfOpenIssues: 21, NrOfOpenBugs: 3, NrOfOpenPRs: 6, NrUntriaged: 12,
 			OpenItems: []types.RepoItem{
-				{Title: "one", URL: "https://example.invalid/6", AgeString: "today", Unlabelled: true},
+				{Title: "one", URL: "https://example.invalid/6", AgeString: "today", Untriaged: true, Unlabelled: true},
 				{Title: "two", URL: "https://example.invalid/7", AgeString: "1 day", IsPR: true},
 				{Title: "three", URL: "https://example.invalid/8", AgeString: "3 days"},
-				{Title: "four", URL: "https://example.invalid/9", AgeString: "2 weeks", Unlabelled: true},
+				{Title: "four", URL: "https://example.invalid/9", AgeString: "2 weeks", Untriaged: true, Unlabelled: true},
 				{Title: "five", URL: "https://example.invalid/10", AgeString: "4 months", IsPR: true},
 				{Title: "six -- beyond the cap, the template must still cope", URL: "https://example.invalid/11", AgeString: "2 years"},
 				{Title: "seven -- likewise", URL: "https://example.invalid/12", AgeString: "3 years"},
@@ -174,7 +174,7 @@ func fixtureRows() []types.SiteStatsType {
 			Visitors12m: "5.414", PageViews12m: "16.935", Repo: "https://github.com/arc42/faq.arc42.org-site",
 			NrOfOpenIssues: 4, NrOfOpenPRs: 0, NrUntriaged: 1,
 			OpenItems: []types.RepoItem{
-				{Title: "Add a question about arc42 and C4", URL: "https://example.invalid/13", AgeString: "6 days", Unlabelled: true},
+				{Title: "Add a question about arc42 and C4", URL: "https://example.invalid/13", AgeString: "6 days", Untriaged: true, Unlabelled: true},
 			},
 			RecentlyClosed: []types.ClosedItem{
 				{Title: "Typo in question 42", URL: "https://example.invalid/c5", ClosedAgo: "2 days ago"},
@@ -195,7 +195,7 @@ func fixtureRows() []types.SiteStatsType {
 			Visitors12m: "41.055", PageViews12m: "127.973", Repo: "https://github.com/arc42/quality.arc42.org-site",
 			NrOfOpenIssues: 12, NrOfOpenPRs: 1, NrUntriaged: 2,
 			OpenItems: []types.RepoItem{
-				{Title: "Quality model: add a source for ISO 25010:2023", URL: "https://example.invalid/16", AgeString: "12 days", Unlabelled: true},
+				{Title: "Quality model: add a source for ISO 25010:2023", URL: "https://example.invalid/16", AgeString: "12 days", Untriaged: true, Unlabelled: true},
 			}},
 
 		// six-digit counts everywhere, to stress column widths
@@ -204,8 +204,8 @@ func fixtureRows() []types.SiteStatsType {
 			Visitors12m: "999.999", PageViews12m: "999.999", Repo: "https://github.com/arc42/status.arc42.org-site",
 			NrOfOpenIssues: 19, NrOfOpenBugs: 1, NrOfOpenPRs: 1, NrUntriaged: 5,
 			OpenItems: []types.RepoItem{
-				{Title: "Availability monitoring with a GitHub-Actions prober (ADR-0019)", URL: "https://example.invalid/17", AgeString: "today", Unlabelled: true},
-				{Title: "Per-site subpages", URL: "https://example.invalid/18", AgeString: "today", Unlabelled: true},
+				{Title: "Availability monitoring with a GitHub-Actions prober (ADR-0019)", URL: "https://example.invalid/17", AgeString: "today", Untriaged: true, Unlabelled: true},
+				{Title: "Per-site subpages", URL: "https://example.invalid/18", AgeString: "today", Untriaged: true, Unlabelled: true},
 			},
 			RecentlyClosed: []types.ClosedItem{
 				{Title: "Dashboard tiles: what needs me, above what the numbers say", URL: "https://example.invalid/c7", IsPR: true, ClosedAgo: "today"},
@@ -234,8 +234,8 @@ func fixtureRows() []types.SiteStatsType {
 			Visitors12m: types.NotAvailable, PageViews12m: types.NotAvailable,
 			Repo: "https://github.com/arc42/meta.arc42.org", NrOfOpenIssues: 2, NrOfOpenPRs: 0, NrUntriaged: 2,
 			OpenItems: []types.RepoItem{
-				{Title: "BRAND.md: register trainings.arc42.org", URL: "https://example.invalid/20", AgeString: "today", Unlabelled: true},
-				{Title: "ADR for the colour token interface", URL: "https://example.invalid/21", AgeString: "2 days", Unlabelled: true},
+				{Title: "BRAND.md: register trainings.arc42.org", URL: "https://example.invalid/20", AgeString: "today", Untriaged: true, Unlabelled: true},
+				{Title: "ADR for the colour token interface", URL: "https://example.invalid/21", AgeString: "2 days", Untriaged: true, Unlabelled: true},
 			}},
 
 		// a repository with no site of its own: no host, no traffic, no table
@@ -246,10 +246,10 @@ func fixtureRows() []types.SiteStatsType {
 			Visitors12m: types.NotAvailable, PageViews12m: types.NotAvailable,
 			NrOfOpenIssues: 22, NrOfOpenBugs: 4, NrOfOpenPRs: 3, NrUntriaged: 6,
 			OpenItems: []types.RepoItem{
-				{Title: "Golden master for the asciidoc export drifts on Windows line endings", URL: "https://example.invalid/22", AgeString: "today", Unlabelled: true},
+				{Title: "Golden master for the asciidoc export drifts on Windows line endings", URL: "https://example.invalid/22", AgeString: "today", Untriaged: true, Unlabelled: true},
 				{Title: "Add a Spanish translation of chapter 8", URL: "https://example.invalid/23", AgeString: "4 days"},
 				{Title: "build(deps): bump asciidoctor-pdf", URL: "https://example.invalid/24", AgeString: "1 day", IsPR: true},
-				{Title: "docx template: heading numbering restarts at chapter 5", URL: "https://example.invalid/25", AgeString: "3 weeks", Unlabelled: true},
+				{Title: "docx template: heading numbering restarts at chapter 5", URL: "https://example.invalid/25", AgeString: "3 weeks", Untriaged: true, Unlabelled: true},
 				{Title: "Markdown flavour: GitHub vs CommonMark tables", URL: "https://example.invalid/26", AgeString: "5 months"},
 				{Title: "Drop the obsolete .odt variant", URL: "https://example.invalid/27", AgeString: "2 years", IsPR: true},
 			},

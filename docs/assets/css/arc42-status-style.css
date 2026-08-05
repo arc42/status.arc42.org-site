@@ -348,22 +348,52 @@
 
 .tile-grid {
     display: grid;
-    /* 340px, not 270px: at a 1200px window the content box fits three tracks
-       rather than four, which is what a tile listing three issue titles needs
-       before the titles start wrapping every second word (owner decision,
-       2026-08-05).
+    /* Six tracks, not auto-fill: the two hub twins have to sit beside each
+       other in the first row, and satellites three to a row. auto-fill cannot
+       express that - with three columns and hubs spanning two, the second hub
+       had nowhere to go and dropped to a row of its own with a column of empty
+       space next to it (owner decision, 2026-08-05).
 
-       min(340px, 100%) rather than a bare 340px: below a 340px content box the
-       track would otherwise refuse to shrink and push the document sideways. */
-    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
-    /* satellites stretch to the tallest tile in their row, so a row reads as
-       one band of equal cards rather than a ragged edge. The lists inside are
-       capped at three open and two closed items, so the stretch is a few
-       pixels of slack, not a 300px void -- which is what made the earlier
-       align-items: start necessary. */
+       So: hub = 3 of 6 (two per row), satellite = 2 of 6 (three per row).
+       minmax(0, 1fr) rather than 1fr, because a bare 1fr track has an implicit
+       min-content floor and a long issue title would push the grid sideways. */
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    /* tiles in a row share a height, so a row reads as one band of equal cards
+       rather than a ragged edge */
     align-items: stretch;
     gap: 0.9rem;
     margin: 0 0 1.6em;
+}
+
+.tile,
+.tile-skeleton {
+    grid-column: span 2;
+}
+
+.tile--hub,
+.tile-skeleton--hub {
+    grid-column: span 3;
+}
+
+/* two per row: a satellite tile below ~1000px would otherwise carry two words
+   per line in its issue titles */
+@media (max-width: 1000px) {
+    .tile-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tile,
+    .tile--hub,
+    .tile-skeleton,
+    .tile-skeleton--hub {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 640px) {
+    .tile-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 /* Neutral default -- an unregistered or unknown property gets a grey band,
@@ -502,10 +532,6 @@
 .tile[data-site="meta.arc42.org"] .tile__band,
 .tile[data-site="arc42-template"] .tile__band {
     box-shadow: inset 0 -2px 0 0 rgba(255, 255, 255, 0.35);
-}
-
-.tile--hub {
-    grid-column: span 2;
 }
 
 /* .tile--attention is emitted but deliberately carries no rule: the untriaged
@@ -674,7 +700,17 @@
     line-height: 1.4;
 }
 
+/* Two lines, then an ellipsis. A dependency-bot title can run to fifteen
+   words, and one such item was pushing a tile twice the height of its
+   neighbours - which is the whole reason the rows looked ragged. The full
+   title is one hover (title attribute is the link text itself) and one click
+   away, and the subpage never clamps. */
 .tile__itemlink {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     overflow-wrap: break-word;
 }
 
@@ -694,18 +730,16 @@
     color: var(--status-muted);
 }
 
-.tile__unlabelled {
+.tile__untriaged {
     font-weight: 700;
     color: var(--status-degraded);
 }
 
-/* an unlabelled item is the tile's alarm: nobody has classified it, however
-   old it is. Marked by a keyline as well as by the word, so it survives
-   greyscale and colour blindness. */
-/* No coloured left-rule here: the word "unlabelled" already carries the
-   meaning in text and colour, so a 2px accent bar was decoration doing a job
-   already done. The item is marked by its meta line, not by a stripe. */
-.tile__item--unlabelled .tile__unlabelled {
+/* An untriaged item is the tile's alarm: nobody has looked at it yet. Marked
+   by the word as well as by the ink, so it survives greyscale and colour
+   blindness - and no coloured left-rule, which would be decoration doing a job
+   the word already does. */
+.tile__item--untriaged .tile__untriaged {
     font-weight: 700;
 }
 
@@ -795,10 +829,6 @@
     animation: statsSkeletonPulse 1.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
 
-.tile-skeleton--hub {
-    grid-column: span 2;
-}
-
 @media (prefers-reduced-motion: reduce) {
     .tile-skeleton__band,
     .tile-skeleton .skeleton-bar {
@@ -808,11 +838,6 @@
 }
 
 @media (max-width: 700px) {
-    .tile--hub,
-    .tile-skeleton--hub {
-        grid-column: auto;
-    }
-
     /* one tile per row, so eleven placeholders stack and every over-estimate
        is paid eleven times over. Re-measured after the lists were cut to three
        open and two closed items. */
@@ -1116,9 +1141,28 @@
     color: var(--status-muted);
 }
 
-.detail__unlabelled {
+.detail__untriaged {
     font-weight: 700;
     color: var(--status-degraded);
+}
+
+/* open issues and open pull requests, side by side */
+.detail__columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 2.2rem;
+}
+
+@media (max-width: 720px) {
+    .detail__columns {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.detail__note {
+    margin: -0.6em 0 1.3em;
+    font-size: 0.8rem;
+    color: var(--status-muted);
 }
 
 /* closed work is context, not a call to action, so it never competes with the
@@ -1207,4 +1251,27 @@
         animation: none;
         opacity: 0.8;
     }
+}
+
+/* ==========================================================================
+   The empty sidebar column
+   --------------------------------------------------------------------------
+   Minimal Mistakes floats .page right at calc(100% - 300px) and reserves the
+   300px on its left for the sidebar. The theme's own `wide` class only removes
+   the padding on the right; the reserved column stays.
+
+   No page on this site has a sidebar - author_profile is false everywhere and
+   there is no nav - so on the per-site pages that column was 300px of nothing
+   between the viewport edge and the content, which is what the annotated
+   screenshot circled.
+
+   This file is imported last by assets/css/main.scss, so equal specificity
+   resolves in its favour. It is here rather than in _sass/minimal-mistakes/,
+   which is vendored upstream code and stays untouched (VENDORING.md).
+   ========================================================================== */
+
+.wide .page {
+    float: none;
+    width: 100%;
+    padding-right: 0;
 }

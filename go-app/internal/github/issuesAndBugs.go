@@ -48,21 +48,22 @@ type BugsIssuesQuery struct {
 // an unlabelled issue is one no maintainer has classified.
 const UntriagedWindow = 30 * 24 * time.Hour
 
-// MaxClosedStored caps how many recently closed items the collector keeps. Six
-// is what a per-site subpage lists; the tile shows the first two of them
-// (types.TileClosedShown).
+// MaxClosedStored caps how many recently closed items the collector keeps.
+// Three is what a per-site subpage lists; the tile shows the first two of them
+// (types.TileClosedShown). Closed work is context, not a call to action, and a
+// longer list turns a status page into a changelog.
 //
 // There is no matching cap for open items: the collector keeps every one it
 // sees, because the subpage lists them all. What a tile shows is decided by the
 // tile (types.TileOpenShown), not by what was collected - the two used to be
 // the same number, and that is why the subpages had nothing to add.
-const MaxClosedStored = 6
+const MaxClosedStored = 3
 
-// Each of the two closed connections asks for 6 as well, so the merged list can
-// be filled entirely from either one: a repository with six recent PR merges
-// and no closed issues still gets six. That 6 is written literally in the
-// GraphQL struct tag below, because a Go struct tag cannot interpolate a
-// constant - if MaxClosedStored changes, the two `first: 6` change with it.
+// Each of the two closed connections still asks for 6, deliberately more than
+// MaxClosedStored: the merge below re-sorts by the time an item actually
+// closed, and asking each side for only three would let a repository with four
+// recent merges push a more recently closed issue out of the result before the
+// sort ever saw it.
 
 // openNode is one open issue or pull request with just enough detail to list it
 // and to decide whether anybody has triaged it.
@@ -202,7 +203,8 @@ func OpenItemsForRepo(repoName string, stats *types.RepoStatsType) {
 		unlabelled := int(c.node.Labels.TotalCount) == 0
 		created := c.node.CreatedAt.Time
 
-		if unlabelled || created.After(cutoff) {
+		untriaged := unlabelled || created.After(cutoff)
+		if untriaged {
 			stats.NrUntriaged++
 		}
 
@@ -211,6 +213,7 @@ func OpenItemsForRepo(repoName string, stats *types.RepoStatsType) {
 			URL:        c.node.URL.String(),
 			AgeString:  humanAge(created),
 			IsPR:       c.isPR,
+			Untriaged:  untriaged,
 			Unlabelled: unlabelled,
 		})
 	}

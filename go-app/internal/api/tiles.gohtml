@@ -19,16 +19,16 @@
     .tile-allclear                 "nothing is waiting for you" banner
     .tile[data-site]               one card; .tile--hub, .tile--attention
       .tile__band                  coloured identity band
-        .tile__site > .tile__sitelink    site name (h3 + link, or plain text)
+        .tile__site > .tile__sitelink    site name (h3 + link to /site/<key>/)
         .tile__role                "hub" / "repository" marker
       .tile__body                  state
         .tile__stats > .tile__stat (.tile__stat--flagged)
                        > .tile__statnr + .tile__statlabel
         .tile__lists               the two lists, side by side on wide tiles
         .tile__subhead             "Recently closed"
-        .tile__items > .tile__item (.tile__item--unlabelled)
+        .tile__items > .tile__item (.tile__item--untriaged)
                        > .tile__itemlink + .tile__meta
-                         > .tile__kind, .tile__age, .tile__unlabelled
+                         > .tile__kind, .tile__age, .tile__untriaged
         .tile__closed > .tile__closeditem
                        > .tile__itemlink + .tile__meta
                          > .tile__kind, .tile__ago
@@ -43,8 +43,9 @@
     {{ if not $hasWork }}
     <p class="tile-allclear" role="status">
         <span class="status-token status-token--up" role="img" aria-label="all clear"></span>
-        <span><b>Nothing is waiting for you.</b> No unlabelled issues, and nothing new
-        in the last 30 days across {{ len .Tiles }} properties.</span>
+        <span><b>Nothing is waiting for you.</b> Nothing untriaged across
+        {{ len .Tiles }} properties: every open item carries a label, and none arrived
+        in the last 30 days.</span>
     </p>
     {{ end }}
 
@@ -52,11 +53,13 @@
     <article class="tile{{ if .IsHub }} tile--hub{{ end }}{{ if gt .NrUntriaged 0 }} tile--attention{{ end }}"
              data-site="{{ .Site }}">
 
+        <!-- The title goes to /site/<key>/, not to the property itself. A tile
+             is a way into this dashboard's own detail page; sending the most
+             prominent link on it off to another domain made the tile a
+             departure lounge. "Visit the site" lives on the subpage, where a
+             reader who wants the property itself will look for it. -->
         <div class="tile__band">
-            <h3 class="tile__site">
-                {{ if .Host }}<a class="tile__sitelink" href="https://{{ .Host }}">{{ .Site }}</a>
-                {{ else }}{{ .Site }}{{ end }}
-            </h3>
+            <h3 class="tile__site"><a class="tile__sitelink" href="/site/{{ .Site }}/">{{ .Site }}</a></h3>
             {{ if .IsHub }}<span class="tile__role">hub</span>
             {{ else if not .Host }}<span class="tile__role">repository</span>{{ end }}
         </div>
@@ -83,12 +86,12 @@
                 {{ if .TopOpen }}
                 <ul class="tile__items" aria-label="most recent open issues and pull requests on {{ .Site }}">
                     {{ range .TopOpen }}
-                    <li class="tile__item{{ if .Unlabelled }} tile__item--unlabelled{{ end }}">
+                    <li class="tile__item{{ if .Untriaged }} tile__item--untriaged{{ end }}">
                         <a class="tile__itemlink" href="{{ .URL }}">{{ .Title }}</a>
                         <span class="tile__meta">
                             <span class="tile__kind">{{ if .IsPR }}PR{{ else }}issue{{ end }}</span>
                             <span class="tile__age">{{ .AgeString }}</span>
-                            {{ if .Unlabelled }}<span class="tile__unlabelled">unlabelled</span>{{ end }}
+                            {{ if .Untriaged }}<span class="tile__untriaged">untriaged</span>{{ end }}
                         </span>
                     </li>
                     {{ end }}
