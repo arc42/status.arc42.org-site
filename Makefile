@@ -17,7 +17,8 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
 .PHONY: help backend site doctor stop clean build test lint \
-        build-site build-image install update shell logs check-secrets
+        build-site build-image install update shell logs check-secrets \
+        db-apply-dev
 
 SITE_DIR  := docs
 APP_DIR   := go-app
@@ -120,6 +121,13 @@ test: ## Run the Go tests
 
 lint: ## Run golangci-lint over the Go service
 	cd $(APP_DIR) && golangci-lint run
+
+db-apply-dev: ## Apply schema.hcl to the local dev database (needs atlas CLI)
+	@command -v atlas >/dev/null 2>&1 || { \
+		printf "atlas CLI not installed — https://atlasgo.io/getting-started\n"; exit 1; }
+	atlas schema apply --auto-approve \
+		--url "sqlite://$$HOME/arc42-stats-dev.db" \
+		--to "file://$(APP_DIR)/internal/database/schema.hcl"
 
 # ------------------------------------------------------------------------ site
 
