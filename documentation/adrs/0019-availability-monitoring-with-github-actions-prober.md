@@ -69,7 +69,8 @@ GitHub Actions (cron */15)          the 9 arc42 sites
         │                         │
         │                         ├──► Turso: status_snapshot (only on change)
         │                         ├──► Turso: status_bucket   (daily rollup)
-        │                         └──► Slack: only on change
+        │                         ├──► Turso: probe_run       (heartbeat, every run)
+        │                         └──► Slack: only on change (deferred, not built)
         ▼
    arc42-stats (fly.io, asleep by default)
         └── on request: reads Turso, renders the status column into the htmx fragment
@@ -109,25 +110,37 @@ Uses the tables already declared in `internal/database/schema.hcl`:
 - **`status_bucket`** — one row per site per day: `downtime_minutes`, `outage_count`.
   Written by the same job, upserting the current day. This is what the history bars read,
   so rendering never scans the event log.
+- **`probe_run`** — one row per *run*, not per site: `run_at`, vantage, sites checked,
+  duration. Added per Status deviation 1, as the freshness heartbeat (see below).
 
-Both tables are append-mostly and tiny: roughly 9 bucket upserts a day plus a handful of
-transitions, well under 1000 writes a month against a 10 M allowance.
+All three tables are append-mostly and tiny. `status_snapshot` and `status_bucket`
+together stay near the original estimate — roughly 9 bucket upserts a day plus a
+handful of transitions, well under 1000 writes a month. `probe_run` adds one row every
+run regardless of outcome: 96 a day, ~2900 a month. The combined total, a few thousand
+writes a month, is still well under the 10 M allowance — the heartbeat costs more rows
+than the data it watches over, and is still negligible.
 
 ### Freshness is derived, never asserted
 
-The page computes staleness from the newest bucket timestamp. If the workflow stops
-running — GitHub disabled the schedule, a secret expired, the job broke — the data stops
-advancing and the page says so ("last checked 4 hours ago") instead of showing a stale
-green. **No heartbeat service is needed, because absence of data is itself the signal.**
+The page computes staleness from the newest `probe_run` row (`run_at`), not from the
+newest bucket timestamp — see Status deviation 1. A bucket is a per-site daily rollup,
+so on a quiet day with no transitions its timestamp would go stale even while the
+prober is running fine; `probe_run` gets one row per run regardless of outcome, so it
+is the true heartbeat. If the workflow stops running — GitHub disabled the schedule, a
+secret expired, the job broke — `probe_run` stops advancing and the page says so
+("last checked 4 hours ago") instead of showing a stale green. **No separate heartbeat
+_service_ is needed: the heartbeat is a row the batch job already writes, not a second
+process to keep alive; absence of new rows is itself the signal.**
 
-This completes a three-layer honesty chain, in which nothing can fail silently:
+This is designed as a three-layer honesty chain, in which nothing can fail silently.
+As implemented (see Status), only layers 1–2 are built; layer 3 is deferred:
 
 1. The static Jekyll page renders an error panel when the fly.io app is unreachable
    (ADR-relevant: this is why the shell stays static — a page served by the app could
    not report the app being down).
 2. The app renders `stale` when the probe data has stopped advancing.
-3. Slack alerts on every state transition, so the maintainer learns of an incident
-   without visiting the page.
+3. *(Deferred, Status deviation 2.)* Slack would alert on every state transition, so
+   the maintainer learns of an incident without visiting the page.
 
 ### Cadence
 
@@ -143,8 +156,8 @@ precision than exists.
 - **The prober is independent of everything it watches** — outside fly.io, outside
   GitHub Pages, outside Netlify.
 - **The stack stays the showpiece stack.** Go, goroutines for concurrent probing, Turso,
-  Slack, GitHub Actions — the probe is a compact, readable example of exactly the
-  architecture this project exists to demonstrate.
+  GitHub Actions, and — once Status deviation 2 closes — Slack: the probe is a compact,
+  readable example of exactly the architecture this project exists to demonstrate.
 - **Single vantage point.** All probes originate from one GitHub-hosted runner region,
   so a network problem between that region and a site reads as a site outage. Mitigated
   by 2-of-3 confirmation; a second vantage can be added later without a schema change.
