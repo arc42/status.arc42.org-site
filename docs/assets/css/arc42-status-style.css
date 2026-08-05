@@ -752,10 +752,20 @@
     color: var(--status-muted);
 }
 
-.tile__closeditem::before {
-    content: "\2713\00a0";
-    color: var(--status-up);
-}
+/* No marker on either list, open or closed.
+   ------------------------------------------------------------------
+   The closed list used to carry a green tick as a ::before. Once the item
+   title became a -webkit-box for the two-line clamp it was block-level, so the
+   tick could no longer sit beside it and took a whole line of its own - a row
+   of ticks down the left with the titles pushed below them.
+
+   It is gone rather than re-aligned, and the open list gets no bullet to match,
+   because both lists already say what they are twice over: the heading above
+   them ("Recently closed"), and the meta line under every single item
+   ("PR · closed 1 year ago", "issue · 3 days · untriaged"). The closed list is
+   a notch quieter in colour on top of that. A marker would be a third encoding
+   of something already said in words - and CSS ::before content is announced by
+   some screen readers, so it was a third encoding that could be read aloud. */
 
 /* "nothing open" -- a sentence, not a zero. A zero here would read as a
    measurement; this is the absence of one. */
