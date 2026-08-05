@@ -84,11 +84,11 @@ header:
      hx-swap="outerHTML">
   <div class="tile-grid" aria-hidden="true">
     {% comment %}
-      11 properties, the first two spanning two columns like the hub tiles, so
+      12 properties, the first two spanning two columns like the hub tiles, so
       the grid the skeleton draws is the grid that arrives. Each placeholder
       carries a band block of its own, because the real tile does.
     {% endcomment %}
-    {% for tile in (1..11) %}
+    {% for tile in (1..12) %}
     <div class="tile-skeleton{% if tile <= 2 %} tile-skeleton--hub{% endif %}">
       <span class="tile-skeleton__band"></span>
       <span class="tile-skeleton__body">
@@ -129,8 +129,13 @@ header:
 <ul class="site-index">
 {% for s in site.data.arc42_sites %}
   <li class="site-index__item" data-site="{{ s.key }}">
-    <a href="{{ '/site/' | append: s.key | append: '/' | relative_url }}">{{ s.key }}</a>
-    <span class="site-index__meta">{% if s.plausible_embed %}traffic dashboard{% else %}no dashboard{% endif %}</span>
+    {%- comment -%}
+      A planned property has no page to link to. Linking it anyway would be a
+      404 dressed as a destination.
+    {%- endcomment -%}
+    {% if s.planned %}<span class="site-index__planned">{{ s.key }}</span>
+    {% else %}<a href="{{ '/site/' | append: s.key | append: '/' | relative_url }}">{{ s.key }}</a>{% endif %}
+    <span class="site-index__meta">{% if s.planned %}not built yet{% elsif s.plausible_embed %}traffic dashboard{% else %}no dashboard{% endif %}</span>
   </li>
 {% endfor %}
 </ul>

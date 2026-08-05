@@ -45,16 +45,50 @@ type Property struct {
 	// and arc42.de as sharing the brand navy; every other property owns one
 	// signature hue.
 	IsHub bool
+
+	// Planned marks a property that has been announced but does not exist
+	// yet: no repository, no site, nothing to measure. It is on the dashboard
+	// on purpose - the family's own plan is a thing the dashboard reports -
+	// and it is flagged rather than left to Repo == "" so that "not built
+	// yet" and "the query failed" can never be rendered as the same state.
+	// Neither collector runs for it; zeros here would be inventions.
+	Planned bool
 }
 
-// Arc42properties is the family, in the order the collector walks it.
-var Arc42properties = [11]Property{
+// Arc42properties is the family, in the order the dashboard shows it.
+//
+// The order is declared, not computed. It used to be derived - hubs first,
+// then by untriaged count descending - so the grid rearranged itself whenever
+// somebody labelled an issue. That is a poor property for a page people learn
+// the shape of, and it buried the ordering the family actually has (owner
+// decision, 2026-08-05). The rows below are that ordering; the collector walks
+// this array and the tiles come out in it.
+//
+//	row 1  the two hubs, the family's front door
+//	row 2  the artefacts people come for: the template, the docs, the atlas
+//	row 3  the shorter-form content: FAQ, canvas, examples
+//	row 4  what runs the family: this dashboard, the CLI, the course dates
+//	row 5  meta - the brand and decision home, read by maintainers only
+var Arc42properties = [12]Property{
 	{Key: "arc42.org", Host: "arc42.org", Repo: "arc42.org-site", HasTraffic: true, InTable: true, IsHub: true},
 	{Key: "arc42.de", Host: "arc42.de", Repo: "arc42.de-site", HasTraffic: true, InTable: true, IsHub: true},
+
+	// The template itself: a repository with no site of its own. It is the
+	// artefact the whole family exists to distribute, so it belongs on the
+	// dashboard even though it has no host and no traffic to report.
+	{Key: "arc42-template", Repo: "arc42-template"},
 	{Key: "docs.arc42.org", Host: "docs.arc42.org", Repo: "docs.arc42.org-site", HasTraffic: true, InTable: true},
+	{Key: "quality.arc42.org", Host: "quality.arc42.org", Repo: "quality.arc42.org-site", HasTraffic: true, InTable: true},
+
 	{Key: "faq.arc42.org", Host: "faq.arc42.org", Repo: "faq.arc42.org-site", HasTraffic: true, InTable: true},
 	{Key: "canvas.arc42.org", Host: "canvas.arc42.org", Repo: "canvas.arc42.org-site", HasTraffic: true, InTable: true},
-	{Key: "quality.arc42.org", Host: "quality.arc42.org", Repo: "quality.arc42.org-site", HasTraffic: true, InTable: true},
+
+	// Announced, not yet built: as of 2026-08-05 there is no
+	// examples.arc42.org-site repository and the host does not resolve. Its
+	// tile holds the place and says so; it is queried nowhere, so it costs no
+	// API call and produces no error in the log.
+	{Key: "examples.arc42.org", Host: "examples.arc42.org", Planned: true},
+
 	{Key: "status.arc42.org", Host: "status.arc42.org", Repo: "status.arc42.org-site", HasTraffic: true, InTable: true},
 
 	// Measured, but deliberately out of the traffic table (owner decision,
@@ -69,11 +103,6 @@ var Arc42properties = [11]Property{
 	// Plausible about it would produce one API error per collection run that
 	// says nothing, because nothing is broken.
 	{Key: "meta.arc42.org", Host: "meta.arc42.org", Repo: "meta.arc42.org"},
-
-	// The template itself: a repository with no site of its own. It is the
-	// artefact the whole family exists to distribute, so it belongs on the
-	// dashboard even though it has no host and no traffic to report.
-	{Key: "arc42-template", Repo: "arc42-template"},
 }
 
 // NotAvailable is what a metric reads when it could not be measured at all -
@@ -113,7 +142,7 @@ type ClosedItem struct {
 }
 
 // TilesData is what the dashboard template renders: the sites already in the
-// order the grid reads them (see domain.TilesInAttentionOrder).
+// order the grid reads them (see domain.TilesInDisplayOrder).
 type TilesData struct {
 	Tiles             []SiteStatsType
 	LastUpdatedString string
@@ -141,6 +170,11 @@ type SiteStatsType struct {
 
 	// InTable says this property gets a row in the traffic table.
 	InTable bool
+
+	// Planned says this property does not exist yet. Templates test it before
+	// anything else: every count below it is zero because nothing was asked,
+	// not because the answer was zero.
+	Planned bool
 
 	Visitors7d     string
 	Visitors7dNr   int

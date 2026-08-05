@@ -41,7 +41,7 @@ func main() {
 	rows := fixtureRows()
 
 	stats := types.Arc42Statistics{
-		AppVersion:        "1.2.0",
+		AppVersion:        "1.3.0",
 		LastUpdated:       time.Now(),
 		LastUpdatedString: "4. August 2026, 16:26:04h",
 		HowLongDidItTake:  "605",
@@ -64,7 +64,7 @@ func main() {
 	copy(withWork.Stats4Site[:], rows)
 	tilesPath := filepath.Join(outDir, "tiles.html")
 	render("internal/api/tiles.gohtml", tilesPath, types.TilesData{
-		Tiles:             domain.TilesInAttentionOrder(withWork),
+		Tiles:             domain.TilesInDisplayOrder(withWork),
 		LastUpdatedString: stats.LastUpdatedString,
 	})
 
@@ -78,7 +78,7 @@ func main() {
 	copy(allClear.Stats4Site[:], clearRows)
 	clearPath := filepath.Join(outDir, "tiles-allclear.html")
 	render("internal/api/tiles.gohtml", clearPath, types.TilesData{
-		Tiles:             domain.TilesInAttentionOrder(allClear),
+		Tiles:             domain.TilesInDisplayOrder(allClear),
 		LastUpdatedString: stats.LastUpdatedString,
 	})
 
@@ -119,11 +119,41 @@ func main() {
 	}
 }
 
-// fixtureRows are the ten properties, each carrying a different way of being
-// awkward: no traffic measurement at all, every metric unavailable, an empty
-// repository, more open items than a tile lists, six-digit counts, a hostname
-// nobody sized a column for.
+// fixtureRows returns one row per declared property, in declaration order.
+//
+// The fixture is keyed by property and assembled by walking
+// types.Arc42properties, not hand-ordered: the tiles now come out in
+// declaration order, so a hand-ordered fixture would have rendered a row plan
+// nobody ships. A property with no fixture is a loud failure rather than a
+// silent zero row.
+//
+// Each row carries a different way of being awkward: no traffic measurement at
+// all, every metric unavailable, an empty repository, more open items than a
+// tile lists, six-digit counts, a title that will not fit.
 func fixtureRows() []types.SiteStatsType {
+	byKey := map[string]types.SiteStatsType{}
+	for _, row := range fixtureSet() {
+		byKey[row.Site] = row
+	}
+
+	rows := make([]types.SiteStatsType, 0, len(types.Arc42properties))
+	for _, property := range types.Arc42properties {
+		row, ok := byKey[property.Key]
+		if !ok {
+			fmt.Printf("no fixture for declared property %q\n", property.Key)
+			os.Exit(1)
+		}
+		delete(byKey, property.Key)
+		rows = append(rows, row)
+	}
+	for key := range byKey {
+		fmt.Printf("fixture for %q matches no declared property\n", key)
+		os.Exit(1)
+	}
+	return rows
+}
+
+func fixtureSet() []types.SiteStatsType {
 	return []types.SiteStatsType{
 		// hub, healthy numbers, a full open list including a title that will not fit
 		{Site: "arc42.org", Host: "arc42.org", HasTraffic: true, InTable: true, IsHub: true,
@@ -151,8 +181,11 @@ func fixtureRows() []types.SiteStatsType {
 			Visitors12m: types.NotAvailable, PageViews12m: types.NotAvailable,
 			Repo: "https://github.com/arc42/arc42.de-site"},
 
-		// an implausibly long hostname, and more open items than a tile may list
-		{Site: "a-very-long-subdomain-name.arc42.org", Host: "a-very-long-subdomain-name.arc42.org", HasTraffic: true, InTable: true,
+		// more open items than a tile may list. The synthetic 36-character
+		// hostname this row used to carry is gone: every value in the site
+		// column is a declared property, so a host that long cannot occur, and
+		// it made the row match no registry entry and render a grey band.
+		{Site: "docs.arc42.org", Host: "docs.arc42.org", HasTraffic: true, InTable: true,
 			Visitors7d: "1", PageViews7d: "2", Visitors30d: "3", PageViews30d: "4",
 			Visitors12m: "5", PageViews12m: "6", Repo: "https://github.com/arc42/docs.arc42.org-site",
 			NrOfOpenIssues: 21, NrOfOpenBugs: 3, NrOfOpenPRs: 6, NrUntriaged: 12,
@@ -237,6 +270,12 @@ func fixtureRows() []types.SiteStatsType {
 				{Title: "BRAND.md: register trainings.arc42.org", URL: "https://example.invalid/20", AgeString: "today", Untriaged: true, Unlabelled: true},
 				{Title: "ADR for the colour token interface", URL: "https://example.invalid/21", AgeString: "2 days", Untriaged: true, Unlabelled: true},
 			}},
+
+		// announced, not built: no repository, no host, no numbers at all
+		{Site: "examples.arc42.org", Host: "examples.arc42.org", Planned: true,
+			Visitors7d: types.NotAvailable, PageViews7d: types.NotAvailable,
+			Visitors30d: types.NotAvailable, PageViews30d: types.NotAvailable,
+			Visitors12m: types.NotAvailable, PageViews12m: types.NotAvailable},
 
 		// a repository with no site of its own: no host, no traffic, no table
 		// row -- and the longest open list of the family

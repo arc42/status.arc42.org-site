@@ -7,7 +7,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
-	"sort"
 	"sync"
 	"time"
 	"zgo.at/zcache/v2"
@@ -113,6 +112,7 @@ func LoadStats4AllSites() types.Arc42Statistics {
 		a42s.Stats4Site[index].RecentlyClosed = Stats4Repos[index].RecentlyClosed
 		a42s.Stats4Site[index].NrUntriaged = Stats4Repos[index].NrUntriaged
 		a42s.Stats4Site[index].IsHub = property.IsHub
+		a42s.Stats4Site[index].Planned = property.Planned
 
 		log.Debug().Msgf("Repo %s has %d issues, %d bugs, and %d PRs", Stats4Repos[index].Repo, Stats4Repos[index].NrOfOpenIssues, Stats4Repos[index].NrOfOpenBugs, Stats4Repos[index].NrOfPRs)
 	}
@@ -177,6 +177,7 @@ func getUsageStatisticsForSite(property types.Property, thisSiteStats *types.Sit
 	thisSiteStats.Host = property.Host
 	thisSiteStats.InTable = property.InTable
 	thisSiteStats.HasTraffic = property.HasTraffic
+	thisSiteStats.Planned = property.Planned
 
 	if !property.HasTraffic {
 		// no site_id, no query, no numbers - and deliberately no error:
@@ -191,25 +192,17 @@ func getUsageStatisticsForSite(property types.Property, thisSiteStats *types.Sit
 
 }
 
-// TilesInAttentionOrder returns the sites arranged the way the dashboard reads
-// them: hubs first, then satellites sorted by untriaged count descending and
-// alphabetically within equal counts, so the eye lands on work and the order
-// stays stable when nothing needs attention.
-func TilesInAttentionOrder(a42s types.Arc42Statistics) []types.SiteStatsType {
+// TilesInDisplayOrder returns the properties in the order the grid shows them,
+// which is the order types.Arc42properties declares (see the row plan there).
+//
+// It used to be TilesInAttentionOrder and sorted: hubs first, then by untriaged
+// count descending. That made the grid rearrange itself whenever somebody
+// labelled an issue, so the page had no shape a reader could learn - and it
+// buried the family's own ordering under a transient one. Attention is carried
+// by the untriaged count in each tile instead, which is where it belongs.
+func TilesInDisplayOrder(a42s types.Arc42Statistics) []types.SiteStatsType {
 	tiles := make([]types.SiteStatsType, 0, len(a42s.Stats4Site))
-	tiles = append(tiles, a42s.Stats4Site[:]...)
-
-	sort.SliceStable(tiles, func(i, j int) bool {
-		if tiles[i].IsHub != tiles[j].IsHub {
-			return tiles[i].IsHub
-		}
-		if tiles[i].NrUntriaged != tiles[j].NrUntriaged {
-			return tiles[i].NrUntriaged > tiles[j].NrUntriaged
-		}
-		return tiles[i].Site < tiles[j].Site
-	})
-
-	return tiles
+	return append(tiles, a42s.Stats4Site[:]...)
 }
 
 // PropertyByKey looks up one property. The second return value is false for an
@@ -255,6 +248,16 @@ func getRepoStatisticsForSite(property types.Property, thisRepoStats *types.Repo
 	defer wg.Done()
 
 	thisRepoStats.Site = property.Key
+
+	if property.Planned {
+		// Nothing to ask and nobody to ask it of. Querying GitHub for a
+		// repository that does not exist would cost three failed calls per
+		// collection run and three log lines saying so - about a state that
+		// is not a failure.
+		log.Debug().Msgf("%s is planned, not built: no repository query", property.Key)
+		return
+	}
+
 	thisRepoStats.Repo = github.GithubArc42URL + property.Repo
 
 	github.StatsForRepo(property.Repo, thisRepoStats)

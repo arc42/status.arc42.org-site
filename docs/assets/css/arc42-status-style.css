@@ -501,7 +501,8 @@
    never had a masthead to take a colour from.
    white on #5a6a70 (--status-muted) ......................... 5.63:1 AA */
 [data-site="meta.arc42.org"],
-[data-site="arc42-template"] {
+[data-site="arc42-template"],
+[data-site="examples.arc42.org"] {
     --tile-band: var(--status-muted);
     --tile-ink: #ffffff;
     --tile-hue: var(--status-muted);
@@ -530,7 +531,8 @@
 /* the unregistered properties say "unregistered" in a way that is not a colour,
    so it cannot be mistaken for a signature: a hairline underscore, not a hue */
 .tile[data-site="meta.arc42.org"] .tile__band,
-.tile[data-site="arc42-template"] .tile__band {
+.tile[data-site="arc42-template"] .tile__band,
+.tile[data-site="examples.arc42.org"] .tile__band {
     box-shadow: inset 0 -2px 0 0 rgba(255, 255, 255, 0.35);
 }
 
@@ -775,6 +777,23 @@
     align-items: center;
     gap: 0.45em;
     font-size: 0.72rem;
+    color: var(--status-muted);
+}
+
+/* A property that has been announced but not built. Quiet on purpose: it is
+   the only tile with nothing to report, and it should read as a placeholder
+   rather than as an outage. */
+.tile__planned {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55em;
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--status-muted);
+}
+
+.site-index__planned {
     color: var(--status-muted);
 }
 

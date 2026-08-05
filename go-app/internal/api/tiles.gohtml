@@ -22,6 +22,7 @@
         .tile__site > .tile__sitelink    site name (h3 + link to /site/<key>/)
         .tile__role                "hub" / "repository" marker
       .tile__body                  state
+        .tile__planned             "not built yet", planned properties only
         .tile__stats > .tile__stat (.tile__stat--flagged)
                        > .tile__statnr + .tile__statlabel
         .tile__lists               the two lists, side by side on wide tiles
@@ -59,12 +60,25 @@
              departure lounge. "Visit the site" lives on the subpage, where a
              reader who wants the property itself will look for it. -->
         <div class="tile__band">
-            <h3 class="tile__site"><a class="tile__sitelink" href="/site/{{ .Site }}/">{{ .Site }}</a></h3>
+            <h3 class="tile__site">{{ if .Planned }}{{ .Site }}{{ else }}<a class="tile__sitelink" href="/site/{{ .Site }}/">{{ .Site }}</a>{{ end }}</h3>
             {{ if .IsHub }}<span class="tile__role">hub</span>
+            {{ else if .Planned }}<span class="tile__role">planned</span>
             {{ else if not .Host }}<span class="tile__role">repository</span>{{ end }}
         </div>
 
         <div class="tile__body">
+
+            {{ if .Planned }}
+            <!-- Announced, not yet built. No counts: every number here would be
+                 zero because nothing was asked, not because the answer is zero,
+                 and a row of zeros is the most confident lie a dashboard can
+                 tell. -->
+            <p class="tile__planned">
+                <span class="status-token status-token--unknown" role="img" aria-label="not built yet"></span>
+                <span><b>Not built yet.</b> No repository and no site — this tile is holding
+                the place. Nothing is measured, so nothing is reported.</span>
+            </p>
+            {{ else }}
 
             <!-- The three counts, one row, one typographic weight. Untriaged
                  used to be a 1.9rem headline below this strip; it is the same
@@ -118,11 +132,15 @@
                 {{ end }}
             </div>
 
+            {{ end }}
+
         </div>
 
+        {{ if not .Planned }}
         <p class="tile__more">
             <a class="tile__morelink" href="/site/{{ .Site }}/">{{ if gt .MoreOpen 0 }}… and {{ .MoreOpen }} more on {{ .Site }}{{ else }}… all detail on {{ .Site }}{{ end }}</a>
         </p>
+        {{ end }}
 
         <!-- The availability slot goes here once ADR-0019 collects data. It is
              deliberately absent while nothing is measured: the verdict line

@@ -24,6 +24,11 @@
 # the table is rendered by the service, not by Jekyll. It is here so this file
 # still describes the family completely.
 #
+# The record order is the DISPLAY order, and it mirrors types.Arc42properties in
+# go-app: the tiles come from the service in that order and the index at the
+# bottom of the home page is rendered from this file, so the two have to agree.
+# `planned: true` marks a property that does not exist yet.
+#
 # `hue` is documentation only: the rendering authority is
 # assets/css/arc42-status-style.css, keyed on data-site, per ADR-0003
 # (brand values enter a site as CSS custom properties, never as data).
@@ -50,6 +55,15 @@
   hue: "hub navy #374769, band #2b3a57"
   plausible_embed: "https://plausible.io/share/arc42.de?auth=IYzUmMI8s2PYKgggJhO7q&embed=true&theme=light"
 
+# ---- row 2: the artefacts people come for -------------------------------
+
+- key: arc42-template
+  name: arc42 Template
+  tagline: The template itself — the artefact the whole family exists to hand out.
+  role: repository
+  repo: https://github.com/arc42/arc42-template
+  hue: "unregistered — a repository, not a site; the tile band is neutral"
+
 - key: docs.arc42.org
   host: docs.arc42.org
   name: arc42 Documentation
@@ -60,6 +74,23 @@
   repo: https://github.com/arc42/docs.arc42.org-site
   hue: "signal blue #1675b9, band #0e4f80"
   plausible_embed: "https://plausible.io/share/docs.arc42.org?auth=D_6pSvlKkq_hTlttpTOtz&embed=true&theme=light"
+
+- key: quality.arc42.org
+  host: quality.arc42.org
+  name: arc42 Quality
+  tagline: The annotated atlas of quality requirements and attributes.
+  role: satellite
+  in_table: true
+  url: https://quality.arc42.org
+  repo: https://github.com/arc42/quality.arc42.org-site
+  hue: "violet #682d63"
+  plausible_embed: "https://plausible.io/share/quality.arc42.org?auth=cjoKlapPdw3czFugGy6jM&embed=true&theme=light"
+
+# ---- row 3: the shorter-form content ------------------------------------
+# examples.arc42.org is announced, not yet built: no repository, no site, no
+# Plausible property -- as of 2026-08-05 the host does not resolve. It has a
+# tile holding its place and NO subpage, because a detail page for a property
+# with no detail is a 404 with extra steps.
 
 - key: faq.arc42.org
   host: faq.arc42.org
@@ -83,16 +114,18 @@
   hue: "amber #ffc95c with dark ink #4a3a0a"
   plausible_embed: "https://plausible.io/share/canvas.arc42.org?auth=sAJkIzBTeFg-a5ndJenA4&embed=true&theme=light"
 
-- key: quality.arc42.org
-  host: quality.arc42.org
-  name: arc42 Quality
-  tagline: The annotated atlas of quality requirements and attributes.
+- key: examples.arc42.org
+  name: arc42 Examples
+  tagline: Worked examples of the template — announced, not yet built.
   role: satellite
-  in_table: true
-  url: https://quality.arc42.org
-  repo: https://github.com/arc42/quality.arc42.org-site
-  hue: "violet #682d63"
-  plausible_embed: "https://plausible.io/share/quality.arc42.org?auth=cjoKlapPdw3czFugGy6jM&embed=true&theme=light"
+  planned: true
+  hue: "unregistered — no signature hue in BRAND.md until the site exists"
+
+# ---- row 4: what runs the family ----------------------------------------
+# pdfminion and trainings are measured but deliberately out of the traffic
+# table (owner decision, 2026-08-05): a column is read downwards, and these
+# rows do not compare with the documentation sites above. Their visitor
+# numbers are on their own pages, in the detail fragment the service renders.
 
 - key: status.arc42.org
   host: status.arc42.org
@@ -103,11 +136,6 @@
   url: https://status.arc42.org
   repo: https://github.com/arc42/status.arc42.org-site
   hue: "slate ground #3a4550 plus the full-spectrum rim (a device, not a hue)"
-
-# ---- measured, but not in the traffic table -------------------------------
-# Owner decision, 2026-08-05: a column is read downwards, and these rows do not
-# compare with the documentation sites above. Their visitor numbers are on
-# their own pages, in the detail fragment the service renders.
 
 - key: pdfminion.arc42.org
   host: pdfminion.arc42.org
@@ -127,6 +155,8 @@
   repo: https://github.com/arc42/trainings.arc42.org-site
   hue: "dusty rose #a04c5e"
 
+# ---- row 5: the maintainers' own home ------------------------------------
+
 - key: meta.arc42.org
   host: meta.arc42.org
   name: arc42 Meta
@@ -135,12 +165,3 @@
   url: https://meta.arc42.org
   repo: https://github.com/arc42/meta.arc42.org
   hue: "unregistered — no signature hue in BRAND.md; the tile band is neutral"
-
-# ---- a repository with no site of its own ---------------------------------
-
-- key: arc42-template
-  name: arc42 Template
-  tagline: The template itself — the artefact the whole family exists to hand out.
-  role: repository
-  repo: https://github.com/arc42/arc42-template
-  hue: "unregistered — a repository, not a site; the tile band is neutral"

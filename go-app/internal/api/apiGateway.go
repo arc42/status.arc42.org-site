@@ -106,7 +106,7 @@ func tilesHandler(w http.ResponseWriter, r *http.Request) {
 	go database.SaveInvocationParams(r.Host, r.RequestURI)
 
 	executeTemplate(w, filepath.Join(TemplatesDir, TilesTmpl), types.TilesData{
-		Tiles:             domain.TilesInAttentionOrder(domain.ArcStats),
+		Tiles:             domain.TilesInDisplayOrder(domain.ArcStats),
 		LastUpdatedString: domain.ArcStats.LastUpdatedString,
 	})
 }

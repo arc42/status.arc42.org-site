@@ -13,9 +13,15 @@ import (
 	"time"
 )
 
-const appVersion = "1.2.0"
+const appVersion = "1.3.0"
 
 // version history
+// 1.3.0: twelve properties, in a declared display order rather than a computed
+//        one; arc42-template joins as the first repository with no site of its
+//        own, examples.arc42.org as the first planned one. Two new endpoints,
+//        /siteDetail and /siteTraffic, serve the per-site pages from the same
+//        cached collection run. pdfminion, trainings and meta leave the traffic
+//        table; its totals now sum exactly the rows it shows.
 // 1.2.0: ten properties (added trainings.arc42.org and meta.arc42.org, the latter
 //        without Plausible measurement); tiles list open and recently closed items;
 //        the statistics table drops the "Open Tasks" columns.
