@@ -1,0 +1,41 @@
+# Availability prober (ADR-0019): scheduled batch job, every 15 minutes.
+#
+# Facts this design accepts (verified 2026-08-04, see the ADR):
+#   - scheduled runs only fire on the default branch (main), so this
+#     workflow is dormant until merged there
+#   - GitHub delays cron under load; the page says "~15 min" for a reason
+#   - after 60 days without repo activity GitHub disables the schedule,
+#     which surfaces on the page as growing staleness, never as silence
+name: availability probe
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# never overlap two runs: a delayed run and its successor would double-
+# count downtime minutes
+concurrency:
+  group: probe
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: ./go-app
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: true
+      - run: go run ./cmd/probe
+        env:
+          ENVIRONMENT: PROD
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
