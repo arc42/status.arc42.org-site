@@ -87,6 +87,8 @@ exclude:
   - log
   - README.md
   - tmp
+  # design/plan documents carrying non-Liquid template syntax, not site content
+  - superpowers/
  
 keep_files:
   - sitemap.xml
