@@ -47,6 +47,9 @@ func TestMonitored(t *testing.T) {
 	if Monitored(Property{Key: "examples.arc42.org", Host: "examples.arc42.org", Planned: true}) {
 		t.Error("planned property must not be monitored")
 	}
+	if Monitored(Property{Key: "meta.arc42.org", Host: "meta.arc42.org", NoProbe: true}) {
+		t.Error("NoProbe property must not be monitored")
+	}
 	if !Monitored(Property{Key: "arc42.org", Host: "arc42.org"}) {
 		t.Error("hosted, built property must be monitored")
 	}

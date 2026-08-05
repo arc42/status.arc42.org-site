@@ -65,6 +65,13 @@ type Property struct {
 	// carry no content token; probing it would grade the redirect, not
 	// the site. The probe must fetch the page a visitor lands on.
 	ProbePath string
+
+	// NoProbe excludes a hosted property from availability probing.
+	// meta.arc42.org's DNS entry does not exist yet (NXDOMAIN, checked
+	// 2026-08-05): probing a name that does not resolve would write a
+	// permanent outage for a site that is not down but absent. Flip to
+	// false when the host goes live.
+	NoProbe bool
 }
 
 // Arc42properties is the family, in the order the dashboard shows it.
@@ -114,7 +121,7 @@ var Arc42properties = [12]Property{
 	// maintainers, not by an audience, so it was never registered. Asking
 	// Plausible about it would produce one API error per collection run that
 	// says nothing, because nothing is broken.
-	{Key: "meta.arc42.org", Host: "meta.arc42.org", Repo: "meta.arc42.org", ExpectedContent: "arc42"},
+	{Key: "meta.arc42.org", Host: "meta.arc42.org", Repo: "meta.arc42.org", ExpectedContent: "arc42", NoProbe: true},
 }
 
 // Monitored says the prober checks this property: it has a site to probe
@@ -122,7 +129,7 @@ var Arc42properties = [12]Property{
 // and their availability renders as "unmonitored" - a different fact from
 // "probed and down".
 func Monitored(p Property) bool {
-	return p.Host != "" && !p.Planned
+	return p.Host != "" && !p.Planned && !p.NoProbe
 }
 
 // NotAvailable is what a metric reads when it could not be measured at all -
