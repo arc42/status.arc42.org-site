@@ -115,20 +115,35 @@
 <h2 id="availability">Availability</h2>
 
 {%- comment -%}
-  ADR-0019 placeholder. Deliberately empty of numbers: nothing has been measured
-  for this property yet, and a zero or a green tick here would be an invention.
-  The prober fills this region; until it does, the region says what it does not
-  know.
+  The fourth fragment region, wired like the other three. Hostless
+  properties get no region at all: there is no site to probe, and an
+  empty section would imply one - the sentence below says so instead.
 {%- endcomment -%}
-<div class="site-availability" id="availability-detail" data-site="{{ s.key }}" data-adr="0019">
-  <p class="status-verdict">
-    <span class="status-token status-token--unmonitored" role="img" aria-label="not monitored"></span>
-    <span><b>Not monitored yet.</b> No uptime has been collected for {{ s.key }}.
-    <a href="https://github.com/arc42/status.arc42.org-site/blob/main/documentation/adrs/0019-availability-monitoring-with-github-actions-prober.md">ADR&nbsp;19</a>
-    describes the GitHub-Actions prober that will fill this region &mdash; current state, a 30-day
-    daily strip, and the precise 7d / 30d / 12m figures.</span>
-  </p>
+{% if s.host %}
+<div id="availability-region" class="stats-region" aria-live="polite" aria-busy="true">
+
+  <div id="siteAvailability"
+       hx-get="{{ site.stats_api }}/siteAvailability?site={{ s.key }}"
+       hx-trigger="load"
+       hx-swap="outerHTML">
+
+    <div class="detail-skeleton" aria-hidden="true">
+      <span class="skeleton-bar" style="width:45%"></span>
+      <span class="skeleton-bar" style="width:90%;height:1.1rem"></span>
+      <span class="skeleton-bar" style="width:60%"></span>
+    </div>
+    <p class="stats-loading-note">Asking the probe records how {{ s.key }} has been doing&hellip;</p>
+
+  </div>
+
 </div>
+{% else %}
+<p class="site-page__nodata">
+  <span class="status-token status-token--unmonitored" role="img" aria-label="not applicable"></span>
+  <span><b>Nothing to probe.</b> {{ s.key }} is a repository without a site of its own,
+  so availability does not apply to it.</span>
+</p>
+{% endif %}
 
 <script>window.ARC42_STATS_API = '{{ site.stats_api }}';</script>
 <script src="{{ '/assets/js/status-regions.js' | relative_url }}"></script>
@@ -137,4 +152,6 @@
                           '/siteDetail?site={{ s.key }}', 'repository detail');
   window.arc42Status.wire('traffic-region', 'siteTraffic',
                           '/siteTraffic?site={{ s.key }}', 'traffic figures');
+  {% if s.host %}window.arc42Status.wire('availability-region', 'siteAvailability',
+                          '/siteAvailability?site={{ s.key }}', 'availability');{% endif %}
 </script>

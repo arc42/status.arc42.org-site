@@ -25,6 +25,11 @@
     --status-degraded: #8a5000;
     --status-down: #b3261e;
     --status-unknown: #5a6a70;
+    --state-up: #0b6e4f;
+    --state-degraded: #8a5000;
+    --state-down: #b3261e;
+    --state-unknown: #5a6a70;
+    --state-unmonitored: #5a6a70;
     --status-surface-warn: #fdf6ec;
     --status-border-warn: #d9b382;
     --status-skeleton: #e7eaec;
@@ -57,19 +62,19 @@
 
 .status-token--up {
     border-radius: 50%;
-    background: var(--status-up);
+    background: var(--state-up);
 }
 
 /* half-filled disc: up, but slow or serving unexpected content */
 .status-token--degraded {
     border-radius: 50%;
-    background: linear-gradient(90deg, var(--status-degraded) 50%, transparent 50%);
-    box-shadow: inset 0 0 0 1.5px var(--status-degraded);
+    background: linear-gradient(90deg, var(--state-degraded) 50%, transparent 50%);
+    box-shadow: inset 0 0 0 1.5px var(--state-degraded);
 }
 
 .status-token--down {
     border-radius: 50%;
-    background: var(--status-down);
+    background: var(--state-down);
 }
 
 /* the slash makes "down" legible without colour */
@@ -87,14 +92,14 @@
 
 .status-token--unknown {
     border-radius: 50%;
-    border: 1.5px dashed var(--status-unknown);
+    border: 1.5px dashed var(--state-unknown);
 }
 
 /* not monitored yet: a dash, deliberately the quietest mark on the page */
 .status-token--unmonitored {
     width: 0.7em;
     height: 2px;
-    background: var(--status-muted);
+    background: var(--state-unmonitored);
     vertical-align: middle;
 }
 
@@ -1333,4 +1338,59 @@
     float: none;
     width: 100%;
     padding-right: 0;
+}
+
+/* Availability section on the per-site pages -------------------------- */
+
+.avail-state {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+/* The 30-day strip: one flex cell per day, oldest left. Cells reuse the
+   token hues via the custom properties above; "partial" is the degraded
+   hue - a day with some downtime is a degraded day. */
+.avail-strip {
+  display: flex;
+  gap: 2px;
+  max-width: 32rem;
+  margin: 0.5rem 0;
+}
+.avail-strip__day {
+  flex: 1 1 0;
+  height: 1.1rem;
+  border-radius: 2px;
+  min-width: 4px;
+}
+.avail-strip__day--up      { background: var(--state-up); }
+.avail-strip__day--partial { background: var(--state-degraded); }
+.avail-strip__day--down    { background: var(--state-down); }
+.avail-strip__day--nodata  { background: var(--state-unmonitored); opacity: 0.35; }
+
+.avail-figures {
+  font-variant-numeric: tabular-nums;
+}
+
+.avail-subhead {
+  font-size: 1rem;
+  margin: 1rem 0 0.25rem;
+}
+.avail-incidents {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.avail-incident {
+  display: flex;
+  gap: 0.75em;
+  font-size: 0.9rem;
+  padding: 0.15rem 0;
+}
+.avail-incident__span {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.avail-noincidents {
+  font-size: 0.9rem;
 }
