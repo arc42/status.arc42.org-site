@@ -660,6 +660,19 @@
     color: var(--status-degraded);
 }
 
+/* Tile availability line: token + "up · 99.98% (30d)". State colour
+   comes from the token alone; the band above stays identity-only. */
+.tile__avail {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+}
+.tile__availtext {
+  font-variant-numeric: tabular-nums;
+}
+
 .tile__subhead {
     margin: 0.2em 0 0.3em;
     font-size: 0.68rem;

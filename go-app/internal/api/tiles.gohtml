@@ -25,6 +25,7 @@
         .tile__planned             "not built yet", planned properties only
         .tile__stats > .tile__stat (.tile__stat--flagged)
                        > .tile__statnr + .tile__statlabel
+        .tile__avail > .status-token + .tile__availtext   availability line (hosted properties)
         .tile__lists               the two lists, side by side on wide tiles
         .tile__subhead             "Recently closed"
         .tile__items > .tile__item (.tile__item--untriaged)
@@ -96,6 +97,18 @@
                     <span class="tile__statlabel">untriaged</span></span>
             </p>
 
+            {{ if .Host }}
+            <!-- Availability: present only for properties with a site to
+                 probe. "not monitored yet" is the pre-first-run state,
+                 never a zero (ADR-0019). -->
+            <p class="tile__avail">
+                <span class="status-token status-token--{{ .Availability.Token }}" role="img" aria-label="availability: {{ .Availability.Token }}"></span>
+                {{ if .Availability.Measured }}<span class="tile__availtext">{{ .Availability.Token }}
+                    &middot; {{ .Availability.Uptime30d }} (30d){{ if .Availability.Stale }} &middot; stale{{ end }}</span>
+                {{ else }}<span class="tile__availtext">not monitored yet</span>{{ end }}
+            </p>
+            {{ end }}
+
             <div class="tile__lists">
                 {{ if .TopOpen }}
                 <ul class="tile__items" aria-label="most recent open issues and pull requests on {{ .Site }}">
@@ -142,10 +155,6 @@
         </p>
         {{ end }}
 
-        <!-- The availability slot goes here once ADR-0019 collects data. It is
-             deliberately absent while nothing is measured: the verdict line
-             above the grid says "not monitored" once, and repeating it on every
-             tile would be eleven copies of the same non-information. -->
     </article>
     {{ end }}
 </div>
