@@ -59,6 +59,12 @@ type Property struct {
 	// page is degraded, not up. Empty for properties that are never probed
 	// (no host, or planned).
 	ExpectedContent string
+
+	// ProbePath is the path the prober GETs, empty meaning the root.
+	// docs and faq serve a meta-refresh stub at "/" whose ~120 bytes
+	// carry no content token; probing it would grade the redirect, not
+	// the site. The probe must fetch the page a visitor lands on.
+	ProbePath string
 }
 
 // Arc42properties is the family, in the order the dashboard shows it.
@@ -83,10 +89,10 @@ var Arc42properties = [12]Property{
 	// artefact the whole family exists to distribute, so it belongs on the
 	// dashboard even though it has no host and no traffic to report.
 	{Key: "arc42-template", Repo: "arc42-template"},
-	{Key: "docs.arc42.org", Host: "docs.arc42.org", Repo: "docs.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
+	{Key: "docs.arc42.org", Host: "docs.arc42.org", Repo: "docs.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", ProbePath: "/home/"},
 	{Key: "quality.arc42.org", Host: "quality.arc42.org", Repo: "quality.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
 
-	{Key: "faq.arc42.org", Host: "faq.arc42.org", Repo: "faq.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
+	{Key: "faq.arc42.org", Host: "faq.arc42.org", Repo: "faq.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", ProbePath: "/home/"},
 	{Key: "canvas.arc42.org", Host: "canvas.arc42.org", Repo: "canvas.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
 
 	// Announced, not yet built: as of 2026-08-05 there is no

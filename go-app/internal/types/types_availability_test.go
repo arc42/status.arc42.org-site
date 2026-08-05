@@ -59,3 +59,11 @@ func TestEveryMonitoredPropertyDeclaresExpectedContent(t *testing.T) {
 		}
 	}
 }
+
+func TestProbePathIsAbsolute(t *testing.T) {
+	for _, p := range Arc42properties {
+		if p.ProbePath != "" && p.ProbePath[0] != '/' {
+			t.Errorf("%s: ProbePath %q must start with /", p.Key, p.ProbePath)
+		}
+	}
+}

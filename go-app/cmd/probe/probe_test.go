@@ -94,3 +94,12 @@ func TestProbeSiteFlickerIsNotDown(t *testing.T) {
 		t.Errorf("state = %s, want up (failure not confirmed)", res.State)
 	}
 }
+
+func TestProbeTarget(t *testing.T) {
+	if got := probeTarget(types.Property{Host: "arc42.org"}); got != "https://arc42.org/" {
+		t.Errorf("default path: %q", got)
+	}
+	if got := probeTarget(types.Property{Host: "docs.arc42.org", ProbePath: "/home/"}); got != "https://docs.arc42.org/home/" {
+		t.Errorf("probe path: %q", got)
+	}
+}

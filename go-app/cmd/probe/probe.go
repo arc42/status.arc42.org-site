@@ -113,7 +113,17 @@ func probeURL(client *http.Client, p types.Property, url string) Result {
 	return Result{Site: p.Key, State: "up", ResponseMs: ms}
 }
 
+// probeTarget is the URL the prober measures: the page a visitor lands
+// on, which is not always the root (see types.Property.ProbePath).
+func probeTarget(p types.Property) string {
+	path := p.ProbePath
+	if path == "" {
+		path = "/"
+	}
+	return "https://" + p.Host + path
+}
+
 // ProbeSite measures one property at its public URL.
 func ProbeSite(client *http.Client, p types.Property) Result {
-	return probeURL(client, p, "https://"+p.Host+"/")
+	return probeURL(client, p, probeTarget(p))
 }
