@@ -1,0 +1,70 @@
+<!-- golang template for one property's availability section -->
+<!--
+  Served at /siteAvailability?site=<key>, swapped into #siteAvailability
+  under the Availability heading of /site/<key>/. Fills the region that
+  carried the ADR-0019 placeholder.
+
+  Honesty rules, in order: a hostless property has nothing to probe (the
+  Jekyll include normally skips the region, this branch answers a direct
+  request); an unprobed property is "not monitored yet", never a zero;
+  stale data says it is stale and shows "unknown"; only fresh data shows
+  a state.
+
+  Class contract for the stylesheet:
+    .site-availability            wrapper == #siteAvailability
+      .avail-state                current state line (token + text)
+      .avail-strip                30 day cells, oldest first
+        .avail-strip__day--up / --partial / --down / --nodata
+      .avail-figures              the three windows, one line
+      .avail-incidents            recent incidents list
+        .avail-incident > .avail-incident__span + .avail-incident__what
+      .detail__empty              hostless note
+-->
+{{ $av := .Site.Availability }}
+<div id="siteAvailability" class="site-availability">
+
+{{ if not .Site.Host }}
+    <p class="detail__empty">A repository, not a site &mdash; there is nothing to probe,
+        so no availability exists for it.</p>
+{{ else if not $av.Measured }}
+    <p class="status-verdict">
+        <span class="status-token status-token--unmonitored" role="img" aria-label="not monitored"></span>
+        <span><b>Not monitored yet.</b> The prober has not recorded any data for
+        {{ .Site.Site }}; this section fills itself from the first run onward.</span>
+    </p>
+{{ else }}
+
+    <p class="avail-state">
+        <span class="status-token status-token--{{ $av.Token }}" role="img" aria-label="{{ $av.Token }}"></span>
+        <span><b>{{ $av.Token }}</b>
+        {{ if $av.Stale }}&mdash; data is stale, last check {{ $av.LastCheckedAgo }}
+        {{ else }}&middot; checked every ~15 minutes &middot; last check {{ $av.LastCheckedAgo }}{{ end }}</span>
+    </p>
+
+    <div class="avail-strip" role="img"
+         aria-label="daily availability of {{ .Site.Site }} over the last 30 days">
+        {{ range $av.Days }}<span class="avail-strip__day avail-strip__day--{{ .State }}"
+              title="{{ .Date }}{{ if eq .State "nodata" }}: not measured{{ else }}: {{ .DowntimeMinutes }} min down{{ end }}"></span>{{ end }}
+    </div>
+
+    <p class="avail-figures">
+        7d&nbsp;{{ $av.Uptime7d }} &middot; 30d&nbsp;{{ $av.Uptime30d }} &middot; 12m&nbsp;{{ $av.Uptime12m }}{{ if $av.MeasuredSince }}
+        &middot; measured since {{ $av.MeasuredSince }}{{ end }}
+    </p>
+
+    {{ if $av.Incidents }}
+    <h3 class="avail-subhead">Recent incidents</h3>
+    <ul class="avail-incidents">
+        {{ range $av.Incidents }}
+        <li class="avail-incident">
+            <span class="avail-incident__span">{{ .StartString }} &ndash; {{ .EndString }}</span>
+            <span class="avail-incident__what">{{ .State }}{{ if .Detail }} ({{ .Detail }}){{ end }}{{ if .Duration }}, {{ .Duration }}{{ end }}</span>
+        </li>
+        {{ end }}
+    </ul>
+    {{ else }}
+    <p class="avail-noincidents">No incidents on record.</p>
+    {{ end }}
+
+{{ end }}
+</div>

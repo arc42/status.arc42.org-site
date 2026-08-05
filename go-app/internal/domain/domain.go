@@ -1,6 +1,8 @@
 package domain
 
 import (
+	"arc42-status/internal/availability"
+	"arc42-status/internal/database"
 	"arc42-status/internal/github"
 	"arc42-status/internal/plausible"
 	"arc42-status/internal/types"
@@ -116,6 +118,17 @@ func LoadStats4AllSites() types.Arc42Statistics {
 
 		log.Debug().Msgf("Repo %s has %d issues, %d bugs, and %d PRs", Stats4Repos[index].Repo, Stats4Repos[index].NrOfOpenIssues, Stats4Repos[index].NrOfOpenBugs, Stats4Repos[index].NrOfPRs)
 	}
+
+	// availability is read from our own Turso tables, not from an
+	// external API - one sequential read pass, cached with everything
+	// else, so a page view costs one burst (ADR-0019).
+	avail := availability.ForAllSites(database.GetDB(), time.Now().UTC())
+	for index, property := range types.Arc42properties {
+		if av, ok := avail[property.Key]; ok {
+			a42s.Stats4Site[index].Availability = av
+		}
+	}
+	a42s.Availability = availability.Family(avail)
 
 	// now calculate totals
 	a42s.Totals = calculateTotals(a42s.Stats4Site)

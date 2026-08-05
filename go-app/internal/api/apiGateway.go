@@ -28,6 +28,7 @@ const PingTmpl = "ping.gohtml"
 const TilesTmpl = "tiles.gohtml"
 const SiteDetailTmpl = "siteDetail.gohtml"
 const SiteTrafficTmpl = "siteTraffic.gohtml"
+const SiteAvailabilityTmpl = "siteAvailability.gohtml"
 
 func init() {
 	log.Debug().Msg("apiGateway initialized ")
@@ -124,6 +125,14 @@ func siteDetailHandler(w http.ResponseWriter, r *http.Request) {
 // and so that each can fail on its own where the reader is looking.
 func siteTrafficHandler(w http.ResponseWriter, r *http.Request) {
 	servePropertyFragment(w, r, SiteTrafficTmpl)
+}
+
+// siteAvailabilityHandler returns the Availability section for one
+// property: current state, the 30-day strip, the three windows, and
+// recent incidents. Same fragment-per-heading contract as siteDetail and
+// siteTraffic.
+func siteAvailabilityHandler(w http.ResponseWriter, r *http.Request) {
+	servePropertyFragment(w, r, SiteAvailabilityTmpl)
 }
 
 // servePropertyFragment renders one template for one property.
@@ -269,6 +278,7 @@ func StartAPIServer() {
 	mux.HandleFunc("/tiles", tilesHandler)
 	mux.HandleFunc("/siteDetail", siteDetailHandler)
 	mux.HandleFunc("/siteTraffic", siteTrafficHandler)
+	mux.HandleFunc("/siteAvailability", siteAvailabilityHandler)
 	mux.HandleFunc("/ping", pingHandler)
 
 	// wrap ServeMux with logging
