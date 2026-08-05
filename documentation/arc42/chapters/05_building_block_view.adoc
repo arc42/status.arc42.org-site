@@ -74,3 +74,17 @@ _<(Optional) Fulfilled Requirements>_
 _<(optional) Open Issues/Problems/Risks>_
 
 
+=== Availability Monitoring
+
+Availability is measured out-of-process, not by the api gateway itself (see ADR-0019
+for the reasoning). `cmd/probe` is a small standalone batch job, not a service: a
+scheduled GitHub Actions workflow runs it every ~15 minutes, it GETs every hosted
+property that resolves, compares each result against the last known state, and exits.
+
+`internal/availability` is the read/write and computation layer shared between the
+prober and the api gateway: the prober writes transitions and heartbeats through it,
+and the domain reads it to compute the current status, verdict and history shown on
+the page. Storage is three Turso tables: `status_snapshot` (one row per state change),
+`status_bucket` (daily downtime rollup per site), and `probe_run` (one row per run,
+the freshness heartbeat).
+

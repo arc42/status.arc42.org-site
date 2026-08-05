@@ -4,7 +4,23 @@ Date: 2026-08-04
 
 ## Status
 
-Proposed
+Accepted (2026-08-05), implemented with three deviations:
+
+1. **Freshness heartbeat.** A `probe_run` table (one row per run) carries
+   "last checked", instead of deriving it from the newest bucket
+   timestamp: a bucket row is per-site and per-day, a heartbeat is
+   per-run, and staleness is a fact about the run.
+2. **Slack alerting deferred.** The honesty chain's layer 3 is not built
+   in this iteration; layers 1 (static error panel) and 2 (derived
+   staleness) are.
+3. **meta.arc42.org is excluded from probing.** A new `types.Property.NoProbe`
+   field skips it: its DNS entry does not exist (NXDOMAIN, checked
+   2026-08-05), and a probe against a name that does not resolve would
+   record a permanent outage for a site that is not down but simply not
+   built — "not built" must never render as "outage". Separately,
+   `docs.arc42.org` and `faq.arc42.org` are probed at `/home/`
+   (`types.Property.ProbePath`) rather than at their root, because their
+   roots serve a meta-refresh stub with no content to assert against.
 
 ## Context
 
@@ -137,8 +153,11 @@ precision than exists.
 - **The 60-day inactivity rule applies.** If the repository goes quiet for two months,
   GitHub disables the schedule — which surfaces as growing staleness on the page rather
   than as silence.
-- New secrets on the workflow: `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, and the
-  existing Slack token.
+- New secret on the workflow: `TURSO_AUTH_TOKEN`. (~~`TURSO_DATABASE_URL`~~ was
+  assumed needed at planning time; the Turso database URL is in fact a
+  compiled-in constant, not read from the environment, so no such secret
+  exists.) A Slack token would be a further new secret once deviation 2
+  above is closed.
 - `schema.hcl` and the Go code must stay in sync manually (see ADR-0014).
 
 ## Alternatives considered

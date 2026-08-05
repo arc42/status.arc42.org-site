@@ -33,6 +33,11 @@ therefore gitignored. Create it once from the committed template:
 cp go-app/set-api-keys.sh.template go-app/set-api-keys.sh
 ```
 
+Availability is measured by a scheduled GitHub Actions workflow
+(`.github/workflows/probe.yml`, every ~15 minutes, ADR-0019) that runs
+`go-app/cmd/probe` and writes into Turso. It needs the repository secret
+`TURSO_AUTH_TOKEN`. Locally: `make db-apply-dev` once, then `make probe`.
+
 ## Technologies used
 
 ![Plausible Analytics Badge](https://img.shields.io/badge/Plausible%20Analytics-5850EC?logo=plausibleanalytics&logoColor=fff&style=plastic)
