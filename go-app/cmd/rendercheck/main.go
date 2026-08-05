@@ -54,6 +54,10 @@ func main() {
 			TotalNrOfIssues: 55, TotalNrOfBugs: 7, TotalNrOfPRs: 7,
 		},
 	}
+	stats.Availability = types.FamilyAvailability{
+		Measured: true, NrMonitored: 10, NrDown: 1,
+		LastCheckedAgo: "3 min ago",
+	}
 	copy(stats.Stats4Site[:], rows)
 
 	tablePath := filepath.Join(outDir, "table.html")
@@ -108,11 +112,48 @@ func main() {
 		LastUpdatedString: stats.LastUpdatedString,
 	})
 
+	// the availability fragment, for a property that IS down -- exercises the
+	// full measured branch: verdict, 30-cell strip, three windows, incident list
+	availPath := filepath.Join(outDir, "siteAvailability.html")
+	rowWithAvailability, found := domain.StatsForKey(withWork, "docs.arc42.org")
+	if !found {
+		fmt.Println("fixture for docs.arc42.org is missing")
+		os.Exit(1)
+	}
+	render("internal/api/siteAvailability.gohtml", availPath, types.SiteDetailData{
+		Site:              rowWithAvailability, // pick the availDown row
+		LastUpdatedString: stats.LastUpdatedString,
+	})
+
+	// the availability fragment, for a hosted property never probed -- the
+	// pre-first-run "not monitored yet" branch
+	availNonePath := filepath.Join(outDir, "siteAvailability-unmonitored.html")
+	unmonitored, found := domain.StatsForKey(withWork, "meta.arc42.org")
+	if !found {
+		fmt.Println("fixture for meta.arc42.org is missing")
+		os.Exit(1)
+	}
+	render("internal/api/siteAvailability.gohtml", availNonePath, types.SiteDetailData{
+		Site:              unmonitored, // the availNone row
+		LastUpdatedString: stats.LastUpdatedString,
+	})
+
+	// the availability fragment, for the hostless repo -- "nothing to probe"
+	// branch; arc42-template was already fetched above as detail
+	availHostlessPath := filepath.Join(outDir, "siteAvailability-hostless.html")
+	render("internal/api/siteAvailability.gohtml", availHostlessPath, types.SiteDetailData{
+		Site:              detail,
+		LastUpdatedString: stats.LastUpdatedString,
+	})
+
 	fmt.Printf("rendered %s\n", detailPath)
 	fmt.Printf("rendered %s\n", trafficPath)
 	fmt.Printf("rendered %s\n", tablePath)
 	fmt.Printf("rendered %s\n", tilesPath)
 	fmt.Printf("rendered %s\n", clearPath)
+	fmt.Printf("rendered %s\n", availPath)
+	fmt.Printf("rendered %s\n", availNonePath)
+	fmt.Printf("rendered %s\n", availHostlessPath)
 
 	if !checkTableColumns(tableHTML) {
 		os.Exit(1)
@@ -153,13 +194,55 @@ func fixtureRows() []types.SiteStatsType {
 	return rows
 }
 
+// fixtureDays is a 30-cell strip with every cell state present.
+func fixtureDays() []types.DayCell {
+	days := make([]types.DayCell, 0, 30)
+	for i := 0; i < 30; i++ {
+		cell := types.DayCell{Date: fmt.Sprintf("2026-07-%02d", i+1), State: "up"}
+		switch i {
+		case 0, 1:
+			cell.State = "nodata"
+		case 13:
+			cell.State = "partial"
+			cell.DowntimeMinutes = 30
+		case 20:
+			cell.State = "down"
+			cell.DowntimeMinutes = 480
+		}
+		days = append(days, cell)
+	}
+	return days
+}
+
 func fixtureSet() []types.SiteStatsType {
+	// availability fixtures: one of each shape the templates branch on
+	availUp := types.SiteAvailability{
+		Measured: true, State: "up", LastCheckedAgo: "12 min ago",
+		Uptime7d: "100%", Uptime30d: "99.98%", Uptime12m: "n/a",
+		Uptime30dNr: 99.98, MeasuredSince: "2026-08",
+		Days:      fixtureDays(),
+		Incidents: []types.Incident{{State: "down", StartString: "14 Aug 09:15", EndString: "14 Aug 09:45", Duration: "30 min", Detail: "timeout"}},
+	}
+	availDown := types.SiteAvailability{
+		Measured: true, State: "down", LastCheckedAgo: "3 min ago",
+		Uptime7d: "97.32%", Uptime30d: "99.12%", Uptime12m: "n/a",
+		Uptime30dNr: 99.12, MeasuredSince: "2026-08",
+		Days:      fixtureDays(),
+		Incidents: []types.Incident{{State: "down", StartString: "20 Aug 11:45", EndString: "ongoing", Detail: "502"}},
+	}
+	availStale := types.SiteAvailability{
+		Measured: true, State: "up", Stale: true, LastCheckedAgo: "4 h ago",
+		Uptime7d: "100%", Uptime30d: "100%", Uptime12m: "n/a",
+		Uptime30dNr: 100, MeasuredSince: "2026-08", Days: fixtureDays(),
+	}
+	availNone := types.SiteAvailability{} // never probed
+
 	return []types.SiteStatsType{
 		// hub, healthy numbers, a full open list including a title that will not fit
 		{Site: "arc42.org", Host: "arc42.org", HasTraffic: true, InTable: true, IsHub: true,
 			Visitors7d: "2.269", PageViews7d: "5.274", Visitors30d: "10.079", PageViews30d: "22.873",
 			Visitors12m: "121.581", PageViews12m: "288.375", Repo: "https://github.com/arc42/arc42.org-site",
-			NrOfOpenIssues: 4, NrOfOpenBugs: 1, NrOfOpenPRs: 2, NrUntriaged: 3,
+			NrOfOpenIssues: 4, NrOfOpenBugs: 1, NrOfOpenPRs: 2, NrUntriaged: 3, Availability: availUp,
 			OpenItems: []types.RepoItem{
 				{Title: "Move jQuery and DataTables.js from CDN to local directory", URL: "https://example.invalid/1", AgeString: "1 years", IsPR: true, Untriaged: true, Unlabelled: true},
 				{Title: "add (private) entry page with statistics for more sites", URL: "https://example.invalid/2", AgeString: "1 years", Untriaged: true, Unlabelled: true},
@@ -179,7 +262,7 @@ func fixtureSet() []types.SiteStatsType {
 			Visitors7d: types.NotAvailable, PageViews7d: types.NotAvailable,
 			Visitors30d: types.NotAvailable, PageViews30d: types.NotAvailable,
 			Visitors12m: types.NotAvailable, PageViews12m: types.NotAvailable,
-			Repo: "https://github.com/arc42/arc42.de-site"},
+			Repo: "https://github.com/arc42/arc42.de-site", Availability: availUp},
 
 		// more open items than a tile may list. The synthetic 36-character
 		// hostname this row used to carry is gone: every value in the site
@@ -188,7 +271,7 @@ func fixtureSet() []types.SiteStatsType {
 		{Site: "docs.arc42.org", Host: "docs.arc42.org", HasTraffic: true, InTable: true,
 			Visitors7d: "1", PageViews7d: "2", Visitors30d: "3", PageViews30d: "4",
 			Visitors12m: "5", PageViews12m: "6", Repo: "https://github.com/arc42/docs.arc42.org-site",
-			NrOfOpenIssues: 21, NrOfOpenBugs: 3, NrOfOpenPRs: 6, NrUntriaged: 12,
+			NrOfOpenIssues: 21, NrOfOpenBugs: 3, NrOfOpenPRs: 6, NrUntriaged: 12, Availability: availDown,
 			OpenItems: []types.RepoItem{
 				{Title: "one", URL: "https://example.invalid/6", AgeString: "today", Untriaged: true, Unlabelled: true},
 				{Title: "two", URL: "https://example.invalid/7", AgeString: "1 day", IsPR: true},
@@ -205,7 +288,7 @@ func fixtureSet() []types.SiteStatsType {
 		{Site: "faq.arc42.org", Host: "faq.arc42.org", HasTraffic: true, InTable: true,
 			Visitors7d: "103", PageViews7d: "638", Visitors30d: "375", PageViews30d: "1.456",
 			Visitors12m: "5.414", PageViews12m: "16.935", Repo: "https://github.com/arc42/faq.arc42.org-site",
-			NrOfOpenIssues: 4, NrOfOpenPRs: 0, NrUntriaged: 1,
+			NrOfOpenIssues: 4, NrOfOpenPRs: 0, NrUntriaged: 1, Availability: availUp,
 			OpenItems: []types.RepoItem{
 				{Title: "Add a question about arc42 and C4", URL: "https://example.invalid/13", AgeString: "6 days", Untriaged: true, Unlabelled: true},
 			},
@@ -217,7 +300,7 @@ func fixtureSet() []types.SiteStatsType {
 		{Site: "canvas.arc42.org", Host: "canvas.arc42.org", HasTraffic: true, InTable: true,
 			Visitors7d: "157", PageViews7d: "332", Visitors30d: "739", PageViews30d: "1.627",
 			Visitors12m: "11.906", PageViews12m: "29.189", Repo: "https://github.com/arc42/canvas.arc42.org-site",
-			NrOfOpenIssues: 1, NrOfOpenBugs: 1, NrOfOpenPRs: 1, NrUntriaged: 0,
+			NrOfOpenIssues: 1, NrOfOpenBugs: 1, NrOfOpenPRs: 1, NrUntriaged: 0, Availability: availUp,
 			OpenItems: []types.RepoItem{
 				{Title: "Canvas print layout drops the last column", URL: "https://example.invalid/14", AgeString: "8 months"},
 				{Title: "Update dependencies", URL: "https://example.invalid/15", AgeString: "7 months", IsPR: true},
@@ -226,7 +309,7 @@ func fixtureSet() []types.SiteStatsType {
 		{Site: "quality.arc42.org", Host: "quality.arc42.org", HasTraffic: true, InTable: true,
 			Visitors7d: "1.033", PageViews7d: "2.537", Visitors30d: "3.812", PageViews30d: "10.475",
 			Visitors12m: "41.055", PageViews12m: "127.973", Repo: "https://github.com/arc42/quality.arc42.org-site",
-			NrOfOpenIssues: 12, NrOfOpenPRs: 1, NrUntriaged: 2,
+			NrOfOpenIssues: 12, NrOfOpenPRs: 1, NrUntriaged: 2, Availability: availStale,
 			OpenItems: []types.RepoItem{
 				{Title: "Quality model: add a source for ISO 25010:2023", URL: "https://example.invalid/16", AgeString: "12 days", Untriaged: true, Unlabelled: true},
 			}},
@@ -235,7 +318,7 @@ func fixtureSet() []types.SiteStatsType {
 		{Site: "status.arc42.org", Host: "status.arc42.org", HasTraffic: true, InTable: true,
 			Visitors7d: "999.999", PageViews7d: "999.999", Visitors30d: "999.999", PageViews30d: "999.999",
 			Visitors12m: "999.999", PageViews12m: "999.999", Repo: "https://github.com/arc42/status.arc42.org-site",
-			NrOfOpenIssues: 19, NrOfOpenBugs: 1, NrOfOpenPRs: 1, NrUntriaged: 5,
+			NrOfOpenIssues: 19, NrOfOpenBugs: 1, NrOfOpenPRs: 1, NrUntriaged: 5, Availability: availUp,
 			OpenItems: []types.RepoItem{
 				{Title: "Availability monitoring with a GitHub-Actions prober (ADR-0019)", URL: "https://example.invalid/17", AgeString: "today", Untriaged: true, Unlabelled: true},
 				{Title: "Per-site subpages", URL: "https://example.invalid/18", AgeString: "today", Untriaged: true, Unlabelled: true},
@@ -247,7 +330,7 @@ func fixtureSet() []types.SiteStatsType {
 		{Site: "pdfminion.arc42.org", Host: "pdfminion.arc42.org", HasTraffic: true,
 			Visitors7d: "5", PageViews7d: "7", Visitors30d: "9", PageViews30d: "11",
 			Visitors12m: "60", PageViews12m: "76", Repo: "https://github.com/arc42/PDFminion",
-			NrOfOpenIssues: 11, NrOfOpenBugs: 2, NrOfOpenPRs: 1, NrUntriaged: 0,
+			NrOfOpenIssues: 11, NrOfOpenBugs: 2, NrOfOpenPRs: 1, NrUntriaged: 0, Availability: availUp,
 			OpenItems: []types.RepoItem{
 				{Title: "Support --config with relative paths", URL: "https://example.invalid/19", AgeString: "5 months"},
 			},
@@ -258,14 +341,17 @@ func fixtureSet() []types.SiteStatsType {
 		// brand-new property: measured, but everything is genuinely zero
 		{Site: "trainings.arc42.org", Host: "trainings.arc42.org", HasTraffic: true,
 			Visitors7d: "0", PageViews7d: "0", Visitors30d: "0", PageViews30d: "0",
-			Visitors12m: "0", PageViews12m: "0", Repo: "https://github.com/arc42/trainings.arc42.org-site"},
+			Visitors12m: "0", PageViews12m: "0", Repo: "https://github.com/arc42/trainings.arc42.org-site", Availability: availUp},
 
-		// no Plausible site at all: every metric unavailable, never zero
+		// no Plausible site at all: every metric unavailable, never zero.
+		// Also gives availNone its hosted row: the prober has never recorded
+		// this property (NoProbe, ADR-0019), so "not measured" is the honest
+		// pre-first-run fact here anyway.
 		{Site: "meta.arc42.org", Host: "meta.arc42.org", HasTraffic: false,
 			Visitors7d: types.NotAvailable, PageViews7d: types.NotAvailable,
 			Visitors30d: types.NotAvailable, PageViews30d: types.NotAvailable,
 			Visitors12m: types.NotAvailable, PageViews12m: types.NotAvailable,
-			Repo: "https://github.com/arc42/meta.arc42.org", NrOfOpenIssues: 2, NrOfOpenPRs: 0, NrUntriaged: 2,
+			Repo: "https://github.com/arc42/meta.arc42.org", NrOfOpenIssues: 2, NrOfOpenPRs: 0, NrUntriaged: 2, Availability: availNone,
 			OpenItems: []types.RepoItem{
 				{Title: "BRAND.md: register trainings.arc42.org", URL: "https://example.invalid/20", AgeString: "today", Untriaged: true, Unlabelled: true},
 				{Title: "ADR for the colour token interface", URL: "https://example.invalid/21", AgeString: "2 days", Untriaged: true, Unlabelled: true},
