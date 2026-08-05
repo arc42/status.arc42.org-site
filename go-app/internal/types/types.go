@@ -53,6 +53,12 @@ type Property struct {
 	// yet" and "the query failed" can never be rendered as the same state.
 	// Neither collector runs for it; zeros here would be inventions.
 	Planned bool
+
+	// ExpectedContent is the substring the prober requires in the response
+	// body before it calls the site up: a build that serves an empty 200
+	// page is degraded, not up. Empty for properties that are never probed
+	// (no host, or planned).
+	ExpectedContent string
 }
 
 // Arc42properties is the family, in the order the dashboard shows it.
@@ -70,18 +76,18 @@ type Property struct {
 //	row 4  what runs the family: this dashboard, the CLI, the course dates
 //	row 5  meta - the brand and decision home, read by maintainers only
 var Arc42properties = [12]Property{
-	{Key: "arc42.org", Host: "arc42.org", Repo: "arc42.org-site", HasTraffic: true, InTable: true, IsHub: true},
-	{Key: "arc42.de", Host: "arc42.de", Repo: "arc42.de-site", HasTraffic: true, InTable: true, IsHub: true},
+	{Key: "arc42.org", Host: "arc42.org", Repo: "arc42.org-site", HasTraffic: true, InTable: true, IsHub: true, ExpectedContent: "arc42"},
+	{Key: "arc42.de", Host: "arc42.de", Repo: "arc42.de-site", HasTraffic: true, InTable: true, IsHub: true, ExpectedContent: "arc42"},
 
 	// The template itself: a repository with no site of its own. It is the
 	// artefact the whole family exists to distribute, so it belongs on the
 	// dashboard even though it has no host and no traffic to report.
 	{Key: "arc42-template", Repo: "arc42-template"},
-	{Key: "docs.arc42.org", Host: "docs.arc42.org", Repo: "docs.arc42.org-site", HasTraffic: true, InTable: true},
-	{Key: "quality.arc42.org", Host: "quality.arc42.org", Repo: "quality.arc42.org-site", HasTraffic: true, InTable: true},
+	{Key: "docs.arc42.org", Host: "docs.arc42.org", Repo: "docs.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
+	{Key: "quality.arc42.org", Host: "quality.arc42.org", Repo: "quality.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
 
-	{Key: "faq.arc42.org", Host: "faq.arc42.org", Repo: "faq.arc42.org-site", HasTraffic: true, InTable: true},
-	{Key: "canvas.arc42.org", Host: "canvas.arc42.org", Repo: "canvas.arc42.org-site", HasTraffic: true, InTable: true},
+	{Key: "faq.arc42.org", Host: "faq.arc42.org", Repo: "faq.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
+	{Key: "canvas.arc42.org", Host: "canvas.arc42.org", Repo: "canvas.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
 
 	// Announced, not yet built: as of 2026-08-05 there is no
 	// examples.arc42.org-site repository and the host does not resolve. Its
@@ -89,20 +95,28 @@ var Arc42properties = [12]Property{
 	// API call and produces no error in the log.
 	{Key: "examples.arc42.org", Host: "examples.arc42.org", Planned: true},
 
-	{Key: "status.arc42.org", Host: "status.arc42.org", Repo: "status.arc42.org-site", HasTraffic: true, InTable: true},
+	{Key: "status.arc42.org", Host: "status.arc42.org", Repo: "status.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
 
 	// Measured, but deliberately out of the traffic table (owner decision,
 	// 2026-08-05). A tool's landing page and a course-date feed do not
 	// compare with the documentation sites in the same column; their numbers
 	// are reported on their own subpages instead.
-	{Key: "pdfminion.arc42.org", Host: "pdfminion.arc42.org", Repo: "PDFminion", HasTraffic: true},
-	{Key: "trainings.arc42.org", Host: "trainings.arc42.org", Repo: "trainings.arc42.org-site", HasTraffic: true},
+	{Key: "pdfminion.arc42.org", Host: "pdfminion.arc42.org", Repo: "PDFminion", HasTraffic: true, ExpectedContent: "minion"},
+	{Key: "trainings.arc42.org", Host: "trainings.arc42.org", Repo: "trainings.arc42.org-site", HasTraffic: true, ExpectedContent: "arc42"},
 
 	// No Plausible site at all: the brand and decision home is read by
 	// maintainers, not by an audience, so it was never registered. Asking
 	// Plausible about it would produce one API error per collection run that
 	// says nothing, because nothing is broken.
-	{Key: "meta.arc42.org", Host: "meta.arc42.org", Repo: "meta.arc42.org"},
+	{Key: "meta.arc42.org", Host: "meta.arc42.org", Repo: "meta.arc42.org", ExpectedContent: "arc42"},
+}
+
+// Monitored says the prober checks this property: it has a site to probe
+// and the site exists. Repo-only and planned properties are never probed,
+// and their availability renders as "unmonitored" - a different fact from
+// "probed and down".
+func Monitored(p Property) bool {
+	return p.Host != "" && !p.Planned
 }
 
 // NotAvailable is what a metric reads when it could not be measured at all -
@@ -139,6 +153,81 @@ type ClosedItem struct {
 	URL       string
 	IsPR      bool
 	ClosedAgo string // human-readable phrase, e.g. "3 days ago", "today"
+}
+
+// DayCell is one day of the 30-day availability strip. State is a CSS
+// class suffix: "up", "partial", "down", or "nodata" for days before
+// measurement began (or a gap in it) - which is a different fact from a
+// day with zero downtime.
+type DayCell struct {
+	Date            string // "2006-01-02"
+	State           string
+	DowntimeMinutes int
+}
+
+// Incident is one contiguous not-up period, reconstructed from
+// consecutive status_snapshot transitions for the detail page.
+type Incident struct {
+	State       string // "down" or "degraded"
+	StartString string // e.g. "02 Aug 22:00"
+	EndString   string // e.g. "02 Aug 22:15", or "ongoing"
+	Duration    string // e.g. "15 min", "2 h 30 min"; empty while ongoing
+	Detail      string // what the probe saw: "timeout", "slow: 3480ms", "502"
+}
+
+// SiteAvailability is everything one property's surfaces render about
+// uptime. Measured false means the prober has never recorded this site;
+// every other field is then meaningless and the token is "unmonitored".
+type SiteAvailability struct {
+	Measured       bool
+	State          string // latest recorded state: "up", "degraded", "down"
+	Stale          bool   // newest probe_run older than availability.StaleAfter
+	LastCheckedAgo string // e.g. "12 min ago"
+	Uptime7d       string // "100%", "99.98%", or "n/a"
+	Uptime30d      string
+	Uptime12m      string
+	Uptime30dNr    float64    // -1 when Uptime30d is "n/a"; the table's sort key
+	MeasuredSince  string     // "2026-08" while any window is uncovered, else ""
+	Days           []DayCell  // exactly 30, oldest first
+	Incidents      []Incident // newest first, capped in internal/availability
+}
+
+// Token maps availability onto the CSS status tokens. Staleness beats the
+// recorded state: an old green is the one thing this page must never show.
+func (a SiteAvailability) Token() string {
+	if !a.Measured {
+		return "unmonitored"
+	}
+	if a.Stale {
+		return "unknown"
+	}
+	return a.State
+}
+
+// FamilyAvailability is the one-line verdict above the table.
+type FamilyAvailability struct {
+	Measured       bool
+	Stale          bool
+	AllUp          bool
+	NrMonitored    int
+	NrDown         int
+	NrDegraded     int
+	LastCheckedAgo string
+}
+
+func (f FamilyAvailability) Token() string {
+	switch {
+	case !f.Measured:
+		return "unmonitored"
+	case f.Stale:
+		return "unknown"
+	case f.NrDown > 0:
+		return "down"
+	case f.NrDegraded > 0:
+		return "degraded"
+	default:
+		return "up"
+	}
 }
 
 // TilesData is what the dashboard template renders: the sites already in the
@@ -200,6 +289,8 @@ type SiteStatsType struct {
 	OpenItems      []RepoItem   // every open issue and PR the collector saw, newest first
 	RecentlyClosed []ClosedItem // most recently closed, capped at github.MaxClosedStored
 	NrUntriaged    int          // how many open items nobody has classified
+
+	Availability SiteAvailability
 }
 
 // TileOpenShown and TileClosedShown are how much of each list a dashboard tile
@@ -351,6 +442,8 @@ type Arc42Statistics struct {
 
 	// Totals: sum of all the statistics over all sites
 	Totals TotalsForAllSites
+
+	Availability FamilyAvailability
 }
 
 // TableRows are the properties the traffic table shows - and, exactly, the ones
