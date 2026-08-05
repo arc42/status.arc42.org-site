@@ -348,13 +348,20 @@
 
 .tile-grid {
     display: grid;
-    /* min(270px, 100%) rather than a bare 270px: below a 270px content box the
-       track would otherwise refuse to shrink and push the document sideways */
-    grid-template-columns: repeat(auto-fill, minmax(min(270px, 100%), 1fr));
-    /* tiles take their natural height rather than stretching to the tallest in
-       the row: a quiet tile beside a busy one should look quiet, not like a
-       300px void */
-    align-items: start;
+    /* 340px, not 270px: at a 1200px window the content box fits three tracks
+       rather than four, which is what a tile listing three issue titles needs
+       before the titles start wrapping every second word (owner decision,
+       2026-08-05).
+
+       min(340px, 100%) rather than a bare 340px: below a 340px content box the
+       track would otherwise refuse to shrink and push the document sideways. */
+    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+    /* satellites stretch to the tallest tile in their row, so a row reads as
+       one band of equal cards rather than a ragged edge. The lists inside are
+       capped at three open and two closed items, so the stretch is a few
+       pixels of slack, not a 300px void -- which is what made the earlier
+       align-items: start necessary. */
+    align-items: stretch;
     gap: 0.9rem;
     margin: 0 0 1.6em;
 }
@@ -457,11 +464,14 @@
     --tile-hue: #3a4550;
 }
 
-/* meta: NOT in the registry. Neutral band on purpose -- inventing a signature
-   hue for an unregistered property is exactly what ADR-0001 forbids, and it
-   would burn one of the few unspent hues without an ADR.
+/* meta and the template repository: NOT in the registry. Neutral band on
+   purpose -- inventing a signature hue for an unregistered property is exactly
+   what ADR-0001 forbids, and it would burn one of the few unspent hues without
+   an ADR. The template is besides a repository rather than a site, and has
+   never had a masthead to take a colour from.
    white on #5a6a70 (--status-muted) ......................... 5.63:1 AA */
-[data-site="meta.arc42.org"] {
+[data-site="meta.arc42.org"],
+[data-site="arc42-template"] {
     --tile-band: var(--status-muted);
     --tile-ink: #ffffff;
     --tile-hue: var(--status-muted);
@@ -487,9 +497,10 @@
     border-image-width: 3px 0 0 0;
 }
 
-/* meta's band says "unregistered" in a way that is not a colour, so it cannot
-   be mistaken for a signature: a hairline underscore rather than a hue */
-.tile[data-site="meta.arc42.org"] .tile__band {
+/* the unregistered properties say "unregistered" in a way that is not a colour,
+   so it cannot be mistaken for a signature: a hairline underscore, not a hue */
+.tile[data-site="meta.arc42.org"] .tile__band,
+.tile[data-site="arc42-template"] .tile__band {
     box-shadow: inset 0 -2px 0 0 rgba(255, 255, 255, 0.35);
 }
 
@@ -556,13 +567,20 @@
     padding-right: 0.85rem;
 }
 
-/* repo health, read first because it is the same two numbers on every tile:
-   a quiet strip, not a headline -- the untriaged count below is the headline */
+/* The three counts, one row, one weight: open issues, open PRs, untriaged.
+   Untriaged used to be a 1.9rem headline on its own line below this strip.
+   It is the same kind of fact as the other two -- how much is sitting in this
+   repository -- and at that size a tile with nothing untriaged shouted a zero
+   (owner decision, 2026-08-05). The hairline is a divider between the counts
+   and the list below, not decoration: without it the first issue title reads
+   as a fourth statistic. */
 .tile__stats {
     display: flex;
     flex-wrap: wrap;
     gap: 0.3em 1.1em;
-    margin: 0 0 0.55em;
+    margin: 0 0 0.6em;
+    padding-bottom: 0.55em;
+    border-bottom: 1px solid #eef0f1;
 }
 
 .tile__stat {
@@ -589,6 +607,14 @@
     color: var(--status-muted);
 }
 
+/* untriaged, when there is any: the same size and weight as its neighbours,
+   marked by ink rather than by scale.
+   #8a5000 on white .......................................... 7.00:1 AAA */
+.tile__stat--flagged .tile__statnr,
+.tile__stat--flagged .tile__statlabel {
+    color: var(--status-degraded);
+}
+
 .tile__subhead {
     margin: 0.2em 0 0.3em;
     font-size: 0.68rem;
@@ -598,29 +624,40 @@
     color: var(--status-muted);
 }
 
-.tile__lead {
+/* The two lists. On a narrow tile they stack; on a wide one -- the hub twins,
+   which span two grid columns -- they sit side by side, because a two-column
+   card carrying one narrow column of text is mostly empty space.
+
+   A container query, not a viewport one: what decides the layout is how wide
+   this tile is, and that depends on how many columns the grid resolved to, not
+   on the window. */
+.tile {
+    container-type: inline-size;
+}
+
+.tile__lists {
     display: flex;
-    align-items: baseline;
-    gap: 0.45em;
-    margin: 0 0 0.5em;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
 }
 
-.tile__count {
-    font-size: 1.9rem;
-    font-weight: 700;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-    color: var(--status-ink);
-}
+@container (min-width: 520px) {
+    .tile__lists {
+        flex-direction: row;
+        gap: 1.6rem;
+    }
 
-.tile__leadlabel {
-    font-size: 0.8rem;
-    color: var(--status-muted);
-}
+    .tile__lists > * {
+        flex: 1 1 0;
+        min-width: 0;
+    }
 
-.tile__lead--clear .status-token {
-    position: relative;
-    top: -0.1em;
+    /* side by side, the heading is a column label rather than a divider
+       between two stacked blocks, so it lines up with the first item */
+    .tile__closedgroup .tile__subhead {
+        margin-top: 0;
+    }
 }
 
 .tile__items,
@@ -725,9 +762,9 @@
 .tile-skeleton {
     display: flex;
     flex-direction: column;
-    /* measured against a real render: tiles listing untriaged work run tall,
-       and the grid row stretches to the tallest tile in it */
-    min-height: 320px;
+    /* measured against a real render: three open items, two closed, and the
+       grid row stretching to the tallest tile in it */
+    min-height: 268px;
     overflow: hidden;
     border: 1px solid #e2e5e7;
     border-radius: 4px;
@@ -776,11 +813,11 @@
         grid-column: auto;
     }
 
-    /* one tile per row, so ten placeholders stack and every over-estimate is
-       paid ten times over. Measured on a full ten-tile render at 390px: 320px
-       over-reserves ~230px across the grid, 300px lands within ~40px. */
+    /* one tile per row, so eleven placeholders stack and every over-estimate
+       is paid eleven times over. Re-measured after the lists were cut to three
+       open and two closed items. */
     .tile-skeleton {
-        min-height: 300px;
+        min-height: 250px;
     }
 }
 
@@ -834,7 +871,8 @@
     border-image-width: 3px 0 0 0;
 }
 
-.site-page[data-site="meta.arc42.org"] .site-page__band {
+.site-page[data-site="meta.arc42.org"] .site-page__band,
+.site-page[data-site="arc42-template"] .site-page__band {
     box-shadow: inset 0 -2px 0 0 rgba(255, 255, 255, 0.35);
 }
 
@@ -968,5 +1006,205 @@
 @media (max-width: 600px) {
     .supported-by-innoq {
         width: 100px;
+    }
+}
+/* ==========================================================================
+   Per-site repository detail
+   --------------------------------------------------------------------------
+   The fragment the statistics service swaps into #siteDetail on /site/<key>/:
+   the lists a tile can only summarise. The tile shows three open items and two
+   closed ones; this shows every open issue and pull request the collector saw,
+   under headings of their own, plus the visitor figures.
+
+   The figures matter most for the properties the traffic table no longer
+   carries (pdfminion, trainings, meta, arc42-template): dropping a row from a
+   table is only defensible if the numbers still have somewhere to be read.
+
+   It borrows the tile's vocabulary deliberately -- same count strip, same
+   muted meta line, same "unlabelled" mark -- so arriving here from a tile
+   feels like following a link, not landing on a different product.
+   ========================================================================== */
+
+.detail {
+    margin: 0 0 1.6em;
+    color: var(--status-ink);
+}
+
+.detail__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3em 1.6em;
+    margin: 0 0 1.2em;
+    padding-bottom: 0.7em;
+    border-bottom: 1px solid #eef0f1;
+}
+
+.detail__stat {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35em;
+    text-decoration: none;
+}
+
+.detail__stat:hover .detail__statlabel,
+.detail__stat:focus-visible .detail__statlabel {
+    text-decoration: underline;
+}
+
+.detail__statnr {
+    font-size: 1.15rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.detail__statlabel {
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    color: var(--status-muted);
+}
+
+/* #8a5000 on white ........................................... 7.00:1 AAA */
+.detail__stat--flagged .detail__statnr,
+.detail__stat--flagged .detail__statlabel {
+    color: var(--status-degraded);
+}
+
+.detail__section {
+    margin: 0 0 1.4em;
+}
+
+.detail__heading {
+    margin: 0 0 0.5em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--status-muted);
+}
+
+.detail__items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* No coloured left-rule: the same device was taken off the tile items, and it
+   is the tell it is on a card. The heading above each list says what these
+   items are, and the meta line under each says the rest -- a stripe repeating
+   the property's colour on every row adds nothing either of them lacks. */
+.detail__item {
+    margin-bottom: 0.7em;
+    font-size: 0.92rem;
+    line-height: 1.45;
+}
+
+.detail__itemlink {
+    overflow-wrap: break-word;
+}
+
+.detail__meta {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--status-muted);
+}
+
+/* separators are generated, so no middot lands in a screen reader or in a
+   copied string -- and never trailing */
+.detail__meta > span + span::before {
+    content: "\00b7";
+    margin: 0 0.4em;
+    color: var(--status-muted);
+}
+
+.detail__unlabelled {
+    font-weight: 700;
+    color: var(--status-degraded);
+}
+
+/* closed work is context, not a call to action, so it never competes with the
+   open lists above it */
+.detail__items--closed .detail__item,
+.detail__items--closed .detail__itemlink {
+    color: var(--status-muted);
+}
+
+/* a sentence, not a zero: "no open issues" is the absence of a measurement,
+   and a 0 in this position would read as one */
+.detail__empty {
+    margin: 0 0 0.6em;
+    font-size: 0.9rem;
+    color: var(--status-muted);
+}
+
+/* the traffic figures, their own fragment under the Traffic heading and
+   directly above the embedded Plausible dashboard */
+.detail__traffic {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+    gap: 0.6em 1.2em;
+    margin: 0 0 1.2em;
+}
+
+/* the "not measured at all" variant is one sentence, not six figures */
+.detail__traffic--none {
+    display: block;
+}
+
+.detail__trafficfig {
+    margin: 0;
+}
+
+.detail__trafficnr {
+    display: block;
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+
+.detail__trafficlabel {
+    display: block;
+    font-size: 0.76rem;
+    color: var(--status-muted);
+}
+
+.detail__foot {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--status-muted);
+}
+
+/* Detail skeleton: the same block rhythm the fragment arrives with, so the
+   swap costs almost no layout shift. */
+.detail-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7em;
+    min-height: 210px;
+    margin: 0 0 0.6em;
+}
+
+/* two bars, not five: the traffic fragment is six short figures */
+.detail-skeleton--traffic {
+    min-height: 64px;
+}
+
+.detail-skeleton .skeleton-bar {
+    display: block;
+    height: 0.8em;
+    border-radius: 2px;
+    background: var(--status-skeleton);
+    animation: statsSkeletonPulse 1.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* two bars, not five: the traffic fragment is six short figures */
+.detail-skeleton--traffic {
+    min-height: 64px;
+}
+
+.detail-skeleton .skeleton-bar {
+        animation: none;
+        opacity: 0.8;
     }
 }

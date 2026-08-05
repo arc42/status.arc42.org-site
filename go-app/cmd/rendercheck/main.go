@@ -82,6 +82,34 @@ func main() {
 		LastUpdatedString: stats.LastUpdatedString,
 	})
 
+	// the per-site detail fragment, for the property with the longest lists
+	detailPath := filepath.Join(outDir, "siteDetail.html")
+	detail, found := domain.StatsForKey(withWork, "arc42-template")
+	if !found {
+		fmt.Println("fixture for arc42-template is missing")
+		os.Exit(1)
+	}
+	render("internal/api/siteDetail.gohtml", detailPath, types.SiteDetailData{
+		Site:              detail,
+		LastUpdatedString: stats.LastUpdatedString,
+	})
+
+	// the traffic fragment, for a property that IS measured -- the template
+	// repository is not, and its "no Plausible site" branch would never show
+	// the six figures the layout has to cope with
+	trafficPath := filepath.Join(outDir, "siteTraffic.html")
+	traffic, found := domain.StatsForKey(withWork, "status.arc42.org")
+	if !found {
+		fmt.Println("fixture for status.arc42.org is missing")
+		os.Exit(1)
+	}
+	render("internal/api/siteTraffic.gohtml", trafficPath, types.SiteDetailData{
+		Site:              traffic,
+		LastUpdatedString: stats.LastUpdatedString,
+	})
+
+	fmt.Printf("rendered %s\n", detailPath)
+	fmt.Printf("rendered %s\n", trafficPath)
 	fmt.Printf("rendered %s\n", tablePath)
 	fmt.Printf("rendered %s\n", tilesPath)
 	fmt.Printf("rendered %s\n", clearPath)
@@ -98,7 +126,7 @@ func main() {
 func fixtureRows() []types.SiteStatsType {
 	return []types.SiteStatsType{
 		// hub, healthy numbers, a full open list including a title that will not fit
-		{Site: "arc42.org", HasTraffic: true, IsHub: true,
+		{Site: "arc42.org", Host: "arc42.org", HasTraffic: true, InTable: true, IsHub: true,
 			Visitors7d: "2.269", PageViews7d: "5.274", Visitors30d: "10.079", PageViews30d: "22.873",
 			Visitors12m: "121.581", PageViews12m: "288.375", Repo: "https://github.com/arc42/arc42.org-site",
 			NrOfOpenIssues: 4, NrOfOpenBugs: 1, NrOfOpenPRs: 2, NrUntriaged: 3,
@@ -117,14 +145,14 @@ func fixtureRows() []types.SiteStatsType {
 
 		// hub twin: Plausible answered with errors, and the repository is empty --
 		// no open items, no closed items, no counts. The "nothing at all" case.
-		{Site: "arc42.de", HasTraffic: true, IsHub: true,
+		{Site: "arc42.de", Host: "arc42.de", HasTraffic: true, InTable: true, IsHub: true,
 			Visitors7d: types.NotAvailable, PageViews7d: types.NotAvailable,
 			Visitors30d: types.NotAvailable, PageViews30d: types.NotAvailable,
 			Visitors12m: types.NotAvailable, PageViews12m: types.NotAvailable,
 			Repo: "https://github.com/arc42/arc42.de-site"},
 
 		// an implausibly long hostname, and more open items than a tile may list
-		{Site: "a-very-long-subdomain-name.arc42.org", HasTraffic: true,
+		{Site: "a-very-long-subdomain-name.arc42.org", Host: "a-very-long-subdomain-name.arc42.org", HasTraffic: true, InTable: true,
 			Visitors7d: "1", PageViews7d: "2", Visitors30d: "3", PageViews30d: "4",
 			Visitors12m: "5", PageViews12m: "6", Repo: "https://github.com/arc42/docs.arc42.org-site",
 			NrOfOpenIssues: 21, NrOfOpenBugs: 3, NrOfOpenPRs: 6, NrUntriaged: 12,
@@ -141,7 +169,7 @@ func fixtureRows() []types.SiteStatsType {
 				{Title: "closed a while back", URL: "https://example.invalid/c4", ClosedAgo: "11 months ago"},
 			}},
 
-		{Site: "faq.arc42.org", HasTraffic: true,
+		{Site: "faq.arc42.org", Host: "faq.arc42.org", HasTraffic: true, InTable: true,
 			Visitors7d: "103", PageViews7d: "638", Visitors30d: "375", PageViews30d: "1.456",
 			Visitors12m: "5.414", PageViews12m: "16.935", Repo: "https://github.com/arc42/faq.arc42.org-site",
 			NrOfOpenIssues: 4, NrOfOpenPRs: 0, NrUntriaged: 1,
@@ -153,7 +181,7 @@ func fixtureRows() []types.SiteStatsType {
 				{Title: "bump jekyll", URL: "https://example.invalid/c6", IsPR: true, ClosedAgo: "1 week ago"},
 			}},
 
-		{Site: "canvas.arc42.org", HasTraffic: true,
+		{Site: "canvas.arc42.org", Host: "canvas.arc42.org", HasTraffic: true, InTable: true,
 			Visitors7d: "157", PageViews7d: "332", Visitors30d: "739", PageViews30d: "1.627",
 			Visitors12m: "11.906", PageViews12m: "29.189", Repo: "https://github.com/arc42/canvas.arc42.org-site",
 			NrOfOpenIssues: 1, NrOfOpenBugs: 1, NrOfOpenPRs: 1, NrUntriaged: 0,
@@ -162,7 +190,7 @@ func fixtureRows() []types.SiteStatsType {
 				{Title: "Update dependencies", URL: "https://example.invalid/15", AgeString: "7 months", IsPR: true},
 			}},
 
-		{Site: "quality.arc42.org", HasTraffic: true,
+		{Site: "quality.arc42.org", Host: "quality.arc42.org", HasTraffic: true, InTable: true,
 			Visitors7d: "1.033", PageViews7d: "2.537", Visitors30d: "3.812", PageViews30d: "10.475",
 			Visitors12m: "41.055", PageViews12m: "127.973", Repo: "https://github.com/arc42/quality.arc42.org-site",
 			NrOfOpenIssues: 12, NrOfOpenPRs: 1, NrUntriaged: 2,
@@ -171,7 +199,7 @@ func fixtureRows() []types.SiteStatsType {
 			}},
 
 		// six-digit counts everywhere, to stress column widths
-		{Site: "status.arc42.org", HasTraffic: true,
+		{Site: "status.arc42.org", Host: "status.arc42.org", HasTraffic: true, InTable: true,
 			Visitors7d: "999.999", PageViews7d: "999.999", Visitors30d: "999.999", PageViews30d: "999.999",
 			Visitors12m: "999.999", PageViews12m: "999.999", Repo: "https://github.com/arc42/status.arc42.org-site",
 			NrOfOpenIssues: 19, NrOfOpenBugs: 1, NrOfOpenPRs: 1, NrUntriaged: 5,
@@ -183,7 +211,7 @@ func fixtureRows() []types.SiteStatsType {
 				{Title: "Dashboard tiles: what needs me, above what the numbers say", URL: "https://example.invalid/c7", IsPR: true, ClosedAgo: "today"},
 			}},
 
-		{Site: "pdfminion.arc42.org", HasTraffic: true,
+		{Site: "pdfminion.arc42.org", Host: "pdfminion.arc42.org", HasTraffic: true,
 			Visitors7d: "5", PageViews7d: "7", Visitors30d: "9", PageViews30d: "11",
 			Visitors12m: "60", PageViews12m: "76", Repo: "https://github.com/arc42/PDFminion",
 			NrOfOpenIssues: 11, NrOfOpenBugs: 2, NrOfOpenPRs: 1, NrUntriaged: 0,
@@ -195,12 +223,12 @@ func fixtureRows() []types.SiteStatsType {
 			}},
 
 		// brand-new property: measured, but everything is genuinely zero
-		{Site: "trainings.arc42.org", HasTraffic: true,
+		{Site: "trainings.arc42.org", Host: "trainings.arc42.org", HasTraffic: true,
 			Visitors7d: "0", PageViews7d: "0", Visitors30d: "0", PageViews30d: "0",
 			Visitors12m: "0", PageViews12m: "0", Repo: "https://github.com/arc42/trainings.arc42.org-site"},
 
 		// no Plausible site at all: every metric unavailable, never zero
-		{Site: "meta.arc42.org", HasTraffic: false,
+		{Site: "meta.arc42.org", Host: "meta.arc42.org", HasTraffic: false,
 			Visitors7d: types.NotAvailable, PageViews7d: types.NotAvailable,
 			Visitors30d: types.NotAvailable, PageViews30d: types.NotAvailable,
 			Visitors12m: types.NotAvailable, PageViews12m: types.NotAvailable,
@@ -208,6 +236,28 @@ func fixtureRows() []types.SiteStatsType {
 			OpenItems: []types.RepoItem{
 				{Title: "BRAND.md: register trainings.arc42.org", URL: "https://example.invalid/20", AgeString: "today", Unlabelled: true},
 				{Title: "ADR for the colour token interface", URL: "https://example.invalid/21", AgeString: "2 days", Unlabelled: true},
+			}},
+
+		// a repository with no site of its own: no host, no traffic, no table
+		// row -- and the longest open list of the family
+		{Site: "arc42-template", Repo: "https://github.com/arc42/arc42-template",
+			Visitors7d: types.NotAvailable, PageViews7d: types.NotAvailable,
+			Visitors30d: types.NotAvailable, PageViews30d: types.NotAvailable,
+			Visitors12m: types.NotAvailable, PageViews12m: types.NotAvailable,
+			NrOfOpenIssues: 22, NrOfOpenBugs: 4, NrOfOpenPRs: 3, NrUntriaged: 6,
+			OpenItems: []types.RepoItem{
+				{Title: "Golden master for the asciidoc export drifts on Windows line endings", URL: "https://example.invalid/22", AgeString: "today", Unlabelled: true},
+				{Title: "Add a Spanish translation of chapter 8", URL: "https://example.invalid/23", AgeString: "4 days"},
+				{Title: "build(deps): bump asciidoctor-pdf", URL: "https://example.invalid/24", AgeString: "1 day", IsPR: true},
+				{Title: "docx template: heading numbering restarts at chapter 5", URL: "https://example.invalid/25", AgeString: "3 weeks", Unlabelled: true},
+				{Title: "Markdown flavour: GitHub vs CommonMark tables", URL: "https://example.invalid/26", AgeString: "5 months"},
+				{Title: "Drop the obsolete .odt variant", URL: "https://example.invalid/27", AgeString: "2 years", IsPR: true},
+			},
+			RecentlyClosed: []types.ClosedItem{
+				{Title: "Release 8.2 of the template", URL: "https://example.invalid/c9", IsPR: true, ClosedAgo: "1 week ago"},
+				{Title: "Typo in chapter 4 of the German docx", URL: "https://example.invalid/c10", ClosedAgo: "2 weeks ago"},
+				{Title: "Add Ukrainian translation", URL: "https://example.invalid/c11", IsPR: true, ClosedAgo: "1 months ago"},
+				{Title: "Broken link in the LaTeX variant", URL: "https://example.invalid/c12", ClosedAgo: "2 months ago"},
 			}},
 	}
 }

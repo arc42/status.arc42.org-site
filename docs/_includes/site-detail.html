@@ -1,0 +1,140 @@
+{%- comment -%}
+  The body of every per-site subpage at /site/<key>/.
+
+  The eleven pages under _pages/site-*.md are stubs carrying nothing but a
+  `key:` in their front matter; everything below is looked up from
+  _data/arc42_sites.yml, and everything that changes hour by hour -- the open
+  issues, the pull requests, what closed recently, the visitor numbers -- is
+  fetched from the statistics service into #siteDetail.
+
+  Why the page is a stub and this is an include: a Jekyll page is one output
+  file, and turning one source into eleven permalinks needs a generator plugin
+  that is not on the GitHub Pages whitelist. So the permalinks are hand-written
+  and the content is written once, here.
+{%- endcomment -%}
+{%- assign s = site.data.arc42_sites | where: "key", page.key | first -%}
+
+<div class="site-page" data-site="{{ s.key }}">
+
+  <div class="site-page__band">
+    <span class="site-page__name">{{ s.name }}</span>
+    <span class="site-page__host">{% if s.host %}{{ s.host }}{% else %}repository only{% endif %}</span>
+  </div>
+
+  <div class="site-page__body">
+    <p class="site-page__tagline">{{ s.tagline }}</p>
+    <p class="site-page__links">
+      {% if s.url %}<a class="site-page__link" href="{{ s.url }}">Visit the site &#8599;</a>{% endif %}
+      <a class="site-page__link" href="{{ s.repo }}">GitHub repository &#8599;</a>
+      <a class="site-page__link" href="{{ '/' | relative_url }}">&#8592; Back to the dashboard</a>
+    </p>
+  </div>
+
+</div>
+
+<h2 id="repository">Repository</h2>
+
+{%- comment -%}
+  The region stays put and only #siteDetail inside it is swapped, so a screen
+  reader keeps one stable live region and an error panel has somewhere to live
+  when the service cannot be reached. Same contract as the two regions on the
+  home page.
+{%- endcomment -%}
+<div id="detail-region" class="stats-region" aria-live="polite" aria-busy="true">
+
+  <div id="siteDetail"
+       hx-get="{{ site.stats_api }}/siteDetail?site={{ s.key }}"
+       hx-trigger="load"
+       hx-swap="outerHTML">
+
+    <div class="detail-skeleton" aria-hidden="true">
+      <span class="skeleton-bar" style="width:40%;height:1.4em"></span>
+      <span class="skeleton-bar" style="width:88%"></span>
+      <span class="skeleton-bar" style="width:75%"></span>
+      <span class="skeleton-bar" style="width:80%"></span>
+      <span class="skeleton-bar" style="width:60%"></span>
+    </div>
+    <p class="stats-loading-note">Asking GitHub what is open on {{ s.key }}&hellip;</p>
+
+  </div>
+
+</div>
+
+<h2 id="traffic">Traffic</h2>
+
+{%- comment -%}
+  The figures come from the service, the dashboard below comes from Plausible.
+  Two sources, one section: the figures exist for every measured property, the
+  embedded dashboard only for the ones that have a public share link. For
+  pdfminion and trainings -- measured, no share link, and no longer in the
+  table on the home page -- these figures are the only place their reach is
+  reported at all.
+{%- endcomment -%}
+<div id="traffic-region" class="stats-region" aria-live="polite" aria-busy="true">
+
+  <div id="siteTraffic"
+       hx-get="{{ site.stats_api }}/siteTraffic?site={{ s.key }}"
+       hx-trigger="load"
+       hx-swap="outerHTML">
+    <div class="detail-skeleton detail-skeleton--traffic" aria-hidden="true">
+      <span class="skeleton-bar" style="width:70%"></span>
+      <span class="skeleton-bar" style="width:55%"></span>
+    </div>
+  </div>
+
+</div>
+
+{% if s.plausible_embed %}
+{%- assign share = s.plausible_embed | split: "&embed=" | first -%}
+<p class="site-page__dashlink">
+  Live from Plausible, privacy-friendly and cookie-free.
+  <a href="{{ share }}">Open this dashboard on plausible.io &#8599;</a>
+</p>
+<iframe class="site-plausible" plausible-embed
+        title="Plausible analytics dashboard for {{ s.host }}"
+        src="{{ s.plausible_embed }}"
+        scrolling="no" frameborder="0" loading="lazy"
+        style="width: 1px; min-width: 100%; height: 1600px;"></iframe>
+<script async src="https://plausible.io/js/embed.host.js"></script>
+{% else %}
+{%- comment -%}
+  No share link exists for this property. An empty iframe would look like a
+  broken page; saying so costs one sentence and is true. The figures above,
+  which come from the API rather than from a share link, are unaffected.
+{%- endcomment -%}
+<p class="site-page__nodata">
+  <span class="status-token status-token--unmonitored" role="img" aria-label="no data"></span>
+  <span><b>No public dashboard for this property.</b> No Plausible share link has been
+  issued for {{ s.key }}, so there is nothing to embed here &mdash; not an outage, and not a
+  zero. If the full dashboard should be public, a share link has to be created in
+  Plausible first; this page will pick it up from
+  <code>_data/arc42_sites.yml</code>.</span>
+</p>
+{% endif %}
+
+<h2 id="availability">Availability</h2>
+
+{%- comment -%}
+  ADR-0019 placeholder. Deliberately empty of numbers: nothing has been measured
+  for this property yet, and a zero or a green tick here would be an invention.
+  The prober fills this region; until it does, the region says what it does not
+  know.
+{%- endcomment -%}
+<div class="site-availability" id="availability-detail" data-site="{{ s.key }}" data-adr="0019">
+  <p class="status-verdict">
+    <span class="status-token status-token--unmonitored" role="img" aria-label="not monitored"></span>
+    <span><b>Not monitored yet.</b> No uptime has been collected for {{ s.key }}.
+    <a href="https://github.com/arc42/status.arc42.org-site/blob/main/documentation/adrs/0019-availability-monitoring-with-github-actions-prober.md">ADR&nbsp;19</a>
+    describes the GitHub-Actions prober that will fill this region &mdash; current state, a 30-day
+    daily strip, and the precise 7d / 30d / 12m figures.</span>
+  </p>
+</div>
+
+<script>window.ARC42_STATS_API = '{{ site.stats_api }}';</script>
+<script src="{{ '/assets/js/status-regions.js' | relative_url }}"></script>
+<script>
+  window.arc42Status.wire('detail-region', 'siteDetail',
+                          '/siteDetail?site={{ s.key }}', 'repository detail');
+  window.arc42Status.wire('traffic-region', 'siteTraffic',
+                          '/siteTraffic?site={{ s.key }}', 'traffic figures');
+</script>

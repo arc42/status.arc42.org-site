@@ -1,0 +1,44 @@
+<!-- golang template for one property's traffic figures -->
+<!--
+  The six Plausible figures for a single property, served at
+  /siteTraffic?site=<key> and swapped into #siteTraffic under the Traffic
+  heading of /site/<key>/, directly above the embedded dashboard.
+
+  This is a separate fragment from /siteDetail, and a separate request, so each
+  lands under the heading it belongs to and each can fail on its own where the
+  reader is looking. Both come out of the same cached collection run, so the
+  second request costs no call to Plausible.
+
+  It matters most for the properties the traffic table no longer carries
+  (pdfminion, trainings): removing a row from a table is only defensible if the
+  numbers still have somewhere to be read. Those two also have no Plausible
+  share link, so this is the ONLY place their reach is reported.
+
+  Class contract for the stylesheet:
+    .detail__traffic             wrapper == #siteTraffic
+      .detail__trafficfig > .detail__trafficnr + .detail__trafficlabel
+      .detail__empty             "not measured at all"
+-->
+{{ if .Site.HasTraffic }}
+<div id="siteTraffic" class="detail__traffic">
+    <p class="detail__trafficfig"><span class="detail__trafficnr">{{ .Site.Visitors7d }}</span>
+        <span class="detail__trafficlabel">visitors, 7 days</span></p>
+    <p class="detail__trafficfig"><span class="detail__trafficnr">{{ .Site.PageViews7d }}</span>
+        <span class="detail__trafficlabel">page views, 7 days</span></p>
+    <p class="detail__trafficfig"><span class="detail__trafficnr">{{ .Site.Visitors30d }}</span>
+        <span class="detail__trafficlabel">visitors, 30 days</span></p>
+    <p class="detail__trafficfig"><span class="detail__trafficnr">{{ .Site.PageViews30d }}</span>
+        <span class="detail__trafficlabel">page views, 30 days</span></p>
+    <p class="detail__trafficfig"><span class="detail__trafficnr">{{ .Site.Visitors12m }}</span>
+        <span class="detail__trafficlabel">visitors, 12 months</span></p>
+    <p class="detail__trafficfig"><span class="detail__trafficnr">{{ .Site.PageViews12m }}</span>
+        <span class="detail__trafficlabel">page views, 12 months</span></p>
+</div>
+{{ else }}
+<!-- Never a zero here: a property nobody visited and a property nobody counts
+     are different facts. -->
+<div id="siteTraffic" class="detail__traffic detail__traffic--none">
+    <p class="detail__empty">This property has no Plausible site, so no visitor numbers exist
+        for it &mdash; which is not the same as nobody visiting it.</p>
+</div>
+{{ end }}

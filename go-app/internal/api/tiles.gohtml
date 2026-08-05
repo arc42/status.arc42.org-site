@@ -4,21 +4,27 @@
   carries identity (the site name), the body carries state (what is open, what
   just closed). Band = who, body = how.
 
-  NO COLOUR VALUE IS EMITTED HERE. The tile only says data-site="<host>"; every
+  NO COLOUR VALUE IS EMITTED HERE. The tile only says data-site="<key>"; every
   hue - band background, band text, rim - is chosen in CSS from that attribute
   via custom properties (ADR-0003: CSS custom properties are the only token
   interface). Go must never learn a hex value.
+
+  The tile is a summary, not a tracker: three counts, at most three open items
+  and two recently closed ones, and a link to the property's own page where the
+  lists are complete. The caps live in Go (types.TileOpenShown /
+  TileClosedShown) so the template does no arithmetic.
 
   Class contract for the stylesheet:
     .tile-grid                     grid wrapper, htmx swap target (#tileGrid)
     .tile-allclear                 "nothing is waiting for you" banner
     .tile[data-site]               one card; .tile--hub, .tile--attention
       .tile__band                  coloured identity band
-        .tile__site > .tile__sitelink    site name (h3 + link)
-        .tile__role                "hub" marker, hubs only
+        .tile__site > .tile__sitelink    site name (h3 + link, or plain text)
+        .tile__role                "hub" / "repository" marker
       .tile__body                  state
-        .tile__stats > .tile__stat > .tile__statnr + .tile__statlabel
-        .tile__lead (.tile__lead--clear) > .tile__count + .tile__leadlabel
+        .tile__stats > .tile__stat (.tile__stat--flagged)
+                       > .tile__statnr + .tile__statlabel
+        .tile__lists               the two lists, side by side on wide tiles
         .tile__subhead             "Recently closed"
         .tile__items > .tile__item (.tile__item--unlabelled)
                        > .tile__itemlink + .tile__meta
@@ -47,73 +53,78 @@
              data-site="{{ .Site }}">
 
         <div class="tile__band">
-            <h3 class="tile__site"><a class="tile__sitelink" href="https://{{ .Site }}">{{ .Site }}</a></h3>
-            {{ if .IsHub }}<span class="tile__role">hub</span>{{ end }}
+            <h3 class="tile__site">
+                {{ if .Host }}<a class="tile__sitelink" href="https://{{ .Host }}">{{ .Site }}</a>
+                {{ else }}{{ .Site }}{{ end }}
+            </h3>
+            {{ if .IsHub }}<span class="tile__role">hub</span>
+            {{ else if not .Host }}<span class="tile__role">repository</span>{{ end }}
         </div>
 
         <div class="tile__body">
 
+            <!-- The three counts, one row, one typographic weight. Untriaged
+                 used to be a 1.9rem headline below this strip; it is the same
+                 kind of fact as the other two and now reads as one. -->
             <p class="tile__stats">
                 <a class="tile__stat" href="{{ .Repo }}/issues"><span class="tile__statnr">{{ .NrOfOpenIssues }}</span>
                     <span class="tile__statlabel">open {{ if eq .NrOfOpenIssues 1 }}issue{{ else }}issues{{ end }}</span></a>
                 <a class="tile__stat" href="{{ .Repo }}/pulls"><span class="tile__statnr">{{ .NrOfOpenPRs }}</span>
                     <span class="tile__statlabel">open {{ if eq .NrOfOpenPRs 1 }}PR{{ else }}PRs{{ end }}</span></a>
+                <!-- not a link: "untriaged" means unlabelled OR newer than 30
+                     days, and no GitHub search expresses the second half. A
+                     link that filters on only one of them would be a promise
+                     the destination breaks. -->
+                <span class="tile__stat{{ if gt .NrUntriaged 0 }} tile__stat--flagged{{ end }}"><span class="tile__statnr">{{ .NrUntriaged }}</span>
+                    <span class="tile__statlabel">untriaged</span></span>
             </p>
 
-            {{ if gt .NrUntriaged 0 }}
-            <p class="tile__lead">
-                <span class="tile__count">{{ .NrUntriaged }}</span>
-                <span class="tile__leadlabel">untriaged</span>
-            </p>
-            {{ else }}
-            <p class="tile__lead tile__lead--clear">
-                <span class="status-token status-token--up" role="img" aria-label="clear"></span>
-                <span class="tile__leadlabel">nothing untriaged</span>
-            </p>
-            {{ end }}
-
-            {{ if .OpenItems }}
-            <ul class="tile__items" aria-label="open issues and pull requests on {{ .Site }}">
-                {{ range .OpenItems }}
-                <li class="tile__item{{ if .Unlabelled }} tile__item--unlabelled{{ end }}">
-                    <a class="tile__itemlink" href="{{ .URL }}">{{ .Title }}</a>
-                    <span class="tile__meta">
-                        <span class="tile__kind">{{ if .IsPR }}PR{{ else }}issue{{ end }}</span>
-                        <span class="tile__age">{{ .AgeString }}</span>
-                        {{ if .Unlabelled }}<span class="tile__unlabelled">unlabelled</span>{{ end }}
-                    </span>
-                </li>
+            <div class="tile__lists">
+                {{ if .TopOpen }}
+                <ul class="tile__items" aria-label="most recent open issues and pull requests on {{ .Site }}">
+                    {{ range .TopOpen }}
+                    <li class="tile__item{{ if .Unlabelled }} tile__item--unlabelled{{ end }}">
+                        <a class="tile__itemlink" href="{{ .URL }}">{{ .Title }}</a>
+                        <span class="tile__meta">
+                            <span class="tile__kind">{{ if .IsPR }}PR{{ else }}issue{{ end }}</span>
+                            <span class="tile__age">{{ .AgeString }}</span>
+                            {{ if .Unlabelled }}<span class="tile__unlabelled">unlabelled</span>{{ end }}
+                        </span>
+                    </li>
+                    {{ end }}
+                </ul>
+                {{ else }}
+                <p class="tile__empty">nothing open</p>
                 {{ end }}
-            </ul>
-            {{ else }}
-            <p class="tile__empty">nothing open</p>
-            {{ end }}
 
-            {{ if .RecentlyClosed }}
-            <h4 class="tile__subhead">Recently closed</h4>
-            <ul class="tile__closed">
-                {{ range .RecentlyClosed }}
-                <li class="tile__closeditem">
-                    <a class="tile__itemlink" href="{{ .URL }}">{{ .Title }}</a>
-                    <span class="tile__meta">
-                        <span class="tile__kind">{{ if .IsPR }}PR{{ else }}issue{{ end }}</span>
-                        <span class="tile__ago">closed {{ .ClosedAgo }}</span>
-                    </span>
-                </li>
+                {{ if .TopClosed }}
+                <div class="tile__closedgroup">
+                    <h4 class="tile__subhead">Recently closed</h4>
+                    <ul class="tile__closed">
+                        {{ range .TopClosed }}
+                        <li class="tile__closeditem">
+                            <a class="tile__itemlink" href="{{ .URL }}">{{ .Title }}</a>
+                            <span class="tile__meta">
+                                <span class="tile__kind">{{ if .IsPR }}PR{{ else }}issue{{ end }}</span>
+                                <span class="tile__ago">closed {{ .ClosedAgo }}</span>
+                            </span>
+                        </li>
+                        {{ end }}
+                    </ul>
+                </div>
                 {{ end }}
-            </ul>
-            {{ end }}
+            </div>
 
         </div>
 
         <p class="tile__more">
-            <a class="tile__morelink" href="/site/{{ .Site }}/">{{ if gt .MoreOpen 0 }}… and {{ .MoreOpen }} more on {{ .Site }}{{ else }}… more on {{ .Site }}{{ end }}</a>
+            <a class="tile__morelink" href="/site/{{ .Site }}/">{{ if gt .MoreOpen 0 }}… and {{ .MoreOpen }} more on {{ .Site }}{{ else }}… all detail on {{ .Site }}{{ end }}</a>
         </p>
 
         <!-- The availability slot goes here once ADR-0019 collects data. It is
              deliberately absent while nothing is measured: the verdict line
              above the grid says "not monitored" once, and repeating it on every
-             tile would be ten copies of the same non-information. -->
+             tile would be eleven copies of the same non-information. -->
     </article>
     {{ end }}
 </div>

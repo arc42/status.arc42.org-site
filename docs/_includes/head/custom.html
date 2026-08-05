@@ -12,8 +12,14 @@
 <!-- plausible, to collect statistics -->
 <script defer data-domain="status.arc42.org" src="https://plausible.io/js/script.js"></script>
 
-<!-- load htmx.org script from local  -->
-<script src="assets/htmx.min.js"></script>
+{%- comment -%}
+  htmx, from this site rather than from a CDN. The src is root-relative
+  (relative_url), not the bare "assets/htmx.min.js" it used to be: a relative
+  src resolves against the *page's* URL, so it happened to work at "/" and
+  silently 404'd on every /site/<key>/ page - which is where the per-site
+  repository detail is fetched.
+{%- endcomment -%}
+<script src="{{ '/assets/htmx.min.js' | relative_url }}"></script>
 
 <!-- load DataTable stuff for sorting the table -->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css">

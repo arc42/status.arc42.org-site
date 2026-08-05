@@ -8,12 +8,20 @@
   that says nothing useful.
 
   Eight columns: site, status, and 2 x 3 visitor/pageview columns.
+
+  It also carries fewer rows than the dashboard has tiles. Only properties
+  marked InTable appear here (types.Arc42properties): a column is read downwards,
+  and rows that do not compare with each other - a CLI's landing page, a
+  course-date feed, a repository with no site at all - make that reading worse
+  rather than more complete. Their numbers are on their own subpages. The totals
+  row sums exactly the rows above it, so the reader can check it by adding up.
 -->
 <table id="sortableStatsTable" class="display">
     <caption class="visually-hidden">
         Visitors and page views per arc42 site, over 7 days, 30 days and 12 months.
         Availability is not measured yet, so every site shows "not monitored".
         Sites without traffic measurement show "n/a" rather than zero.
+        Properties reported only on their own detail page are not listed here.
     </caption>
     <thead>
     <tr>
@@ -37,12 +45,12 @@
 
     <tbody>
 
-    {{ range .Stats4Site }}
+    {{ range .TableRows }}
         <!-- row--unmeasured marks a site with no Plausible site at all: its
              cells read "n/a", and CSS may quiet them so they are not mistaken
              for a measured zero. -->
         <tr{{ if not .HasTraffic }} class="row--unmeasured"{{ end }}>
-            <th scope="row"><a href="https://{{.Site }}">{{.Site}}</a></th>
+            <th scope="row"><a href="https://{{ .Host }}">{{ .Site }}</a></th>
             <td class="status-cell border-left-black">
                 <span class="status-token status-token--unmonitored" role="img" aria-label="availability not monitored"></span>
             </td>

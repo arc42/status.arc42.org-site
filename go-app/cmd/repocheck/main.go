@@ -14,7 +14,6 @@
 package main
 
 import (
-	"arc42-status/internal/domain"
 	"arc42-status/internal/github"
 	"arc42-status/internal/types"
 	"fmt"
@@ -34,10 +33,10 @@ func main() {
 
 	repos := os.Args[1:]
 	if len(repos) == 0 {
-		for _, site := range types.Arc42sites {
-			repos = append(repos, domain.RepoNameForSite(site))
+		for _, property := range types.Arc42properties {
+			repos = append(repos, property.Repo)
 		}
-		fmt.Printf("no repositories given, checking all %d arc42 sites through domain.RepoNameForSite\n", len(types.Arc42sites))
+		fmt.Printf("no repositories given, checking all %d arc42 properties\n", len(types.Arc42properties))
 	}
 
 	for _, repo := range repos {
@@ -50,12 +49,12 @@ func main() {
 		fmt.Printf("    counts: %d open issues, %d bugs, %d open PRs, %d untriaged\n",
 			stats.NrOfOpenIssues, stats.NrOfOpenBugs, stats.NrOfPRs, stats.NrUntriaged)
 
-		fmt.Printf("    open items listed: %d (cap %d)\n", len(stats.OpenItems), github.MaxOpenShown)
+		fmt.Printf("    open items collected: %d (a tile shows %d)\n", len(stats.OpenItems), types.TileOpenShown)
 		for _, item := range stats.OpenItems {
 			fmt.Printf("      %-5s %-9s %-11s %s\n", kind(item.IsPR), item.AgeString, unlabelled(item.Unlabelled), truncate(item.Title))
 		}
 
-		fmt.Printf("    recently closed listed: %d (cap %d)\n", len(stats.RecentlyClosed), github.MaxClosedShown)
+		fmt.Printf("    recently closed collected: %d (cap %d, a tile shows %d)\n", len(stats.RecentlyClosed), github.MaxClosedStored, types.TileClosedShown)
 		for _, item := range stats.RecentlyClosed {
 			fmt.Printf("      %-5s closed %-14s %s\n", kind(item.IsPR), item.ClosedAgo, truncate(item.Title))
 		}

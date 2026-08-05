@@ -1,0 +1,106 @@
+<!-- golang template for one property's detail fragment -->
+<!--
+  What the tile had to cut short. The tile lists three open items and two closed
+  ones and then says "… and N more"; this is where the N lives - every open
+  issue and every open pull request the collector saw, under headings of their
+  own.
+
+  Served at /siteDetail?site=<key> and swapped into #siteDetail on
+  /site/<key>/. Its sibling /siteTraffic fills the Traffic section of the same
+  page; they are two requests rather than one so that each lands under the
+  heading it belongs to, and so that each can fail on its own and say so where
+  the reader is looking. Both are served from the same cached collection run,
+  so the second costs no call to GitHub or Plausible.
+
+  Emits no colour value; the surrounding page carries data-site.
+
+  Class contract for the stylesheet:
+    .detail                      wrapper == #siteDetail
+      .detail__stats > .detail__stat (.detail__stat--flagged)
+                       > .detail__statnr + .detail__statlabel
+      .detail__section           one titled block
+        .detail__heading
+        .detail__items > .detail__item (.detail__item--unlabelled)
+                       > .detail__itemlink + .detail__meta
+        .detail__empty           "nothing open" and friends
+      .detail__foot              when this was collected
+-->
+<div id="siteDetail" class="detail">
+
+    <p class="detail__stats">
+        <a class="detail__stat" href="{{ .Site.Repo }}/issues"><span class="detail__statnr">{{ .Site.NrOfOpenIssues }}</span>
+            <span class="detail__statlabel">open {{ if eq .Site.NrOfOpenIssues 1 }}issue{{ else }}issues{{ end }}</span></a>
+        <a class="detail__stat" href="{{ .Site.Repo }}/pulls"><span class="detail__statnr">{{ .Site.NrOfOpenPRs }}</span>
+            <span class="detail__statlabel">open {{ if eq .Site.NrOfOpenPRs 1 }}PR{{ else }}PRs{{ end }}</span></a>
+        <span class="detail__stat{{ if gt .Site.NrUntriaged 0 }} detail__stat--flagged{{ end }}"><span class="detail__statnr">{{ .Site.NrUntriaged }}</span>
+            <span class="detail__statlabel">untriaged</span></span>
+    </p>
+
+    <section class="detail__section">
+        <h3 class="detail__heading">Open issues</h3>
+        {{ with .Site.OpenIssues }}
+        <ul class="detail__items">
+            {{ range . }}
+            <li class="detail__item{{ if .Unlabelled }} detail__item--unlabelled{{ end }}">
+                <a class="detail__itemlink" href="{{ .URL }}">{{ .Title }}</a>
+                <span class="detail__meta">
+                    <span class="detail__age">opened {{ .AgeString }}{{ if ne .AgeString "today" }} ago{{ end }}</span>
+                    {{ if .Unlabelled }}<span class="detail__unlabelled">unlabelled</span>{{ end }}
+                </span>
+            </li>
+            {{ end }}
+        </ul>
+        {{ else }}
+        <p class="detail__empty">No open issues.</p>
+        {{ end }}
+    </section>
+
+    <section class="detail__section">
+        <h3 class="detail__heading">Open pull requests</h3>
+        {{ with .Site.OpenPRs }}
+        <ul class="detail__items">
+            {{ range . }}
+            <li class="detail__item{{ if .Unlabelled }} detail__item--unlabelled{{ end }}">
+                <a class="detail__itemlink" href="{{ .URL }}">{{ .Title }}</a>
+                <span class="detail__meta">
+                    <span class="detail__age">opened {{ .AgeString }}{{ if ne .AgeString "today" }} ago{{ end }}</span>
+                    {{ if .Unlabelled }}<span class="detail__unlabelled">unlabelled</span>{{ end }}
+                </span>
+            </li>
+            {{ end }}
+        </ul>
+        {{ else }}
+        <p class="detail__empty">No open pull requests.</p>
+        {{ end }}
+    </section>
+
+    {{ if gt .Site.HiddenOpen 0 }}
+    <!-- The collector reads at most 50 issues and 50 pull requests per
+         repository. Saying so is cheaper than a list that quietly stops. -->
+    <p class="detail__empty">{{ .Site.HiddenOpen }} further open items are not listed here — the
+        collector reads the newest 50 issues and 50 pull requests per repository.
+        <a href="{{ .Site.Repo }}/issues">See them all on GitHub</a>.</p>
+    {{ end }}
+
+    <section class="detail__section">
+        <h3 class="detail__heading">Recently closed</h3>
+        {{ with .Site.RecentlyClosed }}
+        <ul class="detail__items detail__items--closed">
+            {{ range . }}
+            <li class="detail__item">
+                <a class="detail__itemlink" href="{{ .URL }}">{{ .Title }}</a>
+                <span class="detail__meta">
+                    <span class="detail__kind">{{ if .IsPR }}PR{{ else }}issue{{ end }}</span>
+                    <span class="detail__ago">closed {{ .ClosedAgo }}</span>
+                </span>
+            </li>
+            {{ end }}
+        </ul>
+        {{ else }}
+        <p class="detail__empty">Nothing has closed here recently.</p>
+        {{ end }}
+    </section>
+
+    <p class="detail__foot">Collected by the arc42 statistics service at {{ .LastUpdatedString }}.</p>
+
+</div>

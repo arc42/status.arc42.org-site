@@ -26,6 +26,8 @@ const TemplatesDir = ""
 const HtmlTableTmpl = "arc42statistics.gohtml"
 const PingTmpl = "ping.gohtml"
 const TilesTmpl = "tiles.gohtml"
+const SiteDetailTmpl = "siteDetail.gohtml"
+const SiteTrafficTmpl = "siteTraffic.gohtml"
 
 func init() {
 	log.Debug().Msg("apiGateway initialized ")
@@ -105,6 +107,68 @@ func tilesHandler(w http.ResponseWriter, r *http.Request) {
 
 	executeTemplate(w, filepath.Join(TemplatesDir, TilesTmpl), types.TilesData{
 		Tiles:             domain.TilesInAttentionOrder(domain.ArcStats),
+		LastUpdatedString: domain.ArcStats.LastUpdatedString,
+	})
+}
+
+// siteDetailHandler returns the repository detail for one property: the full
+// open lists a tile can only summarise, and what closed recently. Asked for as
+// /siteDetail?site=<key> by the page at /site/<key>/.
+func siteDetailHandler(w http.ResponseWriter, r *http.Request) {
+	servePropertyFragment(w, r, SiteDetailTmpl)
+}
+
+// siteTrafficHandler returns the six Plausible figures for one property, for
+// the Traffic section of the same page. It is a second request rather than one
+// combined fragment so that each block lands under the heading it belongs to,
+// and so that each can fail on its own where the reader is looking.
+func siteTrafficHandler(w http.ResponseWriter, r *http.Request) {
+	servePropertyFragment(w, r, SiteTrafficTmpl)
+}
+
+// servePropertyFragment renders one template for one property.
+//
+// It serves the same cached statistics as the table and the tiles, so a visitor
+// opening a subpage costs no extra call to GitHub or Plausible - and the two
+// fragments a subpage asks for cost one collection run between them, not two.
+func servePropertyFragment(w http.ResponseWriter, r *http.Request, templateName string) {
+
+	log.Debug().Msgf("received %s request", templateName)
+
+	SetCORSHeaders(&w, r)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	key := r.URL.Query().Get("site")
+
+	// The key is checked against the declared property list before anything
+	// else happens. An unknown key is a 404 and never reaches a template, so
+	// no caller-supplied string is ever rendered back into the page.
+	if _, known := domain.PropertyByKey(key); !known {
+		log.Warn().Msgf("%s asked for unknown property %q", templateName, key)
+		http.Error(w, "unknown arc42 property", http.StatusNotFound)
+		return
+	}
+
+	domain.ArcStats = domain.Stats4AllSites()
+
+	stats, found := domain.StatsForKey(domain.ArcStats, key)
+	if !found {
+		// A declared property with no collected statistics means the
+		// collection run has not produced this entry - a service bug, not a
+		// bad request, and worth a different status code than the 404 above.
+		log.Error().Msgf("no collected statistics for declared property %q", key)
+		http.Error(w, "no statistics collected for this property", http.StatusInternalServerError)
+		return
+	}
+
+	go database.SaveInvocationParams(r.Host, r.RequestURI)
+
+	executeTemplate(w, filepath.Join(TemplatesDir, templateName), types.SiteDetailData{
+		Site:              stats,
 		LastUpdatedString: domain.ArcStats.LastUpdatedString,
 	})
 }
@@ -203,6 +267,8 @@ func StartAPIServer() {
 	mux.HandleFunc("/statistics", statsHTMLTableHandler)
 	mux.HandleFunc("/stats", statsHTMLTableHandler)
 	mux.HandleFunc("/tiles", tilesHandler)
+	mux.HandleFunc("/siteDetail", siteDetailHandler)
+	mux.HandleFunc("/siteTraffic", siteTrafficHandler)
 	mux.HandleFunc("/ping", pingHandler)
 
 	// wrap ServeMux with logging

@@ -48,14 +48,21 @@ type BugsIssuesQuery struct {
 // an unlabelled issue is one no maintainer has classified.
 const UntriagedWindow = 30 * 24 * time.Hour
 
-// MaxOpenShown caps how many open items a dashboard tile lists; the counts are
-// reported in full regardless.
-const MaxOpenShown = 5
+// MaxClosedStored caps how many recently closed items the collector keeps. Six
+// is what a per-site subpage lists; the tile shows the first two of them
+// (types.TileClosedShown).
+//
+// There is no matching cap for open items: the collector keeps every one it
+// sees, because the subpage lists them all. What a tile shows is decided by the
+// tile (types.TileOpenShown), not by what was collected - the two used to be
+// the same number, and that is why the subpages had nothing to add.
+const MaxClosedStored = 6
 
-// MaxClosedShown caps how many recently closed items a tile lists. Three is
-// enough to show that a repository is alive without turning the tile into a
-// changelog.
-const MaxClosedShown = 3
+// Each of the two closed connections asks for 6 as well, so the merged list can
+// be filled entirely from either one: a repository with six recent PR merges
+// and no closed issues still gets six. That 6 is written literally in the
+// GraphQL struct tag below, because a Go struct tag cannot interpolate a
+// constant - if MaxClosedStored changes, the two `first: 6` change with it.
 
 // openNode is one open issue or pull request with just enough detail to list it
 // and to decide whether anybody has triaged it.
@@ -106,10 +113,10 @@ type closedItemsQuery struct {
 	Repository struct {
 		Issues struct {
 			Nodes []closedNode
-		} `graphql:"issues(states: CLOSED, orderBy: {field: UPDATED_AT, direction: DESC}, first: 3)"`
+		} `graphql:"issues(states: CLOSED, orderBy: {field: UPDATED_AT, direction: DESC}, first: 6)"`
 		PullRequests struct {
 			Nodes []closedNode
-		} `graphql:"pullRequests(states: [CLOSED, MERGED], orderBy: {field: UPDATED_AT, direction: DESC}, first: 3)"`
+		} `graphql:"pullRequests(states: [CLOSED, MERGED], orderBy: {field: UPDATED_AT, direction: DESC}, first: 6)"`
 	} `graphql:"repository(owner: $owner, name: $repo)"`
 }
 
@@ -142,9 +149,9 @@ func humanAgo(t time.Time) string {
 	return age + " ago"
 }
 
-// OpenItemsForRepo lists the newest open issues and pull requests (capped at
-// MaxOpenShown) and counts, in passing, the ones nobody has classified:
-// opened within UntriagedWindow, or carrying no label at all.
+// OpenItemsForRepo lists every open issue and pull request the query returns,
+// newest first across both, and counts in passing the ones nobody has
+// classified: opened within UntriagedWindow, or carrying no label at all.
 //
 // One query serves both, because both need the same nodes: the list is what the
 // tile shows, the count is what decides whether the tile calls for attention.
@@ -199,22 +206,20 @@ func OpenItemsForRepo(repoName string, stats *types.RepoStatsType) {
 			stats.NrUntriaged++
 		}
 
-		if len(stats.OpenItems) < MaxOpenShown {
-			stats.OpenItems = append(stats.OpenItems, types.RepoItem{
-				Title:      string(c.node.Title),
-				URL:        c.node.URL.String(),
-				AgeString:  humanAge(created),
-				IsPR:       c.isPR,
-				Unlabelled: unlabelled,
-			})
-		}
+		stats.OpenItems = append(stats.OpenItems, types.RepoItem{
+			Title:      string(c.node.Title),
+			URL:        c.node.URL.String(),
+			AgeString:  humanAge(created),
+			IsPR:       c.isPR,
+			Unlabelled: unlabelled,
+		})
 	}
 
 	log.Debug().Msgf("%s: %d open items, %d untriaged", repoName, len(candidates), stats.NrUntriaged)
 }
 
 // RecentlyClosedForRepo lists the most recently closed issues and pull requests
-// (capped at MaxClosedShown), merged from the two connections and re-sorted by
+// (capped at MaxClosedStored), merged from the two connections and re-sorted by
 // the time they actually closed.
 func RecentlyClosedForRepo(repoName string, stats *types.RepoStatsType) {
 	client := initGitHubGraphQLClient()
@@ -252,7 +257,7 @@ func RecentlyClosedForRepo(repoName string, stats *types.RepoStatsType) {
 	})
 
 	for _, c := range candidates {
-		if len(stats.RecentlyClosed) >= MaxClosedShown {
+		if len(stats.RecentlyClosed) >= MaxClosedStored {
 			break
 		}
 		stats.RecentlyClosed = append(stats.RecentlyClosed, types.ClosedItem{
