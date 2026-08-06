@@ -163,8 +163,9 @@ palette.
   manual runs.
 - Steps: checkout → setup-go → `go run ./cmd/probe` (working dir
   `go-app`).
-- Secrets: `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`. No Slack secret in
-  this iteration.
+- Secrets: `TURSO_AUTH_TOKEN` (the Turso database URL is a compiled-in
+  constant, not read from the environment). No Slack secret in this
+  iteration.
 - `concurrency: probe` with `cancel-in-progress: false` so runs never
   overlap.
 - Known platform behaviour (accepted in ADR-0019): 5-min floor, delays
@@ -188,9 +189,12 @@ palette.
 - ADR-0019 → Accepted, with two noted deviations: `probe_run` heartbeat
   instead of bucket-timestamp freshness, Slack alerting deferred.
 - Short update to the arc42 docs under `/documentation`.
-- Rollout: merge → set the two Turso secrets on the repo → workflow
-  starts on its schedule → all three surfaces show real state from the
-  first run, with `n/a (since 2026-08)` for windows not yet filled.
+- Rollout: (1) owner applies `go-app/internal/database/schema.hcl` to
+  production Turso via atlas — the workflow's first run fails with
+  `log.Fatal` if the tables don't exist yet; (2) set the single repo
+  secret `TURSO_AUTH_TOKEN`; (3) merge → workflow starts on its schedule
+  → all three surfaces show real state from the first run, with
+  `n/a (since 2026-08)` for windows not yet filled.
 
 ## Out of scope (this iteration)
 

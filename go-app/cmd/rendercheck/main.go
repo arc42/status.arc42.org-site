@@ -55,7 +55,7 @@ func main() {
 		},
 	}
 	stats.Availability = types.FamilyAvailability{
-		Measured: true, NrMonitored: 10, NrDown: 1,
+		Measured: true, NrMonitored: 9, NrDown: 1,
 		LastCheckedAgo: "3 min ago",
 	}
 	copy(stats.Stats4Site[:], rows)

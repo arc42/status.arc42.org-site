@@ -113,12 +113,12 @@ Uses the tables already declared in `internal/database/schema.hcl`:
 - **`probe_run`** — one row per *run*, not per site: `run_at`, vantage, sites checked,
   duration. Added per Status deviation 1, as the freshness heartbeat (see below).
 
-All three tables are append-mostly and tiny. `status_snapshot` and `status_bucket`
-together stay near the original estimate — roughly 9 bucket upserts a day plus a
-handful of transitions, well under 1000 writes a month. `probe_run` adds one row every
-run regardless of outcome: 96 a day, ~2900 a month. The combined total, a few thousand
-writes a month, is still well under the 10 M allowance — the heartbeat costs more rows
-than the data it watches over, and is still negligible.
+All three tables are append-mostly and tiny, but `status_bucket` is the dominant one:
+every run upserts each site's daily bucket, so it is 9 sites × 96 runs ≈ 864 bucket
+upserts a day, ~26,000 a month — a per-run cost, not a per-day one. `status_snapshot`
+adds only a handful of transition rows on top. `probe_run` adds one row every run
+regardless of outcome: 96 a day, ~2900 a month. The combined total, on the order of
+30,000 writes a month, is still roughly 0.3% of the 10 M allowance — negligible.
 
 ### Freshness is derived, never asserted
 

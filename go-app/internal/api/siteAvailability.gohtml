@@ -29,8 +29,9 @@
 {{ else if not $av.Measured }}
     <p class="status-verdict">
         <span class="status-token status-token--unmonitored" role="img" aria-label="not monitored"></span>
-        <span><b>Not monitored yet.</b> The prober has not recorded any data for
-        {{ .Site.Site }}; this section fills itself from the first run onward.</span>
+        <span><b>Not monitored yet.</b> No probe data is on record for
+        {{ .Site.Site }} &mdash; either the first run hasn't happened yet, or
+        this property is excluded from probing.</span>
     </p>
 {{ else }}
 
