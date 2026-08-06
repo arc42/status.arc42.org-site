@@ -74,7 +74,7 @@
                 <a class="status-cell__link" href="/site/{{ .Site }}/#availability"
                    aria-label="availability of {{ .Site }}: {{ .Availability.Token }}, 30 days {{ .Availability.Uptime30d }}">
                     <span class="status-token status-token--{{ .Availability.Token }}" role="img" aria-hidden="true"></span><span
-                       class="status-cell__pct">{{ .Availability.Uptime30d }}</span>
+                       class="status-cell__pct">{{ if eq .Availability.Uptime30d "n/a" }}{{ if eq .Availability.State "up" }}ok{{ else }}{{ .Availability.State }}{{ end }}{{ else }}{{ .Availability.Uptime30d }}{{ end }}</span>
                 </a>
             </td>
             <td class="border-left-black">{{ .Visitors7d}}</td>

@@ -196,13 +196,14 @@
     display: block;
     width: 100%;
     height: 0.7em;
-    border-radius: 2px;
-    background: var(--status-skeleton);
-    animation: statsSkeletonPulse 1.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #e2e6e8 0%, #f5f7f8 50%, #e2e6e8 100%);
+    background-size: 200% 100%;
+    animation: statsSkeletonShimmer 1.8s ease-in-out infinite;
 }
 
 .stats-skeleton tr:nth-child(odd) td {
-    background-color: #dbe2fc;
+    background-color: #f7f9fc;
 }
 
 /* the placeholder predicts the real row: a wide site name, a small status
@@ -215,15 +216,17 @@
 .skeleton-cell--status .skeleton-bar {
     width: 0.7em;
     margin: 0 auto;
+    border-radius: 50%;
 }
 
 .stats-skeleton .skeleton-bar--head {
-    background: #cfd5d8;
+    background: linear-gradient(90deg, #c5ccdf 0%, #e4e9f5 50%, #c5ccdf 100%);
+    background-size: 200% 100%;
 }
 
-@keyframes statsSkeletonPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.45; }
+@keyframes statsSkeletonShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -874,8 +877,9 @@
 .tile-skeleton__band {
     display: block;
     height: calc(0.95rem * 1.25 + 1.1rem);
-    background: var(--status-skeleton);
-    animation: statsSkeletonPulse 1.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    background: linear-gradient(90deg, #3a4550 0%, #4d5b68 50%, #3a4550 100%);
+    background-size: 200% 100%;
+    animation: statsSkeletonShimmer 1.8s ease-in-out infinite;
 }
 
 .tile-skeleton__body {
@@ -888,9 +892,10 @@
 .tile-skeleton .skeleton-bar {
     display: block;
     height: 0.7em;
-    border-radius: 2px;
-    background: var(--status-skeleton);
-    animation: statsSkeletonPulse 1.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #e2e6e8 0%, #f5f7f8 50%, #e2e6e8 100%);
+    background-size: 200% 100%;
+    animation: statsSkeletonShimmer 1.8s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -974,18 +979,16 @@
     box-shadow: inset 0 -2px 0 0 rgba(255, 255, 255, 0.35);
 }
 
-/* An <h1> since the theme's own page title is suppressed on the detail pages
-   (hide_title) -- undo the heading defaults so it renders exactly as the
-   band's name label always has */
 .site-page__name {
     margin: 0;
     border: 0;
     padding: 0;
     color: inherit;
     font-family: inherit;
-    font-size: 1.15rem;
+    font-size: 1.55rem;
     font-weight: 700;
     line-height: 1.25;
+    letter-spacing: -0.01em;
 }
 
 /* same 0.90 composite as .tile__role; weakest pair is trainings at 4.95:1 */
@@ -1003,19 +1006,40 @@
 
 .site-page__tagline {
     margin: 0 0 0.6em;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
 }
 
 .site-page__links {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4em 1.2em;
-    margin: 0;
-    font-size: 0.85rem;
+    gap: 0.65rem;
+    margin: 0.8rem 0 0;
+    font-size: 0.9rem;
 }
 
 .site-page__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
     white-space: nowrap;
+    padding: 0.45rem 0.9rem;
+    border: 2px solid #3a4550;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #3a4550 !important;
+    font-weight: 600;
+    text-decoration: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: all 0.15s ease-in-out;
+}
+
+.site-page__link:hover,
+.site-page__link:focus {
+    background: #3a4550;
+    color: #ffffff !important;
+    border-color: #3a4550;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
 }
 
 /* the honest empty state: no share link exists, and saying so is cheaper than

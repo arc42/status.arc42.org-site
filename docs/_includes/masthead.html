@@ -23,6 +23,9 @@
         <a class="site-logo" href="{{ '/' | relative_url }}">
           <img src="{{ '/assets/images/brand/arc42-logo-white.svg' | relative_url }}" alt="arc42 — status home" width="150" height="42">
         </a>
+        {% if page.ribbon %}
+        <span class="masthead-badge">{{ page.ribbon }}</span>
+        {% endif %}
 
         <button class="greedy-nav__toggle hidden" type="button">
           <span class="visually-hidden">{{ site.data.ui-text[site.locale].menu_label | default: "Toggle Menu" }}</span>

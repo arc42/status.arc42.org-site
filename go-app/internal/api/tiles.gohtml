@@ -103,8 +103,8 @@
                  never a zero (ADR-0019). -->
             <p class="tile__avail">
                 <span class="status-token status-token--{{ .Availability.Token }}" role="img" aria-label="availability: {{ .Availability.Token }}"></span>
-                {{ if .Availability.Measured }}<span class="tile__availtext">{{ .Availability.Token }}
-                    &middot; {{ .Availability.Uptime30d }} (30d){{ if .Availability.Stale }} &middot; stale{{ end }}</span>
+                {{ if .Availability.Measured }}<span class="tile__availtext">{{ .Availability.Token }}{{ if ne .Availability.Uptime30d "n/a" }}
+                    &middot; {{ .Availability.Uptime30d }} (30d){{ end }}{{ if .Availability.Stale }} &middot; stale{{ end }}</span>
                 {{ else }}<span class="tile__availtext">not monitored yet</span>{{ end }}
             </p>
             {{ end }}

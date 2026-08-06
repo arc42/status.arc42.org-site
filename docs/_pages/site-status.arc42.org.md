@@ -6,7 +6,7 @@ author_profile: false
 permalink: /site/status.arc42.org/
 key: status.arc42.org
 hide_title: true
-ribbon: "Status and Statistics Details"
+ribbon: "status and statistic details"
 ---
 
 {% include site-detail.html %}

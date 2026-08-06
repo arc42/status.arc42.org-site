@@ -34,12 +34,10 @@ $arc42-rainbow: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675
 
 .masthead {
   background: var(--arc42-slate);
-  // The spectrum rim on the band's bottom edge. Bottom edge, not top of
-  // page: the favicon's grammar is "slate ground, spectrum rim", and here
-  // the rim shows on every layout, with or without a hero image below.
-  border-bottom: 3px solid transparent;
+  // The spectrum rim on the band's bottom edge.
+  border-bottom: 20px solid transparent;
   border-image: $arc42-rainbow 1;
-  border-image-width: 0 0 3px 0;
+  border-image-width: 0 0 20px 0;
 
   .site-title,
   .site-title:hover,
@@ -55,6 +53,20 @@ $arc42-rainbow: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675
     height: 42px;
     max-height: none; // the theme caps logos at 2rem
     margin: 0;
+  }
+
+  .masthead-badge {
+    display: inline-block;
+    margin-left: 1.2rem;
+    padding: 0;
+    background: transparent;
+    color: var(--arc42-on-band);
+    font-family: $global-font-family;
+    font-size: 1.15rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    vertical-align: middle;
+    opacity: 0.92;
   }
 
   // The hamburger is drawn in CSS, not with a glyph; on the dark band it has
