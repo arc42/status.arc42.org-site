@@ -942,6 +942,15 @@
     background: #fff;
 }
 
+/* Detail page section headers feature the signature rainbow accent */
+.layout--single .page__content h2 {
+    border-bottom: 3px solid transparent;
+    border-image: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675b9, #374769, #682d63) 1;
+    border-image-width: 0 0 3px 0;
+    padding-bottom: 0.35rem;
+    margin-top: 1.8rem;
+}
+
 .site-page__band {
     display: flex;
     align-items: baseline;

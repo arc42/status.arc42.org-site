@@ -39,3 +39,4 @@ jobs:
         env:
           ENVIRONMENT: PROD
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          SLACK_AUTH_TOKEN: ${{ secrets.SLACK_AUTH_TOKEN }}

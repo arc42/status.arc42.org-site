@@ -10,9 +10,8 @@ Accepted (2026-08-05), implemented with three deviations:
    "last checked", instead of deriving it from the newest bucket
    timestamp: a bucket row is per-site and per-day, a heartbeat is
    per-run, and staleness is a fact about the run.
-2. **Slack alerting deferred.** The honesty chain's layer 3 is not built
-   in this iteration; layers 1 (static error panel) and 2 (derived
-   staleness) are.
+2. **Slack alerting active on availability failure.** When a domain or subdomain
+   availability check fails (state `down`), `cmd/probe` sends a Slack notification.
 3. **meta.arc42.org is excluded from probing.** A new `types.Property.NoProbe`
    field skips it: its DNS entry does not exist (NXDOMAIN, checked
    2026-08-05), and a probe against a name that does not resolve would
@@ -70,7 +69,7 @@ GitHub Actions (cron */15)          the 9 arc42 sites
         │                         ├──► Turso: status_snapshot (only on change)
         │                         ├──► Turso: status_bucket   (daily rollup)
         │                         ├──► Turso: probe_run       (heartbeat, every run)
-        │                         └──► Slack: only on change (deferred, not built)
+        │                         └──► Slack: on availability failure (site down)
         ▼
    arc42-stats (fly.io, asleep by default)
         └── on request: reads Turso, renders the status column into the htmx fragment
@@ -139,8 +138,8 @@ As implemented (see Status), only layers 1–2 are built; layer 3 is deferred:
    (ADR-relevant: this is why the shell stays static — a page served by the app could
    not report the app being down).
 2. The app renders `stale` when the probe data has stopped advancing.
-3. *(Deferred, Status deviation 2.)* Slack would alert on every state transition, so
-   the maintainer learns of an incident without visiting the page.
+3. Slack alerts when an availability check fails (`down`), so the maintainer
+   learns of an incident without visiting the page.
 
 ### Cadence
 
@@ -166,11 +165,7 @@ precision than exists.
 - **The 60-day inactivity rule applies.** If the repository goes quiet for two months,
   GitHub disables the schedule — which surfaces as growing staleness on the page rather
   than as silence.
-- New secret on the workflow: `TURSO_AUTH_TOKEN`. (~~`TURSO_DATABASE_URL`~~ was
-  assumed needed at planning time; the Turso database URL is in fact a
-  compiled-in constant, not read from the environment, so no such secret
-  exists.) A Slack token would be a further new secret once deviation 2
-  above is closed.
+- Secrets configured on the workflow: `TURSO_AUTH_TOKEN` and `SLACK_AUTH_TOKEN`.
 - `schema.hcl` and the Go code must stay in sync manually (see ADR-0014).
 
 ## Alternatives considered

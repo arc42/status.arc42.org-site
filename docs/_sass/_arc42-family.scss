@@ -102,9 +102,9 @@ $arc42-rainbow: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675
   // Hairline between band and ribbon as an inset shadow: a border-top would
   // be swallowed by the border-image, which claims all four sides.
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  border-bottom: 8px solid transparent;
+  border-bottom: 10px solid transparent;
   border-image: $arc42-rainbow 1;
-  border-image-width: 0 0 8px 0;
+  border-image-width: 0 0 10px 0;
 }
 
 .masthead-ribbon__inner {
@@ -195,6 +195,8 @@ $arc42-rainbow: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675
 .footer-maintainer {
   flex-basis: 100%;
   margin: 0;
+  padding-top: 0.35rem;
+  font-size: 0.82rem;
   color: $muted-text-color;
 
   a {
@@ -202,15 +204,6 @@ $arc42-rainbow: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675
     text-decoration: underline;
     text-underline-offset: 2px;
   }
-}
-
-.footer-legal {
-  padding-top: 0.75rem;
-  border-top: 1px solid $border-color;
-}
-
-.footer-maintainer {
-  padding-top: 0.35rem;
 }
 
 @media (max-width: 800px) {

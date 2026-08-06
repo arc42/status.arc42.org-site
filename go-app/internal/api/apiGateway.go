@@ -4,10 +4,8 @@ import (
 	"arc42-status/internal/database"
 	"arc42-status/internal/domain"
 	"arc42-status/internal/fly"
-	"arc42-status/internal/slack"
 	"arc42-status/internal/types"
 	"embed"
-	"fmt"
 	"github.com/rs/zerolog/log"
 	"html/template"
 	"net/http"
@@ -77,11 +75,6 @@ func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 		// 4. store request params in database
 		// TODO: include real IP address
 		go database.SaveInvocationParams(r.Host, r.RequestURI)
-
-		// 4b: inform the owner via Slack
-		msg := fmt.Sprintf("Loaded arc42 statistics in %sms on %s", domain.ArcStats.HowLongDidItTake, time.Now().Format("02 Jan 15:04"))
-		go slack.SendSlackMessage(msg)
-
 		// 5. finally, render the template
 		executeTemplate(w, filepath.Join(TemplatesDir, HtmlTableTmpl), domain.ArcStats)
 	}

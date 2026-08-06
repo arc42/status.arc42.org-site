@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"os"
 	"sync"
@@ -11,6 +12,7 @@ import (
 
 	"arc42-status/internal/availability"
 	"arc42-status/internal/database"
+	"arc42-status/internal/slack"
 	"arc42-status/internal/types"
 )
 
@@ -107,6 +109,10 @@ func main() {
 		}
 		recorded++
 		log.Info().Msgf("probe: %s is %s %s", r.Site, r.State, r.Detail)
+		if r.State == "down" {
+			msg := fmt.Sprintf("Alert: availability check failed for %s (state: %s, detail: %s)", r.Site, r.State, r.Detail)
+			slack.SendSlackMessage(msg)
+		}
 	}
 
 	if err := availability.WriteProbeRun(db, now, vantage, recorded,

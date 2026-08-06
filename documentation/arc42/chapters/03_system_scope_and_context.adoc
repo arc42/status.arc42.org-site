@@ -31,8 +31,8 @@ image::03-context-status-arc42-org4canvas.drawio.png[]
 | `/internal/github`
 
 | Slack
-| Notification service: When users request certain actions in the status app, notifications are sent to a specific Slack channel/app.
-| currently in planning
+| Notification service: Sends notifications to a configured Slack channel when an availability check fails for a monitored domain or subdomain.
+| `/internal/slack`
 
 | Turso Database
 | A cloud-hosted, multi-instance database storing several types of runtime data we need to persist. For example: startup times of the app.
