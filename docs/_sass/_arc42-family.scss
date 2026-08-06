@@ -22,6 +22,11 @@
   --arc42-band-muted: rgba(255, 255, 255, 0.78);
 }
 
+// The full-spectrum rim — the exact gradient the brand manual ships, worn by
+// the masthead and ribbon below and by the status tiles in
+// assets/css/arc42-status-style.css (ADR-0007: no other site may use it).
+$arc42-rainbow: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675b9, #374769, #682d63);
+
 // ---- Masthead --------------------------------------------------------------
 // The family signature treatment: a solid band, light logo on it. The theme
 // ships a white masthead with a grey hairline, which leaves the white arc42
@@ -29,13 +34,11 @@
 
 .masthead {
   background: var(--arc42-slate);
-  // The full-spectrum rim on the band's bottom edge — the same gradient the
-  // brand manual ships and the tiles wear (ADR-0007: no other site may use
-  // it). Bottom edge, not top of page: the favicon's grammar is "slate
-  // ground, spectrum rim", and here the rim shows on every layout, with or
-  // without a hero image below.
+  // The spectrum rim on the band's bottom edge. Bottom edge, not top of
+  // page: the favicon's grammar is "slate ground, spectrum rim", and here
+  // the rim shows on every layout, with or without a hero image below.
   border-bottom: 3px solid transparent;
-  border-image: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675b9, #374769, #682d63) 1;
+  border-image: $arc42-rainbow 1;
   border-image-width: 0 0 3px 0;
 
   .site-title,
@@ -79,6 +82,40 @@
   .masthead .site-logo img {
     height: 32px;
   }
+}
+
+// ---- Masthead ribbon -------------------------------------------------------
+// Rendered by _layouts/default.html for pages with `ribbon:` front matter
+// (the per-site detail pages). It continues the slate band with an
+// explanatory slug and takes over the spectrum rim at heavier weight — the
+// masthead hands its own rim off so band + ribbon read as one header.
+
+.masthead:has(+ .masthead-ribbon) {
+  // Browsers without :has() show the 3px rim above the ribbon as well —
+  // a hairline of redundancy, nothing breaks.
+  border-image-width: 0;
+  border-bottom-width: 0;
+}
+
+.masthead-ribbon {
+  background: var(--arc42-slate);
+  // Hairline between band and ribbon as an inset shadow: a border-top would
+  // be swallowed by the border-image, which claims all four sides.
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  border-bottom: 8px solid transparent;
+  border-image: $arc42-rainbow 1;
+  border-image-width: 0 0 8px 0;
+}
+
+.masthead-ribbon__inner {
+  max-width: $max-width;
+  margin: 0 auto;
+  padding: 0.45em 1em;
+  color: var(--arc42-band-muted);
+  font-family: $global-font-family;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 // ---- Footer ----------------------------------------------------------------

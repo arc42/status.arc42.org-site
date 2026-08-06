@@ -17,7 +17,10 @@
 <div class="site-page" data-site="{{ s.key }}">
 
   <div class="site-page__band">
-    <span class="site-page__name">{{ s.name }}</span>
+    {%- comment -%} The h1: the stubs set hide_title, so the theme emits no
+        title of its own — the domain would only have repeated the host label
+        two words to the right. {%- endcomment -%}
+    <h1 class="site-page__name">{{ s.name }}</h1>
     <span class="site-page__host">{% if s.host %}{{ s.host }}{% else %}repository only{% endif %}</span>
   </div>
 

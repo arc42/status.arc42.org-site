@@ -24,7 +24,14 @@ layout: default
     {% if page.last_modified_at %}<meta itemprop="dateModified" content="{{ page.last_modified_at | date_to_xmlschema }}">{% endif %}
 
     <div class="page__inner-wrap">
-      {% unless page.header.overlay_color or page.header.overlay_image %}
+      {% comment %}
+        arc42 change to the vendored theme: `hide_title: true` in front matter
+        suppresses the automatic page title. The per-site detail pages use it —
+        their title is the bare domain, which the site band right below prints
+        again as the host label; the band's site name is the page's <h1>
+        instead (_includes/site-detail.html).
+      {% endcomment %}
+      {% unless page.header.overlay_color or page.header.overlay_image or page.hide_title %}
         <header>
           {% if page.title %}<h1 id="page-title" class="page__title" itemprop="headline">{{ page.title | markdownify | remove: "<p>" | remove: "</p>" }}</h1>{% endif %}
           {% include page__meta.html %}

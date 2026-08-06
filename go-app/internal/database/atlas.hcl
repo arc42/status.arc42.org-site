@@ -34,7 +34,7 @@ env "prod" {
   src = "file://schema.hcl"
 
   // Define the URL of the database which is managed in this environment.
-  url = "libsql+ws://arc42-statistics-gernotstarke.turso.io?authToken=${var.token}"
+  url = "libsql://arc42-statistics-gernotstarke.turso.io?authToken=${var.token}"
 
   // Define the URL of the Dev Database for this environment
   // See: https://atlasgo.io/concepts/dev-database

@@ -965,7 +965,15 @@
     box-shadow: inset 0 -2px 0 0 rgba(255, 255, 255, 0.35);
 }
 
+/* An <h1> since the theme's own page title is suppressed on the detail pages
+   (hide_title) -- undo the heading defaults so it renders exactly as the
+   band's name label always has */
 .site-page__name {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    font-family: inherit;
     font-size: 1.15rem;
     font-weight: 700;
     line-height: 1.25;

@@ -36,7 +36,7 @@ cp go-app/set-api-keys.sh.template go-app/set-api-keys.sh
 
 ### Database & Schema Management (Atlas)
 
-Database schemas for both local SQLite (`~/arc42-stats-dev.db`) and production TursoDB (`libsql+ws://...`) are declaratively managed with Atlas ([ADR-0013](documentation/adrs/0013-use-atlas-for-declarative-database-schema-management.md)):
+Database schemas for both local SQLite (`~/arc42-stats-dev.db`) and production TursoDB (`libsql://...`) are declaratively managed with Atlas ([ADR-0013](documentation/adrs/0013-use-atlas-for-declarative-database-schema-management.md)):
 
 ```bash
 make db-apply-dev   # Apply schema.hcl to local development SQLite DB

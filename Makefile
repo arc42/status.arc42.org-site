@@ -183,7 +183,7 @@ db-diff-dev: ## Dry-run/diff schema.hcl against local dev database
 db-diff-prod: check-secrets ## Dry-run/diff schema.hcl against production Turso database
 	@command -v atlas >/dev/null 2>&1 || { \
 		printf "atlas CLI not installed — https://atlasgo.io/getting-started\n"; exit 1; }
-	cd $(APP_DIR) && source ./set-api-keys.sh && cd internal/database && atlas schema diff --from "libsql+ws://arc42-statistics-gernotstarke.turso.io?authToken=$$TURSO_AUTH_TOKEN" --to "file://schema.hcl" --dev-url "sqlite://file?mode=memory"
+	cd $(APP_DIR) && source ./set-api-keys.sh && cd internal/database && atlas schema diff --from "libsql://arc42-statistics-gernotstarke.turso.io?authToken=$$TURSO_AUTH_TOKEN" --to "file://schema.hcl" --dev-url "sqlite://file?mode=memory"
 
 db-validate: ## Validate schema.hcl syntax against an in-memory dev database
 	@command -v atlas >/dev/null 2>&1 || { \
