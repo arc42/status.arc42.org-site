@@ -18,7 +18,8 @@ SHELL := /bin/bash
 
 .PHONY: help backend site doctor stop clean build test lint \
         build-site build-image install update shell logs check-secrets \
-        db-apply-dev probe
+        probe fly-deploy fly-status fly-logs fly-ssh fly-secrets \
+        db-apply-dev db-apply-prod db-diff-dev db-diff-prod db-validate db-shell-dev
 
 SITE_DIR  := docs
 APP_DIR   := go-app
@@ -34,7 +35,7 @@ help: ## Show this help
 	@printf "    terminal 1:  \033[36mmake backend\033[0m   Go service   → http://localhost:$(API_PORT)\n"
 	@printf "    terminal 2:  \033[36mmake site\033[0m      Jekyll site  → http://localhost:$(SITE_PORT)\n\n"
 	@printf "  Unsure whether your setup is sound? \033[36mmake doctor\033[0m\n\n"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 	@printf "\n"
 
 # ---------------------------------------------------------------- development
@@ -72,6 +73,16 @@ doctor: ## Check the local dev setup and report what is missing
 		printf "  [ok]   Go installed (%s)\n" "$$(go version | awk '{print $$3}')"; \
 	else \
 		printf "  [fail] Go not installed — https://go.dev/dl/\n"; \
+	fi
+	@if command -v flyctl >/dev/null 2>&1 || command -v fly >/dev/null 2>&1; then \
+		printf "  [ok]   flyctl installed (%s)\n" "$$(flyctl version 2>/dev/null | head -n1 || fly version)"; \
+	else \
+		printf "  [warn] flyctl not installed — https://fly.io/docs/hands-on/install-flyctl/\n"; \
+	fi
+	@if command -v atlas >/dev/null 2>&1; then \
+		printf "  [ok]   Atlas installed (%s)\n" "$$(atlas version 2>/dev/null | head -n1)"; \
+	else \
+		printf "  [warn] Atlas not installed — https://atlasgo.io/getting-started\n"; \
 	fi
 	@if [ -f $(SECRETS) ]; then \
 		printf "  [ok]   %s present\n" "$(SECRETS)"; \
@@ -125,12 +136,64 @@ lint: ## Run golangci-lint over the Go service
 probe: check-secrets ## Run the availability prober once against the dev DB
 	cd $(APP_DIR) && source ./set-api-keys.sh && go run ./cmd/probe
 
-db-apply-dev: ## Apply schema.hcl to the local dev database (needs atlas CLI)
+# ------------------------------------------------------------------ fly.io deployment
+
+fly-deploy: ## Deploy the Go backend service to Fly.io
+	@command -v flyctl >/dev/null 2>&1 || command -v fly >/dev/null 2>&1 || { \
+		printf "flyctl CLI not installed — https://fly.io/docs/hands-on/install-flyctl/\n"; exit 1; }
+	cd $(APP_DIR) && flyctl deploy --remote-only
+
+fly-status: ## Check status of the Fly.io deployment and machines
+	@command -v flyctl >/dev/null 2>&1 || command -v fly >/dev/null 2>&1 || { \
+		printf "flyctl CLI not installed — https://fly.io/docs/hands-on/install-flyctl/\n"; exit 1; }
+	cd $(APP_DIR) && flyctl status
+
+fly-logs: ## Tail production logs from Fly.io
+	@command -v flyctl >/dev/null 2>&1 || command -v fly >/dev/null 2>&1 || { \
+		printf "flyctl CLI not installed — https://fly.io/docs/hands-on/install-flyctl/\n"; exit 1; }
+	cd $(APP_DIR) && flyctl logs
+
+fly-ssh: ## Open SSH console session on the running Fly.io instance
+	@command -v flyctl >/dev/null 2>&1 || command -v fly >/dev/null 2>&1 || { \
+		printf "flyctl CLI not installed — https://fly.io/docs/hands-on/install-flyctl/\n"; exit 1; }
+	cd $(APP_DIR) && flyctl ssh console
+
+fly-secrets: ## List secrets configured on Fly.io
+	@command -v flyctl >/dev/null 2>&1 || command -v fly >/dev/null 2>&1 || { \
+		printf "flyctl CLI not installed — https://fly.io/docs/hands-on/install-flyctl/\n"; exit 1; }
+	cd $(APP_DIR) && flyctl secrets list
+
+# ---------------------------------------------------------------- database & schema
+
+db-apply-dev: ## Apply schema.hcl to the local dev database using Atlas
 	@command -v atlas >/dev/null 2>&1 || { \
 		printf "atlas CLI not installed — https://atlasgo.io/getting-started\n"; exit 1; }
-	atlas schema apply --auto-approve \
-		--url "sqlite://$$HOME/arc42-stats-dev.db" \
-		--to "file://$(APP_DIR)/internal/database/schema.hcl"
+	cd $(APP_DIR)/internal/database && atlas schema apply --config "file://atlas.hcl" --env dev --auto-approve
+
+db-apply-prod: check-secrets ## Apply schema.hcl to the production Turso database using Atlas
+	@command -v atlas >/dev/null 2>&1 || { \
+		printf "atlas CLI not installed — https://atlasgo.io/getting-started\n"; exit 1; }
+	cd $(APP_DIR) && source ./set-api-keys.sh && cd internal/database && atlas schema apply --config "file://atlas.hcl" --env prod --auto-approve
+
+db-diff-dev: ## Dry-run/diff schema.hcl against local dev database
+	@command -v atlas >/dev/null 2>&1 || { \
+		printf "atlas CLI not installed — https://atlasgo.io/getting-started\n"; exit 1; }
+	cd $(APP_DIR)/internal/database && atlas schema diff --from "sqlite://$$HOME/arc42-stats-dev.db?_fk=1" --to "file://schema.hcl" --dev-url "sqlite://file?mode=memory"
+
+db-diff-prod: check-secrets ## Dry-run/diff schema.hcl against production Turso database
+	@command -v atlas >/dev/null 2>&1 || { \
+		printf "atlas CLI not installed — https://atlasgo.io/getting-started\n"; exit 1; }
+	cd $(APP_DIR) && source ./set-api-keys.sh && cd internal/database && atlas schema diff --from "libsql+ws://arc42-statistics-gernotstarke.turso.io?authToken=$$TURSO_AUTH_TOKEN" --to "file://schema.hcl" --dev-url "sqlite://file?mode=memory"
+
+db-validate: ## Validate schema.hcl syntax against an in-memory dev database
+	@command -v atlas >/dev/null 2>&1 || { \
+		printf "atlas CLI not installed — https://atlasgo.io/getting-started\n"; exit 1; }
+	cd $(APP_DIR) && atlas schema inspect --url "file://internal/database/schema.hcl" --dev-url "sqlite://file?mode=memory"
+
+db-shell-dev: ## Open interactive sqlite3 shell on the local dev database
+	@command -v sqlite3 >/dev/null 2>&1 || { \
+		printf "sqlite3 CLI not installed\n"; exit 1; }
+	sqlite3 "$$HOME/arc42-stats-dev.db"
 
 # ------------------------------------------------------------------------ site
 

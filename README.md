@@ -11,32 +11,63 @@ This is a _multi-repo_, and the directories are organized as follows:
 
 ![Repo overview with logos](documentation/images/0-repo-overview.drawio.png)
 
-## Local development
+## Development and Build Targets
 
-This site is two processes, so development needs two terminals:
+We use `make` (`Makefile`, see [ADR-0020](documentation/adrs/0020-use-make-for-build-test-and-deployment.md)) as the single entry point for development, database schema management, testing, and deployment:
+
+### Local Development
+
+This site runs as two processes during local development:
 
 ```bash
-make backend    # terminal 1: the Go statistics service on :8043
-make site       # terminal 2: the Jekyll dev server on :4000
-make doctor     # check the local setup (Docker, Go, secrets, ports)
-make help       # every available target
+make backend    # terminal 1: run the Go statistics service on :8043
+make site       # terminal 2: run the Jekyll dev server on :4000
+make doctor     # verify setup health (Docker, Go, flyctl, Atlas, secrets, ports)
+make help       # show all available make targets
 ```
 
-`make site` loads `docs/_config.dev.yml`, which points the page at the local
-backend instead of fly.io. GitHub Pages only reads `_config.yml`, so the
-deployed site is unaffected.
+`make site` loads `docs/_config.dev.yml`, pointing the static site to the local backend. The deployed site uses `_config.yml` (pointing to Fly.io).
 
-The backend needs `go-app/set-api-keys.sh`, which holds live secrets and is
-therefore gitignored. Create it once from the committed template:
+The backend requires `go-app/set-api-keys.sh`, created from template:
 
 ```bash
 cp go-app/set-api-keys.sh.template go-app/set-api-keys.sh
 ```
 
-Availability is measured by a scheduled GitHub Actions workflow
-(`.github/workflows/probe.yml`, every ~15 minutes, ADR-0019) that runs
-`go-app/cmd/probe` and writes into Turso. It needs the repository secret
-`TURSO_AUTH_TOKEN`. Locally: `make db-apply-dev` once, then `make probe`.
+### Database & Schema Management (Atlas)
+
+Database schemas for both local SQLite (`~/arc42-stats-dev.db`) and production TursoDB (`libsql+ws://...`) are declaratively managed with Atlas ([ADR-0013](documentation/adrs/0013-use-atlas-for-declarative-database-schema-management.md)):
+
+```bash
+make db-apply-dev   # Apply schema.hcl to local development SQLite DB
+make db-apply-prod  # Apply schema.hcl to production TursoDB
+make db-diff-dev   # Dry-run / diff schema against local dev DB
+make db-diff-prod  # Dry-run / diff schema against production TursoDB
+make db-validate   # Validate schema syntax against an in-memory DB
+make db-shell-dev  # Open interactive sqlite3 shell on local dev DB
+```
+
+Availability is measured by a scheduled GitHub Actions workflow (`.github/workflows/probe.yml`, every ~15 minutes, [ADR-0019](documentation/adrs/0019-availability-monitoring-with-github-actions-prober.md)) that runs `go-app/cmd/probe` and writes into TursoDB. Locally: `make db-apply-dev` once, then `make probe`.
+
+### Fly.io Deployment & Diagnostics
+
+The backend Go app is hosted on Fly.io ([ADR-0008](documentation/adrs/0008-deploy-on-fly-io.md)). Manage deployments directly via `make`:
+
+```bash
+make fly-deploy   # Deploy backend Go service to Fly.io
+make fly-status   # Show status of Fly.io app and machines
+make fly-logs     # Tail live production logs from Fly.io
+make fly-ssh      # Open SSH console session on running Fly.io instance
+make fly-secrets  # List secrets configured on Fly.io
+```
+
+### Build, Test & Lint
+
+```bash
+make build    # Compile the Go service to go-app/arc42-status
+make test     # Run Go unit tests
+make lint     # Run golangci-lint over the Go code
+```
 
 ## Technologies used
 

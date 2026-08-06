@@ -10,3 +10,4 @@ Gemfile.lock
 build
 .idea/runConfigurations/go_run_main_go.xml
 .idea
+.crush
