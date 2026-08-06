@@ -1,5 +1,5 @@
 ---
-title: "arc42 Status and Statistics"
+title: "Status and Statistics"
 layout: splash
 permalink: /
 header:

@@ -29,7 +29,14 @@
 
 .masthead {
   background: var(--arc42-slate);
-  border-bottom: 0;
+  // The full-spectrum rim on the band's bottom edge — the same gradient the
+  // brand manual ships and the tiles wear (ADR-0007: no other site may use
+  // it). Bottom edge, not top of page: the favicon's grammar is "slate
+  // ground, spectrum rim", and here the rim shows on every layout, with or
+  // without a hero image below.
+  border-bottom: 3px solid transparent;
+  border-image: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675b9, #374769, #682d63) 1;
+  border-image-width: 0 0 3px 0;
 
   .site-title,
   .site-title:hover,
