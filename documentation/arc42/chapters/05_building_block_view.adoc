@@ -76,15 +76,14 @@ _<(optional) Open Issues/Problems/Risks>_
 
 === Availability Monitoring
 
-Availability is measured out-of-process, not by the api gateway itself (see ADR-0019
-for the reasoning). `cmd/probe` is a small standalone batch job, not a service: a
-scheduled GitHub Actions workflow runs it every ~15 minutes, it GETs every hosted
-property that resolves, compares each result against the last known state, and exits.
+Availability probing is triggered externally by `cron-job.org` calling `POST /api/probe` on a 15-minute schedule with a Bearer authentication token (see ADR-0019 for details).
 
-`internal/availability` is the read/write and computation layer shared between the
-prober and the api gateway: the prober writes transitions and heartbeats through it,
-and the domain reads it to compute the current status, verdict and history shown on
-the page. Storage is three Turso tables: `status_snapshot` (one row per state change),
-`status_bucket` (daily downtime rollup per site), and `probe_run` (one row per run,
-the freshness heartbeat).
+The API Gateway dispatches the request to `internal/probe`, which measures all monitored properties concurrently, performs 2-of-3 failure confirmations, records results in Turso, and alerts Slack if any site is `down`.
+
+`internal/availability` is the read/write and computation layer: `internal/probe` writes transitions, daily rollups, and heartbeats through it, and `internal/api` reads it to compute the status tokens, verdict, and 30-day history shown on the pages.
+
+Runtime storage uses three Turso tables:
+- `status_snapshot` — state transitions (`site`, `status`, `changed_at`, `response_ms`, `detail`, `monitor_id` as `vantage`).
+- `status_bucket` — daily downtime rollups per site (`site`, `bucket_start`, `bucket_kind='day'`, `downtime_minutes`, `outage_count`).
+- `probe_run` — run heartbeat log (`run_at`, `vantage`, `sites_checked`, `duration_ms`).
 

@@ -35,8 +35,12 @@ image::03-context-status-arc42-org4canvas.drawio.png[]
 | `/internal/slack`
 
 | Turso Database
-| A cloud-hosted, multi-instance database storing several types of runtime data we need to persist. For example: startup times of the app.
-| ìnternal/database`
+| A cloud-hosted, multi-instance database storing several types of runtime data we need to persist. For example: availability snapshots, daily buckets, probe run heartbeats, and startup times of the app.
+| `internal/database`
+
+| cron-job.org
+| External cron trigger service: Periodically calls `POST /api/probe` every 15 minutes with a Bearer authentication token to trigger availability probing and keep the Fly.io app warm.
+| `/internal/api`, `/internal/probe`
 
 |===
 

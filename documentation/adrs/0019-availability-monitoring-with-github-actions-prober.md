@@ -1,78 +1,34 @@
-# 19. availability monitoring with a GitHub-Actions prober
+# 19. availability monitoring with cron-job.org prober endpoint
 
-Date: 2026-08-04
+Date: 2026-08-04 (Updated 2026-08-06)
 
 ## Status
 
-Accepted (2026-08-05), implemented with three deviations:
+Accepted (2026-08-05), updated to **Option A** (2026-08-06):
 
-1. **Freshness heartbeat.** A `probe_run` table (one row per run) carries
-   "last checked", instead of deriving it from the newest bucket
-   timestamp: a bucket row is per-site and per-day, a heartbeat is
-   per-run, and staleness is a fact about the run.
-2. **Slack alerting active on availability failure.** When a domain or subdomain
-   availability check fails (state `down`), `cmd/probe` sends a Slack notification.
-3. **meta.arc42.org is excluded from probing.** A new `types.Property.NoProbe`
-   field skips it: its DNS entry does not exist (NXDOMAIN, checked
-   2026-08-05), and a probe against a name that does not resolve would
-   record a permanent outage for a site that is not down but simply not
-   built — "not built" must never render as "outage". Separately,
-   `docs.arc42.org` and `faq.arc42.org` are probed at `/home/`
-   (`types.Property.ProbePath`) rather than at their root, because their
-   roots serve a meta-refresh stub with no content to assert against.
-
-## Context
-
-status.arc42.org is named for a thing it does not do: it reports usage and repository
-statistics, but no availability. The 2025 planning round assumed an external monitoring
-service (BetterStack, UptimeRobot) and left `monitor_id` in the `status_snapshot` table
-as a hook for it. Two facts make that assumption worth revisiting:
-
-1. **Cost.** A paid monitoring plan is not justified by this site's traffic. The
-   requirement is free or near-zero, and preferably open-source-compatible so the data
-   stays ours.
-2. **The Go app cannot probe.** `fly.toml` sets `auto_stop_machines = true` and
-   `min_machines_running = 0`. The statistics service is asleep unless someone is
-   looking at the page, so an in-process ticker would only observe the moments when a
-   visitor happens to be present — precisely the moments least in need of monitoring.
-
-A prober must therefore live outside the fly.io app. It must also live outside the
-monitored sites themselves, which are heterogeneously hosted (GitHub Pages for most
-subdomains, Netlify for arc42.org), so no single platform's own health signal covers
-the family.
-
-Constraints verified 2026-08-04:
-
-- GitHub Actions enforces a **5-minute minimum** `schedule.cron` interval, gives
-  **unlimited free minutes to public repositories** (this repo is public), and
-  **silently disables schedules after 60 days without repository activity**.
-- Turso's free plan allows 5 GB storage, 500 M row reads and **10 M row writes per
-  month**. Even a naive design writing every sample for 9 sites every 5 minutes
-  (~2.3 M writes/month) stays inside it; the transition-based design below writes
-  roughly a thousand rows a month.
+1. **Deterministic Cron Trigger via cron-job.org:** Replaced GitHub Actions cron with an external cron-job.org schedule calling `POST /api/probe` every 15 minutes. This eliminates GitHub Actions runner queue delays and prevents false "stale" warnings.
+2. **Visitor Cold-Start Elimination:** Every 15 minutes, the incoming `cron-job.org` HTTP ping automatically wakes/warms the Fly.io machine, providing instant responses for human visitors.
+3. **Freshness heartbeat.** A `probe_run` table (one row per run) carries "last checked", maintaining the honesty chain.
+4. **Slack alerting active on availability failure.** When a domain or subdomain availability check fails (state `down`), the prober sends a Slack notification.
+5. **meta.arc42.org is excluded from probing.** Skipped via `types.Property.NoProbe`.
 
 ## Decision
 
-**A small Go program in this repository, `cmd/probe`, run by a scheduled GitHub Actions
-workflow every 15 minutes, writes availability transitions into the existing Turso
-tables. The statistics service only reads and renders them.**
+**An external cron schedule on cron-job.org calls `POST /api/probe` on the Go backend every 15 minutes with a Bearer secret key. The Go endpoint runs `internal/probe`, writes availability transitions into Turso, and alerts Slack on outage.**
 
 ### Architecture
 
 ```
-GitHub Actions (cron */15)          the 9 arc42 sites
-        │                            (GitHub Pages, Netlify)
-        │  go run ./cmd/probe  ──────────► HTTP GET
-        │            │                        │
-        │            └── compares to last known state
-        │                         │
-        │                         ├──► Turso: status_snapshot (only on change)
-        │                         ├──► Turso: status_bucket   (daily rollup)
-        │                         ├──► Turso: probe_run       (heartbeat, every run)
-        │                         └──► Slack: on availability failure (site down)
-        ▼
-   arc42-stats (fly.io, asleep by default)
-        └── on request: reads Turso, renders the status column into the htmx fragment
+cron-job.org (cron */15)              the 9 arc42 sites
+        │                              (GitHub Pages, Netlify)
+        │  POST /api/probe  ──────────────► HTTP GET
+        │  (Bearer token)                      │
+        ▼                                      └── compares to last known state
+   arc42-stats (fly.io)                             │
+        ├── wakes & stays warm                      ├──► Turso: status_snapshot (only on change)
+        ├── runs internal/probe                     ├──► Turso: status_bucket   (daily rollup)
+        └── returns 200 OK                          ├──► Turso: probe_run       (heartbeat, every run)
+                                                    └──► Slack: on availability failure (site down)
 ```
 
 The prober is deliberately *not* a service. It is a batch job that wakes, measures,

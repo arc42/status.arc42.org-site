@@ -24,21 +24,23 @@ F-002:: publish current repository statistics (like issues, bugs) of arc42 websi
 
 F-003:: store important results and events persistently for future reference
 
-F-004:: inform owners of important system events
+F-004:: inform owners of important system events (such as site availability outages via Slack)
+
+F-005:: monitor availability of all arc42 websites and subdomains, storing uptime history and alerting owners on outages
 
 === Quality Goals
 
 [glossary]
 
-Q-001:: Accurate: Site usage (like pageviews, visitor counts) results have to be correct. Spam- and bot traffic shall be excluded from counts. Error rates in data representation should be below 0.5% as measured by data quality checks.
+Q-001:: Accurate: Site usage (pageviews, visitors) and availability measurements must be correct. Spam/bot traffic is excluded. Availability checks must confirm outages (2-of-3 retries) to prevent false alerts.
 
 Q-002:: Understandable: At least 90% of users should be able to understand the displayed data without further instruction, as measured by a user survey.
 
 Q-003:: Environmental friendly: Reduce computing resources used as much as possible.
 
-Q-004:: Reliable: The system achieves a minimum uptime of 99.9% per month. System recovery from any single point of failure should not exceed 5 minutes. Error rates (including server errors, network timeouts, and data access issues) should not exceed 0.1% of all system transactions.
+Q-004:: Reliable: The system achieves a minimum uptime of 99.9% per month. System recovery from any single point of failure should not exceed 5 minutes. Error rates should not exceed 0.1% of transactions.
 
-Q-005:: Available: statics are available via the website 24x7. Short periods (hours) of downtime can be allowed, in such cases cached or dated results shall be displayed.
+Q-005:: Available & Responsive: Statistics and availability data are available 24x7. The periodic cron trigger (`cron-job.org`) keeps the Fly.io machine warm so visitors experience zero cold-start delay.
 
 Q-006:: Collection of statistics shall be compliant with European data privacy regulations as much as possible. It shall not use cookies. It shall not track personal user information (except browser and device type plus user geolocation)
 
