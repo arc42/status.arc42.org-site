@@ -19,9 +19,8 @@ var AppVersion string
 // ArcStats collects all data
 var ArcStats types.Arc42Statistics
 
-// cache expiration should be 5 or 10 minutes
-// for testing, set expiration to a few seconds only
-const cacheExpirationTime = time.Second * 100
+// Cache statistics for 15 minutes, matching the 15-minute probe interval
+const cacheExpirationTime = time.Minute * 15
 
 // cacheStatsKey is the key under which the results are stored in the cache
 const cacheStatsKey = "arc42Stats"

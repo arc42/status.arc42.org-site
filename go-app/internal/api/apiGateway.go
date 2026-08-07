@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -276,13 +277,13 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	secretKey := os.Getenv("PROBE_SECRET_KEY")
+	secretKey := strings.TrimSpace(os.Getenv("PROBE_SECRET_KEY"))
 	if secretKey != "" {
-		authHeader := r.Header.Get("Authorization")
-		queryKey := r.URL.Query().Get("key")
+		authHeader := strings.TrimSpace(r.Header.Get("Authorization"))
+		queryKey := strings.TrimSpace(r.URL.Query().Get("key"))
 		expectedBearer := "Bearer " + secretKey
 
-		if authHeader != expectedBearer && queryKey != secretKey {
+		if authHeader != expectedBearer && authHeader != secretKey && queryKey != secretKey {
 			log.Warn().Msg("probe API request unauthorized")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
@@ -299,6 +300,9 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Probe failed: %v", err), http.StatusInternalServerError)
 		return
 	}
+
+	// Warm the Plausible & GitHub statistics cache in the background so visitors get instant (< 10ms) responses
+	go domain.Stats4AllSites()
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
