@@ -23,6 +23,14 @@
 >
   {% if page.header.overlay_color or page.header.overlay_image %}
     <div class="wrapper">
+      {% comment %}
+        arc42 change to the vendored theme: `hide_title: true` in front
+        matter suppresses the hero's own h1, the same flag single.html
+        already honours for the plain (non-hero) page title. The home page
+        uses it because its title now lives in the masthead band instead
+        (see _includes/masthead.html's `page.ribbon` badge).
+      {% endcomment %}
+      {% unless page.hide_title %}
       <h1 id="page-title" class="page__title" itemprop="headline">
         {% if paginator and site.paginate_show_page_num %}
           {{ site.title }}{% unless paginator.page == 1 %} {{ site.data.ui-text[site.locale].page | default: "Page" }} {{ paginator.page }}{% endunless %}
@@ -30,6 +38,7 @@
           {{ page.title | default: site.title | markdownify | remove: "<p>" | remove: "</p>" }}
         {% endif %}
       </h1>
+      {% endunless %}
       {% if page.tagline %}
         <p class="page__lead">{{ page.tagline | markdownify | remove: "<p>" | remove: "</p>" }}</p>
       {% elsif page.header.show_overlay_excerpt != false and page.excerpt %}
@@ -44,6 +53,18 @@
         {% for action in page.header.actions %}
           <a href="{{ action.url | relative_url }}" class="btn btn--light-outline btn--large">{{ action.label | default: site.data.ui-text[site.locale].more_label | default: "Learn More" }}</a>
         {% endfor %}
+      {% endif %}
+      {% comment %}
+        arc42 addition: an empty landing spot for the live status line. It
+        arrives from the stats API as `.status-verdict` inside #stats-region
+        further down the page; assets/js/status-regions.js relocates it here
+        once htmx swaps it in, so the hero is the one place that states
+        "how is arc42 doing" instead of repeating the page title.
+      {% endcomment %}
+      {% if page.header.status_slot %}
+        <div id="hero-status-slot" class="page__hero-status" aria-live="polite">
+          <p class="page__hero-status-loading">Checking site status&hellip;</p>
+        </div>
       {% endif %}
     </div>
   {% else %}

@@ -2,17 +2,20 @@
 title: "Status and Statistics"
 layout: splash
 permalink: /
+# The page title moved into the masthead band (the `ribbon:` below,
+# rendered by _includes/masthead.html) so the hero itself can carry the
+# live status line instead of repeating the title. hide_title suppresses
+# the h1 that _includes/page__hero.html would otherwise print in the hero.
+ribbon: "Status and Statistics"
+hide_title: true
 header:
   overlay_image: /images/statistics-splash.webp
   # slate #3a4550 at .75 = 5.32:1 for white hero text, matching the 5.37:1
   # the retired petrol overlay gave. See ADR-0007 / BRAND.md deny-list.
   overlay_filter: rgba(58, 69, 80, 0.75)
-
-  actions:
-    - label: "&#8594; arc42.org"
-      url: "https://www.arc42.org"
-    - label: "&#8594; arc42-Docu"
-      url: "https://docs.arc42.org"
+  # Gives the live status line (moved here via JS once it arrives from the
+  # stats API) a place to land in the hero.
+  status_slot: true
 ---
 
 <!--
@@ -105,6 +108,31 @@ header:
   // the per-site pages use, so the three can never drift apart.
   window.arc42Status.wire('stats-region', 'statsTable', '/statsTable', 'table');
   window.arc42Status.wire('tiles-region', 'tileGrid', '/tiles', 'tiles');
+
+  // The hero states "how is arc42 doing" instead of repeating the page
+  // title (which moved to the masthead badge). The verdict line itself
+  // still comes from the service inside #statsTable's fragment -- this
+  // just relocates that one paragraph into the hero once it lands, and
+  // leaves the rest of the table where it was.
+  (function () {
+    var statsRegion = document.getElementById('stats-region');
+    var heroStatusSlot = document.getElementById('hero-status-slot');
+    if (!statsRegion || !heroStatusSlot) { return; }
+
+    statsRegion.addEventListener('htmx:afterSwap', function () {
+      var verdict = statsRegion.querySelector('.status-verdict');
+      if (verdict) {
+        heroStatusSlot.innerHTML = '';
+        heroStatusSlot.appendChild(verdict);
+      }
+    });
+
+    ['htmx:timeout', 'htmx:sendError', 'htmx:responseError'].forEach(function (name) {
+      statsRegion.addEventListener(name, function () {
+        heroStatusSlot.innerHTML = '<p class="page__hero-status-loading">Status unavailable right now &mdash; see below.</p>';
+      });
+    });
+  }());
 </script>
 
 <!--

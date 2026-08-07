@@ -96,6 +96,36 @@ $arc42-rainbow: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675
   }
 }
 
+// ---- Hero status slot -------------------------------------------------------
+// The home page's hero used to repeat the page title and offer two CTA
+// buttons; both moved out (title to the masthead badge above, buttons
+// dropped entirely) so the hero can instead show the one line that actually
+// changes: the live verdict from the stats service ("All N sites up…").
+// assets/js/status-regions.js moves that paragraph in here once it lands;
+// this only has to make it read against the dark overlay instead of the
+// white card it wears inside the table.
+
+.page__hero-status {
+  margin-top: 0.75em;
+  min-height: 1.6em; // holds the loading line's height so nothing jumps
+}
+
+.page__hero-status-loading {
+  margin: 0;
+  color: var(--arc42-band-muted);
+  font-style: italic;
+}
+
+#hero-status-slot .status-verdict {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--arc42-on-band);
+  text-shadow: 1px 1px 4px rgba(#000, 0.5);
+  font-size: 1em;
+}
+
 // ---- Masthead ribbon -------------------------------------------------------
 // Rendered by _layouts/default.html for pages with `ribbon:` front matter
 // (the per-site detail pages). It continues the slate band with an
