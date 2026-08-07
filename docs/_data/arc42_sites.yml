@@ -87,10 +87,6 @@
   plausible_embed: "https://plausible.io/share/quality.arc42.org?auth=cjoKlapPdw3czFugGy6jM&embed=true&theme=light"
 
 # ---- row 3: the shorter-form content ------------------------------------
-# examples.arc42.org is announced, not yet built: no repository, no site, no
-# Plausible property -- as of 2026-08-05 the host does not resolve. It has a
-# tile holding its place and NO subpage, because a detail page for a property
-# with no detail is a 404 with extra steps.
 
 - key: faq.arc42.org
   host: faq.arc42.org
@@ -115,11 +111,14 @@
   plausible_embed: "https://plausible.io/share/canvas.arc42.org?auth=sAJkIzBTeFg-a5ndJenA4&embed=true&theme=light"
 
 - key: examples.arc42.org
+  host: examples.arc42.org
   name: arc42 Examples
-  tagline: Worked examples of the template — announced, not yet built.
+  tagline: Worked examples of the template.
   role: satellite
-  planned: true
-  hue: "unregistered — no signature hue in BRAND.md until the site exists"
+  in_table: true
+  url: https://examples.arc42.org
+  repo: https://github.com/arc42/examples.arc42.org-site
+  hue: "unregistered — no signature hue in BRAND.md yet"
 
 # ---- row 4: what runs the family ----------------------------------------
 # pdfminion and trainings are measured but deliberately out of the traffic

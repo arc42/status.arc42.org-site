@@ -55,6 +55,26 @@ func TestMonitored(t *testing.T) {
 	}
 }
 
+// TestExamplesIsMonitored pins down a specific case of TestMonitored: once
+// examples.arc42.org-site existed on GitHub and the host resolved
+// (2026-08-07), its Arc42properties entry lost Planned: true and picked up
+// a Repo, which - via Monitored() - also puts it on the prober's list. That
+// combination is easy to break silently (e.g. NoProbe added by habit while
+// copying a neighbouring entry), so it is asserted directly rather than only
+// via the registry-wide checks below.
+func TestExamplesIsMonitored(t *testing.T) {
+	for _, p := range Arc42properties {
+		if p.Key != "examples.arc42.org" {
+			continue
+		}
+		if !Monitored(p) {
+			t.Error("examples.arc42.org must be monitored now that the site exists")
+		}
+		return
+	}
+	t.Fatal("examples.arc42.org is no longer in Arc42properties")
+}
+
 func TestEveryMonitoredPropertyDeclaresExpectedContent(t *testing.T) {
 	for _, p := range Arc42properties {
 		if Monitored(p) && p.ExpectedContent == "" {

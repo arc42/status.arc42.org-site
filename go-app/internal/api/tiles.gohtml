@@ -18,9 +18,9 @@
     .tile-grid                     grid wrapper, htmx swap target (#tileGrid)
     .tile-allclear                 "nothing is waiting for you" banner
     .tile[data-site]               one card; .tile--hub, .tile--attention
-      .tile__band                  coloured identity band
-        .tile__site > .tile__sitelink    site name (h3 + link to /site/<key>/)
-        .tile__role                "hub" / "repository" marker
+      .tile__band                  coloured identity band, the link to /site/<key>/
+        .tile__site                 "Details about <key>" (h3, no link of its own)
+        .tile__role                "hub" marker, hubs only
       .tile__body                  state
         .tile__planned             "not built yet", planned properties only
         .tile__stats > .tile__stat (.tile__stat--flagged)
@@ -52,20 +52,39 @@
     {{ end }}
 
     {{ range .Tiles }}
+    <!-- id makes the tile a jump target for the traffic table's site-name
+         links (arc42statistics.gohtml): the table stays the "how is the
+         family doing" overview, and now hands a reader off to the tile
+         rather than straight past it to the detail page. -->
     <article class="tile{{ if .IsHub }} tile--hub{{ end }}{{ if gt .NrUntriaged 0 }} tile--attention{{ end }}"
+             id="tile-{{ .Site }}"
              data-site="{{ .Site }}">
 
-        <!-- The title goes to /site/<key>/, not to the property itself. A tile
-             is a way into this dashboard's own detail page; sending the most
-             prominent link on it off to another domain made the tile a
-             departure lounge. "Visit the site" lives on the subpage, where a
-             reader who wants the property itself will look for it. -->
+        <!-- The whole band goes to /site/<key>/, not to the property itself.
+             A tile is a way into this dashboard's own detail page; sending
+             the most prominent link on it off to another domain made the
+             tile a departure lounge. "Visit the site" lives on the subpage,
+             where a reader who wants the property itself will look for it.
+             The band used to carry that link only on its site-name text; it
+             is the entire coloured band now, and the name is prefixed
+             "Details about" so what a click on all that colour leads to is
+             not a guess. -->
+        {{ if .Planned }}
         <div class="tile__band">
-            <h3 class="tile__site">{{ if .Planned }}{{ .Site }}{{ else }}<a class="tile__sitelink" href="/site/{{ .Site }}/">{{ .Site }}</a>{{ end }}</h3>
-            {{ if .IsHub }}<span class="tile__role">hub</span>
-            {{ else if .Planned }}<span class="tile__role">planned</span>
-            {{ else if not .Host }}<span class="tile__role">repository</span>{{ end }}
+            <h3 class="tile__site">{{ .Site }}</h3>
+            <span class="tile__role">planned</span>
         </div>
+        {{ else }}
+        <!-- "repository" used to mark a Host-less property (arc42-template)
+             the same way "hub" marks arc42.org/arc42.de. Dropped (owner
+             decision, 2026-08-07): "Details about arc42-template" already
+             wraps to two lines on the tile's own width, and the badge sat
+             right where the second line landed. -->
+        <a class="tile__band" href="/site/{{ .Site }}/">
+            <h3 class="tile__site">Details about {{ .Site }}</h3>
+            {{ if .IsHub }}<span class="tile__role">hub</span>{{ end }}
+        </a>
+        {{ end }}
 
         <div class="tile__body">
 

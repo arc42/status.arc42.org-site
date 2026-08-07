@@ -339,8 +339,8 @@
      article.tile[data-site="<host>"]        one card per property
        .tile--hub                            hub twin: spans two columns >700px
        .tile--attention                      untriaged count > 0
-       > .tile__band                         the coloured identity band
-           h3.tile__site > a.tile__sitelink
+       > a.tile__band                        the coloured identity band, links to /site/<host>/
+           h3.tile__site                     "Details about <host>"
            span.tile__role                   "hub", hubs only
        > .tile__body                         neutral, carries all state
            p.tile__stats > a.tile__stat
@@ -423,8 +423,10 @@
 
 /* Neutral default -- an unregistered or unknown property gets a grey band,
    never a borrowed hue (ADR-0001: no site may wear another's colour). Set on
-   both consumers of the registry: the dashboard tile and the per-site
-   subpage's identity band, so the two can never disagree about a colour. */
+   every consumer of the registry: the dashboard tile, the per-site subpage's
+   identity band, and the traffic table's row accent, so none of the three can
+   ever disagree about a colour. */
+.stats-row,
 .tile,
 .site-page {
     --tile-band: var(--status-muted);
@@ -533,8 +535,33 @@
     --tile-hue: var(--status-muted);
 }
 
+/* --- the traffic table's row accent --------------------------------------- */
+/* A sliver of the same registered hue the tile band wears, so a reader can
+   match a table row to its tile at a glance instead of reading the host name
+   twice. --tile-hue rather than --tile-band: the band colour is chosen for
+   white text to sit on top of it, but this bar carries no text of its own, so
+   it wears the property's actual signature colour instead. */
+.stats-row th[scope="row"] {
+    position: relative;
+}
+
+.stats-row th[scope="row"]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: var(--tile-hue);
+}
+
 /* --- the band ------------------------------------------------------------ */
 
+/* The band is the link to /site/<key>/ now (a planned property's band is a
+   plain div instead -- there is no detail page yet to send it to), so it
+   needs the anchor reset a div never did: no UA underline, no visited-blue,
+   color set directly rather than inherited so it wins over the UA link
+   colour regardless of specificity. */
 .tile__band {
     display: flex;
     align-items: baseline;
@@ -542,6 +569,16 @@
     padding: 0.55rem 0.85rem;
     background: var(--tile-band);
     color: var(--tile-ink);
+    text-decoration: none;
+}
+
+a.tile__band:visited {
+    color: var(--tile-ink);
+}
+
+a.tile__band:hover .tile__site,
+a.tile__band:focus-visible .tile__site {
+    text-decoration: underline;
 }
 
 /* status.arc42.org wears the full-spectrum rim on the band's top edge, the
@@ -573,17 +610,6 @@
     font-weight: 700;
     line-height: 1.25;
     overflow-wrap: break-word;
-}
-
-.tile__sitelink,
-.tile__sitelink:visited {
-    color: inherit;
-    text-decoration: none;
-}
-
-.tile__sitelink:hover,
-.tile__sitelink:focus-visible {
-    text-decoration: underline;
 }
 
 /* quiet on-band label. 0.90, not 0.82: composited over the band, .82 measures

@@ -102,11 +102,12 @@ var Arc42properties = [12]Property{
 	{Key: "faq.arc42.org", Host: "faq.arc42.org", Repo: "faq.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", ProbePath: "/home/"},
 	{Key: "canvas.arc42.org", Host: "canvas.arc42.org", Repo: "canvas.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
 
-	// Announced, not yet built: as of 2026-08-05 there is no
-	// examples.arc42.org-site repository and the host does not resolve. Its
-	// tile holds the place and says so; it is queried nowhere, so it costs no
-	// API call and produces no error in the log.
-	{Key: "examples.arc42.org", Host: "examples.arc42.org", Planned: true},
+	// Built as of 2026-08-07: examples.arc42.org-site exists on GitHub and
+	// the host resolves and serves real content. No Plausible property is
+	// known for it yet, so HasTraffic stays false rather than inventing a
+	// share URL (ADR-0002) - its table row reads traffic as "n/a" until one
+	// is wired up.
+	{Key: "examples.arc42.org", Host: "examples.arc42.org", Repo: "examples.arc42.org-site", InTable: true, ExpectedContent: "arc42"},
 
 	{Key: "status.arc42.org", Host: "status.arc42.org", Repo: "status.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
 
