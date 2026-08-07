@@ -1,18 +1,23 @@
 package api
 
 import (
-	"arc42-status/internal/database"
-	"arc42-status/internal/domain"
-	"arc42-status/internal/fly"
-	"arc42-status/internal/types"
-	"embed"
-	"github.com/rs/zerolog/log"
+	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/rs/zerolog/log"
+
+	"arc42-status/internal/database"
+	"arc42-status/internal/domain"
+	"arc42-status/internal/fly"
+	"arc42-status/internal/probe"
+	"arc42-status/internal/types"
+	"embed"
 )
 
 const PortNr = ":8043"
@@ -259,6 +264,52 @@ func LogServerDetails(appVersion string) {
 	log.Info().Msgf("Server region is%s %s", region, location)
 }
 
+func probeHandler(w http.ResponseWriter, r *http.Request) {
+	SetCORSHeaders(&w, r)
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if r.Method != http.MethodPost && r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	secretKey := os.Getenv("PROBE_SECRET_KEY")
+	if secretKey != "" {
+		authHeader := r.Header.Get("Authorization")
+		queryKey := r.URL.Query().Get("key")
+		expectedBearer := "Bearer " + secretKey
+
+		if authHeader != expectedBearer && queryKey != secretKey {
+			log.Warn().Msg("probe API request unauthorized")
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+	}
+
+	log.Info().Msg("received external probe request")
+	db := database.GetDB()
+	start := time.Now()
+
+	recorded, total, err := probe.RunAll(db, "cron-job.org")
+	if err != nil {
+		log.Error().Err(err).Msg("probe execution failed")
+		http.Error(w, fmt.Sprintf("Probe failed: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status":         "ok",
+		"timestamp":      time.Now().UTC().Format(time.RFC3339),
+		"recorded_sites": recorded,
+		"total_sites":    total,
+		"duration_ms":    time.Since(start).Milliseconds(),
+	})
+}
+
 // StartAPIServer creates http ServeMux with a few predefined routes.
 func StartAPIServer() {
 
@@ -273,6 +324,7 @@ func StartAPIServer() {
 	mux.HandleFunc("/siteTraffic", siteTrafficHandler)
 	mux.HandleFunc("/siteAvailability", siteAvailabilityHandler)
 	mux.HandleFunc("/ping", pingHandler)
+	mux.HandleFunc("/api/probe", probeHandler)
 
 	// wrap ServeMux with logging
 	loggedMux := logRequestHandler(mux)

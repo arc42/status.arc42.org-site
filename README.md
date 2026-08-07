@@ -47,7 +47,7 @@ make db-validate   # Validate schema syntax against an in-memory DB
 make db-shell-dev  # Open interactive sqlite3 shell on local dev DB
 ```
 
-Availability is measured by a scheduled GitHub Actions workflow (`.github/workflows/probe.yml`, every ~15 minutes, [ADR-0019](documentation/adrs/0019-availability-monitoring-with-github-actions-prober.md)) that runs `go-app/cmd/probe` and writes into TursoDB. Locally: `make db-apply-dev` once, then `make probe`.
+Availability is measured by an external cron trigger ([cron-job.org](https://cron-job.org), every ~15 minutes, [ADR-0019](documentation/adrs/0019-availability-monitoring-with-github-actions-prober.md)) calling the secure `POST /api/probe` endpoint on the Go backend service, which writes availability records into TursoDB. Locally: `make db-apply-dev` once, then `make probe`.
 
 ### Fly.io Deployment & Diagnostics
 

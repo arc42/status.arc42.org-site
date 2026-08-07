@@ -1,9 +1,4 @@
-// Command probe is the availability prober of ADR-0019: a batch job run
-// by a scheduled GitHub Actions workflow. It measures every monitored
-// arc42 property once, records transitions and daily rollups in Turso,
-// and exits. It is deliberately not a service - nothing to keep running,
-// nothing to pay for.
-package main
+package probe
 
 import (
 	"fmt"
@@ -42,8 +37,7 @@ type Result struct {
 	ResponseMs int
 }
 
-// classify maps one attempt's raw outcome onto a state, per the table in
-// ADR-0019.
+// classify maps one attempt's raw outcome onto a state.
 func classify(statusCode, elapsedMs int, body, expected string, err error) (string, string) {
 	if err != nil {
 		detail := "error"
