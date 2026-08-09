@@ -76,10 +76,8 @@ header:
   BRAND.md, not to a first-time visitor). It sits in the static Jekyll shell,
   not the htmx fragment, so it is there before the tiles even finish loading.
 -->
-<p class="tiles-legend">Below, each card is one arc42 property. <strong>arc42.org</strong>
-and <strong>arc42.de</strong> wear navy as the family's two hubs; every other site keeps
-its own registered colour band. The colour says <em>which</em> site &mdash; it never
-says how it's doing. That's what the status line inside each card is for.</p>
+<p class="tiles-legend">Below, each card represents one arc42 site. 
+Every site wears its own registered colour band (which does NOT represent site status).</p>
 
 <div id="tiles-region" aria-live="polite" aria-busy="true">
 
