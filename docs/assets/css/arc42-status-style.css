@@ -371,6 +371,18 @@
    the registry could reach it.
    ========================================================================== */
 
+/* The on-page explanation of the hub/satellite/hue rule (critique 2026-08-07):
+   the system was legible in code comments and BRAND.md, not to a first-time
+   visitor. Full ink, not muted -- this is content the page depends on being
+   read, not a footnote. */
+.tiles-legend {
+    max-width: 46em;
+    margin: 0 0 1em;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--status-ink);
+}
+
 .tile-grid {
     display: grid;
     /* Six tracks, not auto-fill: the two hub twins have to sit beside each
@@ -867,10 +879,6 @@ a.tile__band:focus-visible .tile__site {
     color: var(--status-muted);
 }
 
-.site-index__planned {
-    color: var(--status-muted);
-}
-
 .tile-allclear {
     grid-column: 1 / -1;
     display: flex;
@@ -1100,47 +1108,6 @@ a.tile__band:focus-visible .tile__site {
 
 .site-availability {
     margin: 0 0 1.2em;
-}
-
-/* --- the per-site index on the home page --------------------------------- */
-
-.site-index {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
-    gap: 0.3em 1.2em;
-    margin: 0 0 1.4em;
-    padding: 0;
-    list-style: none;
-}
-
-.site-index__item {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5em;
-    font-size: 0.86rem;
-}
-
-/* the registered colour as a 3px keyline, so the index reads as the same
-   family as the tiles without repeating a whole band */
-.site-index__item::before {
-    content: "";
-    flex: none;
-    width: 3px;
-    align-self: stretch;
-    min-height: 1em;
-    background: var(--tile-band, var(--status-muted));
-}
-
-.site-index__meta {
-    margin-left: auto;
-    font-size: 0.72rem;
-    color: var(--status-muted);
-}
-
-.site-index__note {
-    margin: 0 0 0.6em;
-    font-size: 0.85em;
-    color: var(--status-muted);
 }
 
 .supported-by-innoq {

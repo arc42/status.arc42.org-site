@@ -59,7 +59,7 @@
 
 - key: arc42-template
   name: arc42 Template
-  tagline: The template itself — the artefact the whole family exists to hand out.
+  tagline: The artefact the whole family exists to hand out.
   role: repository
   repo: https://github.com/arc42/arc42-template
   hue: "unregistered — a repository, not a site; the tile band is neutral"
@@ -67,7 +67,7 @@
 - key: docs.arc42.org
   host: docs.arc42.org
   name: arc42 Documentation
-  tagline: The field guide — the long-form documentation of the method.
+  tagline: Extensive documentation of every arc42 section.
   role: satellite
   in_table: true
   url: https://docs.arc42.org
@@ -102,7 +102,7 @@
 - key: canvas.arc42.org
   host: canvas.arc42.org
   name: arc42 Canvas
-  tagline: One page, one workshop — architecture on a single sheet.
+  tagline: Architecture on a single sheet.
   role: satellite
   in_table: true
   url: https://canvas.arc42.org
@@ -119,6 +119,7 @@
   url: https://examples.arc42.org
   repo: https://github.com/arc42/examples.arc42.org-site
   hue: "unregistered — no signature hue in BRAND.md yet"
+  plausible_embed: "https://plausible.io/share/examples.arc42.org?auth=Yrm60-Nw-jJRkb4aU9Tzk&embed=true&theme=light"
 
 # ---- row 4: what runs the family ----------------------------------------
 # pdfminion and trainings are measured but deliberately out of the traffic
@@ -129,7 +130,7 @@
 - key: status.arc42.org
   host: status.arc42.org
   name: arc42 Status
-  tagline: This site — the one that watches the others.
+  tagline: Status and health for every other arc42 property.
   role: satellite
   in_table: true
   url: https://status.arc42.org
@@ -139,7 +140,7 @@
 - key: pdfminion.arc42.org
   host: pdfminion.arc42.org
   name: PDFminion
-  tagline: A CLI for document work — the tooling satellite.
+  tagline: A CLI for document work.
   role: satellite
   url: https://pdfminion.arc42.org
   repo: https://github.com/arc42/PDFminion
@@ -148,7 +149,7 @@
 - key: trainings.arc42.org
   host: trainings.arc42.org
   name: arc42 Trainings
-  tagline: Course dates — the single source the hubs consume.
+  tagline: Course dates for arc42 trainings.
   role: satellite
   url: https://trainings.arc42.org
   repo: https://github.com/arc42/trainings.arc42.org-site

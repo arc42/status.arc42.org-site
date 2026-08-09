@@ -70,7 +70,17 @@ header:
   wears its property's registered band colour (BRAND.md) and carries all state
   neutrally below it. The hue never encodes status: on this page amber and red
   already mean "degraded" and "down".
+
+  The paragraph below is the on-page explanation of that rule (critique
+  2026-08-07: the hub/satellite/hue system was legible in code comments and
+  BRAND.md, not to a first-time visitor). It sits in the static Jekyll shell,
+  not the htmx fragment, so it is there before the tiles even finish loading.
 -->
+<p class="tiles-legend">Below, each card is one arc42 property. <strong>arc42.org</strong>
+and <strong>arc42.de</strong> wear navy as the family's two hubs; every other site keeps
+its own registered colour band. The colour says <em>which</em> site &mdash; it never
+says how it's doing. That's what the status line inside each card is for.</p>
+
 <div id="tiles-region" aria-live="polite" aria-busy="true">
 
 <div id="tileGrid"
@@ -139,26 +149,15 @@ header:
   The six embedded Plausible dashboards used to live here, six 1600px iframes
   deep. They now sit one per property at /site/<key>/, together with the full
   issue and pull-request lists and the availability detail ADR-0019 will
-  produce. This index is the plain-HTML way in, so every subpage stays
-  reachable even when the tile fragment never arrives.
+  produce.
+
+  The plain-HTML link list that used to live here (critique 2026-08-07) was
+  cut, not relocated: every property already gets a tile above, and every
+  non-planned tile already links to this same /site/<key>/ URL from its band
+  and its "...more on X" line. The list added a third appearance of the same
+  name with no new information -- restore it, filtered to properties the tile
+  grid doesn't cover, the day a property exists that has no tile of its own.
 -->
-<h2 id="per-site-detail">Per-site detail</h2>
-
-<p class="site-index__note">Open issues and pull requests, traffic and availability &mdash; one page per property.</p>
-
-<ul class="site-index">
-{% for s in site.data.arc42_sites %}
-  <li class="site-index__item" data-site="{{ s.key }}">
-    {%- comment -%}
-      A planned property has no page to link to. Linking it anyway would be a
-      404 dressed as a destination.
-    {%- endcomment -%}
-    {% if s.planned %}<span class="site-index__planned">{{ s.key }}</span>
-    {% else %}<a href="{{ '/site/' | append: s.key | append: '/' | relative_url }}">{{ s.key }}</a>{% endif %}
-    <span class="site-index__meta">{% if s.planned %}not built yet{% elsif s.plausible_embed %}traffic dashboard{% else %}no dashboard{% endif %}</span>
-  </li>
-{% endfor %}
-</ul>
 
 The page was generated on {{ site.time }}.
 
