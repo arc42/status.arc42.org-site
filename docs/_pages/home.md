@@ -71,13 +71,15 @@ header:
   neutrally below it. The hue never encodes status: on this page amber and red
   already mean "degraded" and "down".
 
-  The paragraph below is the on-page explanation of that rule (critique
-  2026-08-07: the hub/satellite/hue system was legible in code comments and
-  BRAND.md, not to a first-time visitor). It sits in the static Jekyll shell,
-  not the htmx fragment, so it is there before the tiles even finish loading.
+  A .tiles-legend paragraph used to stand here explaining that rule (added by
+  the 2026-08-07 critique, removed 2026-08-29). It was needed while the
+  statistics table above also wore the registered hues, as a bare bar on a data
+  row where it read as row state; with that accent gone the caveat had nothing
+  left to apologise for. On the tile the colour sits under the property's own
+  name and the tile says its availability in words, so it reads as identity
+  chrome without being labelled as such. Restore the sentence only if the hue
+  ever appears again somewhere it is not attached to a name.
 -->
-<p class="tiles-legend">Below, each card represents one arc42 site. 
-Every site wears its own registered colour band (which does NOT represent site status).</p>
 
 <div id="tiles-region" aria-live="polite" aria-busy="true">
 

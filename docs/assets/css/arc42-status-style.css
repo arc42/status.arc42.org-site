@@ -371,18 +371,6 @@
    the registry could reach it.
    ========================================================================== */
 
-/* The on-page explanation of the hub/satellite/hue rule (critique 2026-08-07):
-   the system was legible in code comments and BRAND.md, not to a first-time
-   visitor. Full ink, not muted -- this is content the page depends on being
-   read, not a footnote. */
-.tiles-legend {
-    max-width: 46em;
-    margin: 0 0 1em;
-    font-size: 0.92rem;
-    line-height: 1.5;
-    color: var(--status-ink);
-}
-
 .tile-grid {
     display: grid;
     /* Six tracks, not auto-fill: the two hub twins have to sit beside each
@@ -435,15 +423,14 @@
 
 /* Neutral default -- an unregistered or unknown property gets a grey band,
    never a borrowed hue (ADR-0001: no site may wear another's colour). Set on
-   every consumer of the registry: the dashboard tile, the per-site subpage's
-   identity band, and the traffic table's row accent, so none of the three can
-   ever disagree about a colour. */
-.stats-row,
+   every consumer of the registry: the dashboard tile and the per-site
+   subpage's identity band, so the two can never disagree about a colour.
+   The statistics table is deliberately not a consumer: see the removal note
+   further down. */
 .tile,
 .site-page {
     --tile-band: var(--status-muted);
     --tile-ink: #ffffff;
-    --tile-hue: var(--status-muted);
 }
 
 .tile {
@@ -458,14 +445,21 @@
 }
 
 /* --- the registry, one declaration per property -------------------------- */
+/* Two tokens per property, band and ink, because the band is the only place a
+   registered colour is painted. The third token that used to live here,
+   --tile-hue (the property's signature colour, as opposed to the darker fill a
+   band needs under white text), was dropped 2026-08-29 with its single
+   consumer, the statistics table's row accent -- see the note at the end of
+   this section. Where signature and fill differ, the signature value stays
+   recorded in each property's comment, and in BRAND.md. */
 
-/* hub twins share the brand navy; band = masthead fill #2b3a57
+/* hub twins share the brand navy (signature #374769); band = masthead fill
+   #2b3a57
    white on #2b3a57 ......................................... 11.38:1 AAA */
 [data-site="arc42.org"],
 [data-site="arc42.de"] {
     --tile-band: #2b3a57;
     --tile-ink: #ffffff;
-    --tile-hue: #374769;
 }
 
 /* docs: signal blue #1675b9, band = masthead fill #0e4f80
@@ -473,7 +467,6 @@
 [data-site="docs.arc42.org"] {
     --tile-band: #0e4f80;
     --tile-ink: #eaf4fc;
-    --tile-hue: #1675b9;
 }
 
 /* quality: violet, signature hue and masthead fill are the same value
@@ -481,7 +474,6 @@
 [data-site="quality.arc42.org"] {
     --tile-band: #682d63;
     --tile-ink: #fbf6ef;
-    --tile-hue: #682d63;
 }
 
 /* faq: deep teal derived from arc42-teal #5fb49c
@@ -491,7 +483,6 @@
 [data-site="faq.arc42.org"] {
     --tile-band: #1b5648;
     --tile-ink: #eaf6f2;
-    --tile-hue: #1b5648;
 }
 
 /* canvas: the one light band, so the ink goes dark instead of white
@@ -500,7 +491,6 @@
 [data-site="canvas.arc42.org"] {
     --tile-band: #ffc95c;
     --tile-ink: #4a3a0a;
-    --tile-hue: #ffc95c;
 }
 
 /* trainings: dusty rose, the coral hue at 59% chroma -- deliberately not the
@@ -510,7 +500,6 @@
 [data-site="trainings.arc42.org"] {
     --tile-band: #a04c5e;
     --tile-ink: #ffffff;
-    --tile-hue: #a04c5e;
 }
 
 /* pdfminion: sienna #8a4b2a, band stepped down to the registry fill
@@ -520,7 +509,6 @@
 [data-site="pdfminion.arc42.org"] {
     --tile-band: #5f321b;
     --tile-ink: #ffffff;
-    --tile-hue: #8a4b2a;
 }
 
 /* status: a device, not a hue (ADR-0007). Slate is only 8.9 dE00 from the
@@ -530,7 +518,6 @@
 [data-site="status.arc42.org"] {
     --tile-band: #3a4550;
     --tile-ink: #ffffff;
-    --tile-hue: #3a4550;
 }
 
 /* meta and the template repository: NOT in the registry. Neutral band on
@@ -544,28 +531,30 @@
 [data-site="examples.arc42.org"] {
     --tile-band: var(--status-muted);
     --tile-ink: #ffffff;
-    --tile-hue: var(--status-muted);
 }
 
-/* --- the traffic table's row accent --------------------------------------- */
-/* A sliver of the same registered hue the tile band wears, so a reader can
-   match a table row to its tile at a glance instead of reading the host name
-   twice. --tile-hue rather than --tile-band: the band colour is chosen for
-   white text to sit on top of it, but this bar carries no text of its own, so
-   it wears the property's actual signature colour instead. */
-.stats-row th[scope="row"] {
-    position: relative;
-}
+/* --- the traffic table carries no identity colour ------------------------- */
+/* Removed 2026-08-29. The table row used to wear an 8px sliver of the
+   property's registered hue so a reader could match a row to its tile. It
+   was cut for three reasons, recorded here so it does not get reinvented:
 
-.stats-row th[scope="row"]::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 8px;
-    background: var(--tile-hue);
-}
+   1. The row already names the property, in a cell that links to its tile.
+      The hue restated an identity the reader had just read -- and because the
+      table sorts client-side, the colours land in a different order on every
+      sort, so the column never even reads as a stable pattern.
+   2. On a status page a naked colour bar on a data row is read as row state.
+      canvas' #ffc95c sits beside --status-degraded #8a5000, trainings' #a04c5e
+      beside --status-down #b3261e, faq's #1b5648 beside --status-up #0b6e4f.
+      The on-page paragraph that used to say the band "does NOT represent site
+      status" existed only to apologise for this, and went with it.
+   3. It was the one element on the page encoded in colour alone, against the
+      shape-text-colour rule this file opens with -- so it said nothing in
+      greyscale, and something false to a colour-blind reader.
+
+   The tile and subpage bands keep their hue: there the colour sits under the
+   property's own name, which reads as identity chrome, and the tile states
+   its availability in words beside a shaped token. Colour that carries a
+   label is not the same object as colour alone on a data row. */
 
 /* --- the band ------------------------------------------------------------ */
 
