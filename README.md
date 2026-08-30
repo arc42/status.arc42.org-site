@@ -21,12 +21,21 @@ This site runs as two processes during local development:
 
 ```bash
 make backend    # terminal 1: run the Go statistics service on :8043
-make site       # terminal 2: run the Jekyll dev server on :4000
+make site       # terminal 2: run the Jekyll dev server on :4046
 make doctor     # verify setup health (Docker, Go, flyctl, Atlas, secrets, ports)
 make help       # show all available make targets
 ```
 
-`make site` loads `docs/_config.dev.yml`, pointing the static site to the local backend. The deployed site uses `_config.yml` (pointing to Fly.io).
+`make site` (aliased as `make dev`) loads `docs/_config.dev.yml`, pointing the static site to the local backend. The deployed site uses `_config.yml` (pointing to Fly.io).
+
+The Jekyll dev server serves on **4046**, not Jekyll's default 4000, so it can
+run alongside the other arc42 sites' dev servers without a clash — see
+`raw/port-assignment.md` in meta.arc42.org for the full assignment. Jekyll binds
+4046 inside the container as well as on the host, so its "Server address:"
+startup banner names the real port. Three places must stay in step: `SITE_PORT`
+in the `Makefile`, the mapping plus `--port` in `docs/docker-compose.yml`, and
+`EXPOSE`/`CMD` in `docs/Dockerfile`. The Go backend keeps **8043** — that is
+this repo's own second port, not part of the site assignment.
 
 The backend requires `go-app/set-api-keys.sh`, created from template:
 

@@ -4,7 +4,7 @@
 # needs two terminals:
 #
 #     terminal 1:  make backend     the Go statistics service on :8043
-#     terminal 2:  make site        the Jekyll dev server on :4000
+#     terminal 2:  make site        the Jekyll dev server on :4046
 #
 # `make site` loads _config.dev.yml, which points the page at the local
 # backend instead of fly.io -- so what you see is what you changed.
@@ -16,7 +16,7 @@ SHELL := /bin/bash
 
 .DEFAULT_GOAL := help
 
-.PHONY: help backend site doctor stop clean build test lint \
+.PHONY: help backend site dev doctor stop clean build test lint \
         build-site build-image install update shell logs check-secrets \
         probe fly-deploy fly-status fly-logs fly-ssh fly-secrets \
         db-apply-dev db-apply-prod db-diff-dev db-diff-prod db-validate db-shell-dev
@@ -25,7 +25,11 @@ SITE_DIR  := docs
 APP_DIR   := go-app
 SECRETS   := $(APP_DIR)/set-api-keys.sh
 TEMPLATE  := $(APP_DIR)/set-api-keys.sh.template
-SITE_PORT := 4000
+# This site's fixed local dev port. Every arc42 site has its own so their dev
+# servers can run side by side; see raw/port-assignment.md in meta.arc42.org.
+# Changing it here is not enough: docs/docker-compose.yml and docs/Dockerfile
+# pass the same number to Jekyll so its startup banner names the real port.
+SITE_PORT := 4046
 API_PORT  := 8043
 COMPOSE   := docker compose -f $(SITE_DIR)/docker-compose.yml
 
@@ -45,7 +49,7 @@ backend: check-secrets ## Run the Go statistics service on :8043 (terminal 1)
 	@printf "==> try http://localhost:$(API_PORT)/ping\n"
 	cd $(APP_DIR) && source ./set-api-keys.sh && go run main.go
 
-site: ## Start the Jekyll dev server on :4000, wired to the local backend (terminal 2)
+site: ## Start the Jekyll dev server on :4046, wired to the local backend (terminal 2)
 	@printf "==> Open http://localhost:$(SITE_PORT)  (NOT http://0.0.0.0:$(SITE_PORT) — Firefox refuses to connect to 0.0.0.0)\n"
 	@printf "==> The stats table is fetched from http://localhost:$(API_PORT); run 'make backend' in another terminal.\n"
 	@holder=$$(docker ps --filter "publish=$(SITE_PORT)" --format '{{.Names}}'); \
@@ -56,6 +60,8 @@ site: ## Start the Jekyll dev server on :4000, wired to the local backend (termi
 		exit 1; \
 	fi
 	$(COMPOSE) up --build
+
+dev: site ## Alias for 'make site' — the verb the sibling arc42 site repos use
 
 stop: ## Stop and remove the running Jekyll container
 	$(COMPOSE) down
