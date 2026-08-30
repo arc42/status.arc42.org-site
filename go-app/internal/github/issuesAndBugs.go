@@ -23,6 +23,13 @@ const GitHubQueryInterval = time.Minute
 
 // gitHubLastTimeCalled contains the time we called the public GitHub API the last time.
 // Initially, it is set to Jan 1st 2004 - the approximate date arc42 was created.
+//
+// Written at the end of every query but not yet read by anything: the guard
+// that compares it against GitHubQueryInterval is the subject of the open
+// #68-rate-limiter branch. Kept rather than deleted so that branch still has
+// its groundwork; the nolint goes when the guard lands and reads it.
+//
+//nolint:unused // groundwork for the #68 rate limiter, see above
 var gitHubLastTimeCalled = time.Date(2004, time.January, 1, 0, 0, 0, 0, time.UTC)
 
 // Define the query structs,

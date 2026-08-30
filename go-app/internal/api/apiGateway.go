@@ -305,13 +305,19 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 	go domain.Stats4AllSites()
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	if err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":         "ok",
 		"timestamp":      time.Now().UTC().Format(time.RFC3339),
 		"recorded_sites": recorded,
 		"total_sites":    total,
 		"duration_ms":    time.Since(start).Milliseconds(),
-	})
+	}); err != nil {
+		// Status and headers are already on the wire, so there is no error
+		// response left to send -- the probe itself succeeded and has been
+		// recorded either way. Log it so a caller reporting a truncated body
+		// has something to match against.
+		log.Error().Err(err).Msg("encoding probe response failed")
+	}
 }
 
 // StartAPIServer creates http ServeMux with a few predefined routes.
