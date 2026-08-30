@@ -26,7 +26,10 @@ const tursoPRODDBName = "arc42-statistics"
 const tursoTESTDBName = "arc42-stats-dev.db"
 
 const tursoPRODUrl = "libsql://" + tursoPRODDBName + "-gernotstarke.turso.io"
-const tursoTESTUrl = "libsql://" + tursoTESTDBName + "-gernotstarke.turso.io"
+
+// There is deliberately no tursoTESTUrl beside it: development runs against a
+// local SQLite file (LocalSQLiteURL / devDBPath below), so tursoTESTDBName is
+// used as a filename, not as a hostname.
 
 const LocalSQLiteURL = "sqlite://dev.db?_fk=1"
 
