@@ -66,12 +66,16 @@
 
     {{ range .TableRows }}
         <!-- row--unmeasured marks a site with no Plausible site at all: its
-             cells read "n/a", and CSS may quiet them so they are not mistaken
-             for a measured zero. data-site repeats the tile/band registry key
-             on the row itself, so the accent bar below can borrow that
-             property's registered hue (assets/css/arc42-status-style.css)
-             instead of the table inventing a colour of its own. -->
-        <tr class="stats-row{{ if not .HasTraffic }} row--unmeasured{{ end }}" data-site="{{ .Site }}">
+             cells read "n/a", and CSS quiets them so they are not mistaken for
+             a measured zero.
+
+             The row carries no data-site key any more: it existed only to feed
+             the registered-hue accent bar this row used to wear, and that was
+             removed 2026-08-29 (the reasons are recorded in
+             assets/css/arc42-status-style.css, "the traffic table carries no
+             identity colour"). The table names each property and links it to
+             its tile; it says nothing in colour. -->
+        <tr{{ if not .HasTraffic }} class="row--unmeasured"{{ end }}>
             <!-- Goes to the property's tile on this same page, not straight
                  to the detail page and not to the property itself: the table
                  is the overview, the tile is the next thing down from it, and
