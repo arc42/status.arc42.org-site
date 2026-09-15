@@ -4,7 +4,8 @@ Date: 2026-09-14
 
 ## Status
 
-Accepted
+Accepted. The public page `/rollup/` and the table's "Unique across sites" row are
+superseded by ADR-0022: the rollup is shown to maintainers only.
 
 ## Context
 

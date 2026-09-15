@@ -44,11 +44,10 @@ header:
   <table class="stats-skeleton" aria-hidden="true">
     <tbody>
     {% comment %}
-      11 rows x 8 columns: two header rows, the seven sites the table carries
-      (types.Arc42properties, InTable), the totals row and the rollup row
-      (ADR-0021), and the site / status / 3x(visitors, pageviews) columns the
-      service returns -- the same shape, so the page barely moves when the
-      real table lands.
+      11 rows x 8 columns: two header rows, the eight sites the table carries
+      (types.Arc42properties, InTable), the totals row, and the site / status /
+      3x(visitors, pageviews) columns the service returns -- the same shape, so
+      the page barely moves when the real table lands.
     {% endcomment %}
     {% for row in (1..11) %}
       <tr>

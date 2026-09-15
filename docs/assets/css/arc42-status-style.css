@@ -1020,18 +1020,6 @@ a.tile__band:focus-visible .tile__site {
    the obvious "all sites" mark, but it belongs to status.arc42.org alone
    (ADR-0007). */
 
-/* the table's second footer row: quieter than the totals, because it is a
-   different kind of number, and its label is the link that explains why */
-.stats-rollup th,
-.stats-rollup td {
-    color: var(--status-muted);
-    font-weight: 400;
-}
-
-.stats-rollup th a {
-    font-weight: 600;
-}
-
 .rollup-figures {
     width: 100%;
     margin: 0 0 1em;

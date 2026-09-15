@@ -486,6 +486,7 @@ type Arc42Statistics struct {
 
 	// Rollup: the shared rollup dashboard's own counts, compared with its
 	// members' (ADR-0021). Not a total: a person on two sites counts once.
+	// Rendered only on the maintainers-only /rollup page (ADR-0022).
 	Rollup RollupStats
 
 	Availability FamilyAvailability
