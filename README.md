@@ -50,7 +50,8 @@ cp go-app/set-api-keys.sh.template go-app/set-api-keys.sh
 Production uses a second OAuth App with callback `https://arc42-stats.fly.dev/auth/callback`;
 its values are fly secrets (`make fly-secrets` lists them). Without the login variables
 `/rollup` answers 503. Locally the site's web fonts may not load on the page, because the
-Jekyll dev server sends no CORS headers for them.
+Jekyll dev server sends no CORS headers for them. Set the fly secrets before merging to
+`main`, because that merge deploys the service.
 
 ### Database & Schema Management (Atlas)
 

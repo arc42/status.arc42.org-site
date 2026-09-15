@@ -45,3 +45,5 @@ Design: `documentation/specs/2026-09-15-rollup-login-design.md`.
 - The page is served from `arc42-stats.fly.dev`, so its stylesheet and its links into the
   site are absolute (`env.SiteBaseURL`). Locally the site's web fonts may not load on it.
 - The old share link stays in the git history, dead once it is revoked in Plausible.
+- Merging to `main` deploys the service and the site together (`fly.yml`, `pages.yml`), so
+  the fly secrets must be set and the login checked locally before the merge.

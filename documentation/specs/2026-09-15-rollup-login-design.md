@@ -1,7 +1,7 @@
 # Rollup page for maintainers only — design
 
 Date: 2026-09-15
-Status: approved in conversation, awaiting spec review
+Status: approved; implemented on branch rollup-login (ADR-0022)
 Replaces the public parts of ADR-0021 (page `/rollup/`, footer row "Unique across sites")
 
 ## Goal
@@ -126,13 +126,14 @@ redirect.
 
 | Situation | Status | Page / action |
 |---|---|---|
-| Login not configured (`Config.Problem() != nil`) | 503 | "Login not configured"; `/rollup` and `/auth/*` only, the rest of the service runs |
+| Login not configured (`Config.Problem() != nil`) | 503 for `/rollup`, `/auth/login`, `/auth/callback` | "Login not configured"; the rest of the service runs. `/auth/logout` is unaffected: it still clears the cookie and redirects (harmless, since there can be no valid session to clear) |
 | Visitor cancels on GitHub | 200 | "Login cancelled", link to try again |
 | `state` missing, wrong, or older than 10 minutes | 400 | "Login expired, please start again" |
 | Code exchange or GitHub API fails, or times out | 502 | "GitHub could not be reached", no cookie, error logged |
 | Signed in without push access | 403 | Names the login and the gate repository |
 | Session expired, tampered, or signed with an old key | — | Treated as no session: 302 `/auth/login` |
-| Method other than GET on `/rollup`, `/auth/login`, `/auth/callback`; other than POST on `/auth/logout` | 405 | — |
+| Method other than GET on `/auth/login`, `/auth/callback`; other than POST on `/auth/logout` | 405 | — |
+| Method other than GET on `/rollup` | 405 with a valid session; without one, `RequirePush` runs first and any method is treated like a GET: 302 `/auth/login` | — |
 
 ## Security
 
@@ -228,15 +229,18 @@ Manual, before deploying:
 ## Rollout
 
 1. Create both OAuth Apps; put the local values into `set-api-keys.sh`.
-2. In Plausible, create a new shared link for `rollup.arc42.com`.
-3. `flyctl secrets set GITHUB_OAUTH_CLIENT_ID=… GITHUB_OAUTH_CLIENT_SECRET=… SESSION_KEY=… PUBLIC_BASE_URL=https://arc42-stats.fly.dev PLAUSIBLE_ROLLUP_SHARE_URL=…`
-4. `make fly-deploy`. From this moment the footer row is gone (the service renders the
-   table) and the service's `/rollup` requires login.
-5. Push the site change right after (GitHub Pages removes `/rollup/`).
-6. In Plausible, delete the old shared link.
+2. Run the manual checks 1–3 of the Testing section locally, with the local OAuth App,
+   before anything is merged.
+3. In Plausible, create a new shared link for `rollup.arc42.com`.
+4. `flyctl secrets set GITHUB_OAUTH_CLIENT_ID=… GITHUB_OAUTH_CLIENT_SECRET=… SESSION_KEY=… PUBLIC_BASE_URL=https://arc42-stats.fly.dev PLAUSIBLE_ROLLUP_SHARE_URL=…`
+5. Merge `rollup-login` into `main`. This one push deploys the service (`fly.yml`) and the
+   site (`pages.yml`) together: the footer row, the public `/rollup/` page and the public
+   `/rollup` fragment all disappear in this same step.
+6. In Plausible, delete the old shared link right after.
 7. Run the manual checks against production.
 
-Between steps 4 and 5 the old public `/rollup/` page is still online, but nothing links to
-it any more and its figures no longer load: its request to `/rollup` now gets a redirect
-to the login instead of a fragment. Only its explanation text and the old share link stay
-readable, and step 6 kills the link. Keep steps 4 to 6 together.
+Merging is deploying: there is no separate "push the deploy" step afterwards, and no window
+during which the old public page stays reachable. This makes the order of steps 4 and 5
+load-bearing: merging before the fly secrets are set does not leave the old public page
+running by accident, but it does mean the new, maintainer-only `/rollup` answers 503 for
+maintainers too until the secrets are set — the service fails closed rather than open.
