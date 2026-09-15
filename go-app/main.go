@@ -11,9 +11,13 @@ import (
 	"time"
 )
 
-const appVersion = "1.4.0"
+const appVersion = "1.5.0"
 
 // version history
+// 1.5.0: the rollup is for maintainers only (ADR-0022). /rollup is a complete
+//        page behind a GitHub login (push access to arc42/status.arc42.org-site);
+//        the public /rollup/ page, the table's "Unique across sites" row and the
+//        public fragment are gone.
 // 1.4.0: the rollup (ADR-0021). rollup.arc42.com is collected beside the
 //        properties; the table gains a second footer row with its unique
 //        visitors, and /rollup serves the /rollup/ page's comparison of the
