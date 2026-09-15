@@ -278,7 +278,7 @@ func logRequestHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		h.ServeHTTP(w, r)
-		log.Info().Msgf("%s %s %v", r.Method, r.URL, time.Since(start))
+		log.Info().Msgf("%s %s %v", r.Method, auth.RedactedURL(r.URL), time.Since(start))
 	})
 }
 

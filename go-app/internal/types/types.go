@@ -37,7 +37,7 @@ type Property struct {
 	// InTable says the property gets a row in the traffic table. A property
 	// can be measured and still stay out of the table: the table exists to
 	// be read down a column, and rows that are structurally incomparable
-	// (a CLI's landing page, a course-date feed) make that reading worse
+	// (a CLI's landing page, a repository with no site at all) make that reading worse
 	// rather than more complete. Their numbers live on their subpage.
 	InTable bool
 
@@ -77,7 +77,8 @@ type Property struct {
 	// rollup.arc42.com dashboard (meta.arc42.org ADR-0005, and ADR-0021 here),
 	// as "2006-01-02". Empty means it is not a member. A window reaching back
 	// before a member's RollupSince cannot compare the rollup with the
-	// members' own dashboards, and the /rollup/ page says so instead.
+	// members' own dashboards, and the maintainers-only /rollup page says so
+	// instead.
 	//
 	// It is the day the copies started to arrive, not the commit date:
 	// arc42.org, docs, faq and quality named rollup.arc42.com from 2023 on,

@@ -69,7 +69,7 @@ func (a *Auth) render(w http.ResponseWriter, status int, p page) {
 // unusable answers 503 and returns true when the login is not configured.
 func (a *Auth) unusable(w http.ResponseWriter) bool {
 	if err := a.cfg.Problem(); err != nil {
-		log.Error().Msgf("auth: %v", err)
+		log.Debug().Msgf("auth: %v", err)
 		a.render(w, http.StatusServiceUnavailable, notConfigured())
 		return true
 	}
