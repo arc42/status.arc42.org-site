@@ -1173,6 +1173,27 @@ a.tile__band:focus-visible .tile__site {
     border: 0;
 }
 
+/* the rollup page's embed (ADR-0022): the size the other embeds carry inline,
+   as a class, because the page's Content-Security-Policy forbids inline styles */
+.site-plausible--rollup {
+    width: 1px;
+    min-width: 100%;
+    height: 1600px;
+}
+
+/* "signed in as" on the maintainers-only rollup page, with the logout button */
+.rollup__session {
+    margin: 0.6em 0 0;
+    font-size: 0.85em;
+    color: var(--status-muted);
+}
+
+.rollup__session button {
+    margin-left: 0.6em;
+    font: inherit;
+    cursor: pointer;
+}
+
 .site-availability {
     margin: 0 0 1.2em;
 }

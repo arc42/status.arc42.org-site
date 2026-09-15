@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -70,10 +71,16 @@ func main() {
 		Visitors12m: types.NotAvailable, PageViews12m: types.NotAvailable,
 	}, rows, types.Arc42properties[:], time.Date(2026, 9, 14, 12, 0, 0, 0, time.UTC))
 
-	rollupPath := filepath.Join(outDir, "rollup.html")
-	render("internal/api/rollup.gohtml", rollupPath, types.RollupPageData{
+	// the maintainers-only rollup page (ADR-0022): a complete document served
+	// from the service's host, so every link into the site must be absolute
+	const fixtureSiteBaseURL = "https://status.arc42.org"
+	rollupPath := filepath.Join(outDir, "rollupPage.html")
+	rollupHTML := render("internal/api/rollupPage.gohtml", rollupPath, types.RollupPageData{
 		Rollup:            stats.Rollup,
 		LastUpdatedString: stats.LastUpdatedString,
+		Login:             "octocat",
+		SiteBaseURL:       fixtureSiteBaseURL,
+		ShareURL:          "https://plausible.io/share/rollup.arc42.com?auth=fixture",
 	})
 
 	tablePath := filepath.Join(outDir, "table.html")
@@ -172,7 +179,9 @@ func main() {
 	fmt.Printf("rendered %s\n", availHostlessPath)
 	fmt.Printf("rendered %s\n", rollupPath)
 
-	if !checkTableColumns(tableHTML) {
+	tableOK := checkTableColumns(tableHTML)
+	linksOK := checkAbsoluteLinks(rollupHTML, fixtureSiteBaseURL)
+	if !tableOK || !linksOK {
 		os.Exit(1)
 	}
 }
@@ -513,4 +522,38 @@ func rowWidth(row string, occupied []int) int {
 		}
 	}
 	return width
+}
+
+// ---------------------------------------------------------------------------
+// links of the rollup page
+// ---------------------------------------------------------------------------
+
+var linkAttrRe = regexp.MustCompile(`(?i)\b(href|src)="([^"]*)"`)
+
+// checkAbsoluteLinks reports every href and src of the rendered rollup page
+// that is root-relative. The page is served from the service's host, so such
+// a link would point into the service instead of the site.
+func checkAbsoluteLinks(html, siteBaseURL string) bool {
+	fmt.Println("\nlinks of the rendered rollup page")
+	fmt.Println("---------------------------------")
+
+	ok, stylesheet := true, false
+	for _, m := range linkAttrRe.FindAllStringSubmatch(html, -1) {
+		value := m[2]
+		if value == siteBaseURL+"/assets/css/main.css" {
+			stylesheet = true
+		}
+		if strings.HasPrefix(value, "/") {
+			fmt.Printf("  RELATIVE %s=%q\n", m[1], value)
+			ok = false
+		}
+	}
+	if !stylesheet {
+		fmt.Printf("  MISSING  stylesheet %s/assets/css/main.css\n", siteBaseURL)
+		ok = false
+	}
+	if ok {
+		fmt.Println("  every href and src is absolute, stylesheet present")
+	}
+	return ok
 }

@@ -42,10 +42,9 @@ type RollupMember struct {
 	Since string
 }
 
-// RollupStats is everything the rollup row and the /rollup/ page render.
+// RollupStats is everything the maintainers-only /rollup page renders (ADR-0022).
 type RollupStats struct {
 	// Unique holds the rollup's own figures, fetched exactly like a site's.
-	// The table's rollup row reads them directly.
 	Unique SiteStatsType
 
 	Windows []RollupWindow // 7 days, 30 days, 12 months
@@ -55,10 +54,14 @@ type RollupStats struct {
 	Outside []string       // measured, but not reporting into the rollup
 }
 
-// RollupPageData is what the /rollup fragment renders.
+// RollupPageData is what the maintainers-only /rollup page renders (ADR-0022).
 type RollupPageData struct {
 	Rollup            RollupStats
 	LastUpdatedString string
+
+	Login       string // GitHub login of the signed-in maintainer
+	SiteBaseURL string // env.SiteBaseURL: the page is served from the service's host
+	ShareURL    string // Plausible shared link for rollup.arc42.com; "" when not configured
 }
 
 // BuildRollup compares the rollup's own figures with the sum of its members'
