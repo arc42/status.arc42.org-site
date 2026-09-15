@@ -1,0 +1,28 @@
+<!doctype html>
+<!-- golang template for every login outcome that is not the rollup page
+     itself (ADR-0022): not configured, cancelled, expired, GitHub unreachable,
+     no push access. Served from the service's host, so the stylesheet and the
+     way back are absolute against .SiteBaseURL. -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>{{ .Title }} · arc42 status</title>
+    <link rel="stylesheet" href="{{ .SiteBaseURL }}/assets/css/main.css">
+</head>
+<body>
+<main class="site-page" data-site="rollup">
+    <div class="site-page__band">
+        <h1 class="site-page__name">{{ .Title }}</h1>
+    </div>
+    <div class="site-page__body">
+        <p class="site-page__tagline">{{ .Text }}</p>
+        <p class="site-page__links">
+            {{ if .Retry }}<a class="site-page__link" href="/auth/login">Sign in with GitHub again</a>{{ end }}
+            <a class="site-page__link" href="{{ .SiteBaseURL }}/">&#8592; Back to the dashboard</a>
+        </p>
+    </div>
+</main>
+</body>
+</html>
