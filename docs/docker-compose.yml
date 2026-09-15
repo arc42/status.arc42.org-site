@@ -18,7 +18,7 @@ services:
       - jekyll_cache:/site/.jekyll-cache
       - sass_cache:/site/.sass-cache
     ports:
-      - '4000:4000'
+      - '4270:4270'
     # No --incremental: full rebuild on change. Incremental silently
     # leaves stale/relocated output when permalinks or front matter change.
     #
@@ -26,7 +26,7 @@ services:
     # before a more-indented continuation line, and `sh -c` then reads it as a
     # second command -- which starts jekyll without the --config flags and
     # silently drops the dev override.
-    command: sh -c "bundle exec jekyll serve --host 0.0.0.0 --watch --config _config.yml,_config.dev.yml $${POLLING}"
+    command: sh -c "bundle exec jekyll serve --host 0.0.0.0 --port 4270 --watch --config _config.yml,_config.dev.yml $${POLLING}"
 
 volumes:
   jekyll_cache:

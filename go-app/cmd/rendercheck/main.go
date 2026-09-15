@@ -60,6 +60,22 @@ func main() {
 	}
 	copy(stats.Stats4Site[:], rows)
 
+	// the rollup: its own figures, compared with fixture rows that carry
+	// display strings but no numbers - so the comparison falls to n/a, which is
+	// the branch whose explanatory notes stress the page layout most
+	stats.Rollup = types.BuildRollup(types.SiteStatsType{
+		Site: types.RollupSiteID, HasTraffic: true,
+		Visitors7d: "4.912", Visitors7dNr: 4912, PageViews7d: "15.380", PageViews7dNr: 15380,
+		Visitors30d: "20.004", Visitors30dNr: 20004, PageViews30d: "61.215", PageViews30dNr: 61215,
+		Visitors12m: types.NotAvailable, PageViews12m: types.NotAvailable,
+	}, rows, types.Arc42properties[:], time.Date(2026, 9, 14, 12, 0, 0, 0, time.UTC))
+
+	rollupPath := filepath.Join(outDir, "rollup.html")
+	render("internal/api/rollup.gohtml", rollupPath, types.RollupPageData{
+		Rollup:            stats.Rollup,
+		LastUpdatedString: stats.LastUpdatedString,
+	})
+
 	tablePath := filepath.Join(outDir, "table.html")
 	tableHTML := render("internal/api/arc42statistics.gohtml", tablePath, stats)
 
@@ -154,6 +170,7 @@ func main() {
 	fmt.Printf("rendered %s\n", availPath)
 	fmt.Printf("rendered %s\n", availNonePath)
 	fmt.Printf("rendered %s\n", availHostlessPath)
+	fmt.Printf("rendered %s\n", rollupPath)
 
 	if !checkTableColumns(tableHTML) {
 		os.Exit(1)
@@ -339,7 +356,7 @@ func fixtureSet() []types.SiteStatsType {
 			}},
 
 		// brand-new property: measured, but everything is genuinely zero
-		{Site: "trainings.arc42.org", Host: "trainings.arc42.org", HasTraffic: true,
+		{Site: "trainings.arc42.org", Host: "trainings.arc42.org", HasTraffic: true, InTable: true,
 			Visitors7d: "0", PageViews7d: "0", Visitors30d: "0", PageViews30d: "0",
 			Visitors12m: "0", PageViews12m: "0", Repo: "https://github.com/arc42/trainings.arc42.org-site", Availability: availUp},
 

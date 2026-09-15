@@ -91,6 +91,12 @@ func LoadStats4AllSites() types.Arc42Statistics {
 		go getUsageStatisticsForSite(property, &Stats4Sites[index], &wg)
 	}
 
+	// the rollup's own figures: the same three aggregate queries a site gets,
+	// asked of the receive-only rollup.arc42.com (ADR-0021)
+	var rollupUnique types.SiteStatsType
+	wg.Add(1)
+	go getRollupStatistics(&rollupUnique, &wg)
+
 	// retrieve repo statistics
 	// currently:  number of open bugs and issues from GitHub
 	for index, property := range types.Arc42properties {
@@ -132,7 +138,24 @@ func LoadStats4AllSites() types.Arc42Statistics {
 	// now calculate totals
 	a42s.Totals = calculateTotals(a42s.Stats4Site)
 
+	// and set the rollup beside them - not added to them: a person who reads
+	// two member sites is one visitor there, two in the totals
+	a42s.Rollup = types.BuildRollup(rollupUnique, a42s.Stats4Site[:], types.Arc42properties[:], time.Now().UTC())
+
 	return a42s
+}
+
+// getRollupStatistics fetches the rollup dashboard's visitors and page views.
+// It is not a property - no repository, no host, no tile - so it is asked for
+// beside the property loop rather than inside it. This func is called as
+// Goroutine.
+func getRollupStatistics(unique *types.SiteStatsType, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	unique.Site = types.RollupSiteID
+	unique.HasTraffic = true
+
+	plausible.StatsForSite(types.RollupSiteID, unique)
 }
 
 // calculateTotals sums the traffic over the rows the table actually shows, and

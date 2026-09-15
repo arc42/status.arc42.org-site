@@ -4,7 +4,7 @@
 # needs two terminals:
 #
 #     terminal 1:  make backend     the Go statistics service on :8043
-#     terminal 2:  make site        the Jekyll dev server on :4000
+#     terminal 2:  make site        the Jekyll dev server on :4270
 #
 # `make site` loads _config.dev.yml, which points the page at the local
 # backend instead of fly.io -- so what you see is what you changed.
@@ -25,7 +25,7 @@ SITE_DIR  := docs
 APP_DIR   := go-app
 SECRETS   := $(APP_DIR)/set-api-keys.sh
 TEMPLATE  := $(APP_DIR)/set-api-keys.sh.template
-SITE_PORT := 4000
+SITE_PORT := 4270
 API_PORT  := 8043
 COMPOSE   := docker compose -f $(SITE_DIR)/docker-compose.yml
 
@@ -45,7 +45,7 @@ backend: check-secrets ## Run the Go statistics service on :8043 (terminal 1)
 	@printf "==> try http://localhost:$(API_PORT)/ping\n"
 	cd $(APP_DIR) && source ./set-api-keys.sh && go run main.go
 
-site: ## Start the Jekyll dev server on :4000, wired to the local backend (terminal 2)
+site: ## Start the Jekyll dev server on :4270, wired to the local backend (terminal 2)
 	@printf "==> Open http://localhost:$(SITE_PORT)  (NOT http://0.0.0.0:$(SITE_PORT) — Firefox refuses to connect to 0.0.0.0)\n"
 	@printf "==> The stats table is fetched from http://localhost:$(API_PORT); run 'make backend' in another terminal.\n"
 	@holder=$$(docker ps --filter "publish=$(SITE_PORT)" --format '{{.Names}}'); \

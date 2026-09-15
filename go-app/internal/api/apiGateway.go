@@ -33,6 +33,7 @@ const TilesTmpl = "tiles.gohtml"
 const SiteDetailTmpl = "siteDetail.gohtml"
 const SiteTrafficTmpl = "siteTraffic.gohtml"
 const SiteAvailabilityTmpl = "siteAvailability.gohtml"
+const RollupTmpl = "rollup.gohtml"
 
 func init() {
 	log.Debug().Msg("apiGateway initialized ")
@@ -132,6 +133,32 @@ func siteTrafficHandler(w http.ResponseWriter, r *http.Request) {
 // siteTraffic.
 func siteAvailabilityHandler(w http.ResponseWriter, r *http.Request) {
 	servePropertyFragment(w, r, SiteAvailabilityTmpl)
+}
+
+// rollupHandler returns the numbers section of /rollup/: the rollup's unique
+// counts beside the sum of its members' own dashboards, and which properties
+// report into it since when. The rollup is not a property, so it has a handler
+// of its own rather than a key for servePropertyFragment - but it reads the
+// same cached collection run as every other fragment.
+func rollupHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Debug().Msg("received rollup request")
+
+	SetCORSHeaders(&w, r)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	domain.ArcStats = domain.Stats4AllSites()
+
+	go database.SaveInvocationParams(r.Host, r.RequestURI)
+
+	executeTemplate(w, filepath.Join(TemplatesDir, RollupTmpl), types.RollupPageData{
+		Rollup:            domain.ArcStats.Rollup,
+		LastUpdatedString: domain.ArcStats.LastUpdatedString,
+	})
 }
 
 // servePropertyFragment renders one template for one property.
@@ -327,6 +354,7 @@ func StartAPIServer() {
 	mux.HandleFunc("/siteDetail", siteDetailHandler)
 	mux.HandleFunc("/siteTraffic", siteTrafficHandler)
 	mux.HandleFunc("/siteAvailability", siteAvailabilityHandler)
+	mux.HandleFunc("/rollup", rollupHandler)
 	mux.HandleFunc("/ping", pingHandler)
 	mux.HandleFunc("/api/probe", probeHandler)
 

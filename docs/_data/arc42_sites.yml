@@ -122,10 +122,12 @@
   plausible_embed: "https://plausible.io/share/examples.arc42.org?auth=Yrm60-Nw-jJRkb4aU9Tzk&embed=true&theme=light"
 
 # ---- row 4: what runs the family ----------------------------------------
-# pdfminion and trainings are measured but deliberately out of the traffic
-# table (owner decision, 2026-08-05): a column is read downwards, and these
-# rows do not compare with the documentation sites above. Their visitor
-# numbers are on their own pages, in the detail fragment the service renders.
+# trainings is back in the traffic table (owner decision, 2026-09-15),
+# although a course-date feed does not compare cleanly with the
+# documentation sites above. pdfminion is measured but deliberately out of
+# the table (owner decision, 2026-08-05): a column is read downwards, and a
+# tool's landing page does not compare. Its visitor numbers are on its own
+# page, in the detail fragment the service renders.
 
 - key: status.arc42.org
   host: status.arc42.org
@@ -137,6 +139,16 @@
   repo: https://github.com/arc42/status.arc42.org-site
   hue: "slate ground #3a4550 plus the full-spectrum rim (a device, not a hue)"
 
+- key: trainings.arc42.org
+  host: trainings.arc42.org
+  name: arc42 Trainings
+  tagline: Course dates for arc42 trainings.
+  role: satellite
+  in_table: true
+  url: https://trainings.arc42.org
+  repo: https://github.com/arc42/trainings.arc42.org-site
+  hue: "dusty rose #a04c5e"
+
 - key: pdfminion.arc42.org
   host: pdfminion.arc42.org
   name: PDFminion
@@ -145,15 +157,6 @@
   url: https://pdfminion.arc42.org
   repo: https://github.com/arc42/PDFminion
   hue: "sienna #8a4b2a, band #5f321b"
-
-- key: trainings.arc42.org
-  host: trainings.arc42.org
-  name: arc42 Trainings
-  tagline: Course dates for arc42 trainings.
-  role: satellite
-  url: https://trainings.arc42.org
-  repo: https://github.com/arc42/trainings.arc42.org-site
-  hue: "dusty rose #a04c5e"
 
 # ---- row 5: the maintainers' own home ------------------------------------
 

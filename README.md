@@ -21,7 +21,7 @@ This site runs as two processes during local development:
 
 ```bash
 make backend    # terminal 1: run the Go statistics service on :8043
-make site       # terminal 2: run the Jekyll dev server on :4000
+make site       # terminal 2: run the Jekyll dev server on :4270
 make doctor     # verify setup health (Docker, Go, flyctl, Atlas, secrets, ports)
 make help       # show all available make targets
 ```

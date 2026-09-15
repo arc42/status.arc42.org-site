@@ -15,6 +15,11 @@
   course-date feed, a repository with no site at all - make that reading worse
   rather than more complete. Their numbers are on their own subpages. The totals
   row sums exactly the rows above it, so the reader can check it by adding up.
+
+  The second footer row is NOT a total, and is labelled and linked so it cannot
+  be read as one: it is the rollup dashboard's own count (ADR-0021), where a
+  person reading two sites counts once. Its roster differs from the rows above
+  (see /rollup/), so it will not equal their sum, and is not meant to.
 -->
 {{ with .Availability }}
 <!-- The verdict is rendered by the service, not by Jekyll: only the
@@ -41,6 +46,7 @@
         The Status column shows current availability and 30-day uptime; "n/a" means the measurement window is not filled yet.
         Sites without traffic measurement show "n/a" rather than zero.
         Properties reported only on their own detail page are not listed here.
+        The last row is the rollup dashboard, which counts a person visiting several arc42 sites once; it is not a sum of the rows.
     </caption>
     <thead>
     <tr>
@@ -104,6 +110,16 @@
         <td class="border-top text-right">{{ .Totals.SumOfPageViews30d}}</td>
         <td class="border-top border-left-black text-right">{{ .Totals.SumOfVisitors12m}}</td>
         <td class="border-top text-right">{{ .Totals.SumOfPageViews12m}}</td>
+    </tr>
+    <tr class="stats-rollup">
+        <th scope="row" class="text-right"><a href="/rollup/">Unique across sites</a></th>
+        <td class="border-left-black"></td>
+        <td class="border-left-black text-right">{{ .Rollup.Unique.Visitors7d }}</td>
+        <td class="text-right">{{ .Rollup.Unique.PageViews7d }}</td>
+        <td class="border-left-black text-right">{{ .Rollup.Unique.Visitors30d }}</td>
+        <td class="text-right">{{ .Rollup.Unique.PageViews30d }}</td>
+        <td class="border-left-black text-right">{{ .Rollup.Unique.Visitors12m }}</td>
+        <td class="text-right">{{ .Rollup.Unique.PageViews12m }}</td>
     </tr> </tfoot>
 </table>
 

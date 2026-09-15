@@ -1,0 +1,93 @@
+<!-- golang template for the rollup comparison -->
+<!--
+  Served at /rollup and swapped into #rollupFigures under "The numbers" on
+  /rollup/ (ADR-0021).
+
+  One table, five rows, read across three horizons. The row the page exists for
+  is "counted on more than one site": the members' own dashboards summed, minus
+  the rollup's unique count. It is n/a whenever the two sides did not count the
+  same traffic - a member joined inside the window, or something was not
+  measured - and the note below the table names the reason rather than leaving
+  a bare "n/a" to be guessed at (ADR-0002: report what was measured).
+
+  Class contract for the stylesheet:
+    .rollup                        wrapper == #rollupFigures
+      .rollup-figures              the comparison table
+        .rollup-figures__key       the "more than one site" row
+      .rollup__note                why a window is not comparable
+      .rollup__subhead             roster headings
+      .rollup__roster > li         one property, .rollup__since its join date
+      .detail__foot                collection timestamp
+-->
+<div id="rollupFigures" class="rollup">
+
+    <table class="rollup-figures">
+        <caption class="visually-hidden">
+            The rollup dashboard compared with the sum of its member sites' own dashboards,
+            over 7 days, 30 days and 12 months. "n/a" means not measured, or not comparable.
+        </caption>
+        <thead>
+        <tr>
+            <th scope="col"><span class="visually-hidden">Measure</span></th>
+            {{ range .Rollup.Windows }}<th scope="col">{{ .Label }}</th>{{ end }}
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row">Visitors, member sites' dashboards added up</th>
+            {{ range .Rollup.Windows }}<td>{{ .MemberVisitors }}</td>{{ end }}
+        </tr>
+        <tr>
+            <th scope="row">Unique visitors in the rollup</th>
+            {{ range .Rollup.Windows }}<td>{{ .UniqueVisitors }}</td>{{ end }}
+        </tr>
+        <tr class="rollup-figures__key">
+            <th scope="row">Counted on more than one site</th>
+            {{ range .Rollup.Windows }}<td>{{ .MultiSite }}</td>{{ end }}
+        </tr>
+        <tr>
+            <th scope="row">Page views, member sites added up</th>
+            {{ range .Rollup.Windows }}<td>{{ .MemberPageViews }}</td>{{ end }}
+        </tr>
+        <tr>
+            <th scope="row">Page views in the rollup</th>
+            {{ range .Rollup.Windows }}<td>{{ .RollupPageViews }}</td>{{ end }}
+        </tr>
+        </tbody>
+    </table>
+
+    {{ range .Rollup.Windows }}{{ if not .Complete }}
+    <p class="rollup__note"><b>{{ .Label }}: not comparable yet.</b>
+        {{ range $i, $key := .Joiners }}{{ if $i }}, {{ end }}{{ $key }}{{ end }}
+        joined the rollup inside this window, so their own dashboards count visits the
+        rollup never received. The window becomes comparable once it lies entirely after
+        the latest join.</p>
+    {{ end }}{{ end }}
+
+    <h3 class="rollup__subhead">Reporting into the rollup</h3>
+    {{ if .Rollup.Members }}
+    <ul class="rollup__roster">
+        {{ range .Rollup.Members }}
+        <li><a href="/site/{{ .Key }}/">{{ .Key }}</a> <span class="rollup__since">since {{ .Since }}</span></li>
+        {{ end }}
+    </ul>
+    {{ else }}
+    <p class="detail__empty">No property is declared as reporting into the rollup.</p>
+    {{ end }}
+
+    {{ if .Rollup.Pending }}
+    <h3 class="rollup__subhead">Joining: snippet changed, not deployed yet</h3>
+    <ul class="rollup__roster">
+        {{ range .Rollup.Pending }}<li><a href="/site/{{ . }}/">{{ . }}</a></li>{{ end }}
+    </ul>
+    {{ end }}
+
+    {{ if .Rollup.Outside }}
+    <h3 class="rollup__subhead">Measured, but not in the rollup</h3>
+    <ul class="rollup__roster">
+        {{ range .Rollup.Outside }}<li><a href="/site/{{ . }}/">{{ . }}</a></li>{{ end }}
+    </ul>
+    {{ end }}
+
+    <p class="detail__foot">Collected {{ .LastUpdatedString }}.</p>
+</div>
