@@ -43,6 +43,9 @@ func main() {
 
 	stats := types.Arc42Statistics{
 		AppVersion:        "1.3.0",
+		GitCommit:         "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+		DeploymentID:      "01M2MMR6YW3JYJ9G10MBDRXAYA",
+		StartedAtString:   "16. September 2026, 08:19h",
 		LastUpdated:       time.Now(),
 		LastUpdatedString: "4. August 2026, 16:26:04h",
 		HowLongDidItTake:  "605",

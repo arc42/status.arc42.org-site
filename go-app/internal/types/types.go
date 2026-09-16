@@ -464,6 +464,14 @@ type TotalsForAllSites struct {
 type Arc42Statistics struct {
 	AppVersion string
 
+	// GitCommit is the commit this binary was built from ("dev" for a local
+	// build), DeploymentID the fly.io deployment it runs as ("" off fly.io),
+	// and StartedAtString when this process started. The footer shows all
+	// three, so a reader can tell which build produced the numbers above.
+	GitCommit       string
+	DeploymentID    string
+	StartedAtString string
+
 	// LastUpdated contains the time.Time when the stats have
 	// been updated.
 	LastUpdated       time.Time

@@ -15,8 +15,10 @@ COPY *.go ./
 COPY internal/ ./internal/
 
 
-# Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /arc42-stats
+# Build. GIT_COMMIT is passed by the deploy (see .github/workflows/fly.yml and
+# the fly-deploy target in the Makefile) and ends up in the table's footer.
+ARG GIT_COMMIT=dev
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.gitCommit=${GIT_COMMIT}" -o /arc42-stats
 
 # To bind to a TCP port, runtime parameters must be supplied to the docker command.
 # But we can (optionally) document in the Dockerfile what ports

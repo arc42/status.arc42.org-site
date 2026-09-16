@@ -69,3 +69,36 @@ func flyRegionCodeToLocation(regionCode string) string {
 		return "unknown location"
 	}
 }
+
+// DeploymentID returns the deployment this process was started from, or "" when
+// the service does not run on fly.io.
+//
+// fly.io injects no release number into the machine (FLY_RELEASE_VERSION is
+// empty on Machines); what it does inject is the image reference the machine
+// runs, e.g.
+//
+//	registry.fly.io/arc42-stats:deployment-01M2MMR6YW3JYJ9G10MBDRXAYA
+//
+// The tag after "deployment-" is that identifier, and it is what the footer
+// shows. Anything else - no variable, a digest, a tag of another shape - is
+// reported as "" rather than guessed at: a wrong deployment id is worse than
+// none (ADR-0002: report what was measured).
+func DeploymentID() string {
+	imageRef := os.Getenv("FLY_IMAGE_REF")
+
+	// the tag lives in the last path segment, so a registry host with a port
+	// (host:5000/app:tag) cannot be mistaken for it
+	lastSegment := imageRef[strings.LastIndex(imageRef, "/")+1:]
+
+	colon := strings.LastIndex(lastSegment, ":")
+	if colon < 0 {
+		return ""
+	}
+
+	tag := lastSegment[colon+1:]
+	if !strings.HasPrefix(tag, "deployment-") {
+		return ""
+	}
+
+	return strings.TrimPrefix(tag, "deployment-")
+}

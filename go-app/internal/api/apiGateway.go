@@ -80,6 +80,7 @@ func statsHTMLTableHandler(w http.ResponseWriter, r *http.Request) {
 
 		// find out where this service is running
 		domain.ArcStats.FlyRegion, domain.ArcStats.WhereDoesItRun = fly.RegionAndLocation()
+		domain.ArcStats.DeploymentID = fly.DeploymentID()
 
 		// 4. store request params in database
 		// TODO: include real IP address

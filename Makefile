@@ -156,7 +156,7 @@ probe: check-secrets ## Run the availability prober once against the dev DB
 fly-deploy: ## Deploy the Go backend service to Fly.io
 	@command -v flyctl >/dev/null 2>&1 || command -v fly >/dev/null 2>&1 || { \
 		printf "flyctl CLI not installed — https://fly.io/docs/hands-on/install-flyctl/\n"; exit 1; }
-	cd $(APP_DIR) && flyctl deploy --remote-only
+	cd $(APP_DIR) && flyctl deploy --remote-only --build-arg GIT_COMMIT=$$(git rev-parse --short HEAD)
 
 fly-status: ## Check status of the Fly.io deployment and machines
 	@command -v flyctl >/dev/null 2>&1 || command -v fly >/dev/null 2>&1 || { \

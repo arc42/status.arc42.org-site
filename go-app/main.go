@@ -13,6 +13,14 @@ import (
 
 const appVersion = "1.5.0"
 
+// gitCommit is injected at build time:
+//
+//	go build -ldflags "-X main.gitCommit=<sha>"
+//
+// go-app/Dockerfile passes the GIT_COMMIT build argument for that; the fly
+// workflow and `make fly-deploy` fill it in. A plain local build keeps "dev".
+var gitCommit = "dev"
+
 // version history
 // 1.5.0: the rollup is for maintainers only (ADR-0022). /rollup is a complete
 //        page behind a GitHub login (push access to arc42/status.arc42.org-site);
@@ -105,9 +113,15 @@ func main() {
 	// cannot directly be used in internal/* packages.
 	// Therefore, we set the appVersion via a func.
 	domain.SetAppVersion(appVersion)
+	domain.SetGitCommit(gitCommit)
+
+	// one moment for both: what the footer reports as "running since" is the
+	// same startup this records persistently (ADR-0012)
+	startedAt := time.Now()
+	domain.SetStartedAt(startedAt)
 
 	// Save the startup metadata persistently, see ADR-0012
-	database.SaveStartupTime(time.Now(), appVersion, env.GetEnv())
+	database.SaveStartupTime(startedAt, appVersion, env.GetEnv())
 
 	// log the server details
 	api.LogServerDetails(appVersion)

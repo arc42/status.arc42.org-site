@@ -16,6 +16,14 @@ import (
 
 var AppVersion string
 
+// GitCommit is the commit this binary was built from. It is injected at build
+// time (go-app/Dockerfile passes GIT_COMMIT); a local build keeps "dev".
+var GitCommit string
+
+// StartedAt is when this process started. On fly.io that is when the current
+// deployment began serving, which is what the footer reports.
+var StartedAt time.Time
+
 // ArcStats collects all data
 var ArcStats types.Arc42Statistics
 
@@ -38,6 +46,19 @@ func GetAppVersion() string {
 	return AppVersion
 }
 
+func SetGitCommit(gitCommit string) {
+	GitCommit = gitCommit
+	log.Debug().Msg("git commit set to " + gitCommit)
+}
+
+func GetGitCommit() string {
+	return GitCommit
+}
+
+func SetStartedAt(startedAt time.Time) {
+	StartedAt = startedAt
+}
+
 func setServerMetaInfo(a42s *types.Arc42Statistics) {
 	a42s.AppVersion = GetAppVersion()
 
@@ -48,6 +69,11 @@ func setServerMetaInfo(a42s *types.Arc42Statistics) {
 
 	a42s.LastUpdated = bielefeldTime
 	a42s.LastUpdatedString = bielefeldTime.Format("2. January 2006, 15:04:03h")
+
+	a42s.GitCommit = GetGitCommit()
+	if !StartedAt.IsZero() {
+		a42s.StartedAtString = StartedAt.In(location).Format("2. January 2006, 15:04h")
+	}
 }
 
 // Stats4AllSites tries to return the value from the cache instead of calling
