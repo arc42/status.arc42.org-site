@@ -998,8 +998,63 @@ a.tile__band:focus-visible .tile__site {
 }
 
 .site-page[data-site="meta.arc42.org"] .site-page__band,
-.site-page[data-site="arc42-template"] .site-page__band {
+.site-page[data-site="arc42-template"] .site-page__band,
+.site-page[data-site="rollup"] .site-page__band {
     box-shadow: inset 0 -2px 0 0 rgba(255, 255, 255, 0.35);
+}
+
+/* --- the rollup (ADR-0021) ------------------------------------------------ */
+/* The rollup is every member at once, so it wears no hue: the neutral default
+   band plus the unregistered hairline above. The rainbow rim would have been
+   the obvious "all sites" mark, but it belongs to status.arc42.org alone
+   (ADR-0007). */
+
+.rollup-figures {
+    width: 100%;
+    margin: 0 0 1em;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.rollup-figures th,
+.rollup-figures td {
+    padding: 0.45em 0.6em;
+    border-bottom: 1px solid #e2e5e7;
+    text-align: right;
+}
+
+.rollup-figures th[scope="row"] {
+    text-align: left;
+    font-weight: 400;
+}
+
+/* the one row the page exists for */
+.rollup-figures__key th,
+.rollup-figures__key td {
+    font-weight: 700;
+}
+
+.rollup__note {
+    margin: 0 0 0.8em;
+    font-size: 0.85rem;
+    color: var(--status-muted);
+}
+
+.rollup__subhead {
+    margin: 1.2em 0 0.4em;
+    font-size: 0.95rem;
+}
+
+.rollup__roster {
+    margin: 0 0 0.6em;
+    padding-left: 1.2em;
+    font-size: 0.9rem;
+}
+
+.rollup__since {
+    color: var(--status-muted);
+    font-size: 0.85em;
 }
 
 .site-page__name {
@@ -1093,6 +1148,27 @@ a.tile__band:focus-visible .tile__site {
     display: block;
     max-width: 100%;
     border: 0;
+}
+
+/* the rollup page's embed (ADR-0022): the size the other embeds carry inline,
+   as a class, because the page's Content-Security-Policy forbids inline styles */
+.site-plausible--rollup {
+    width: 1px;
+    min-width: 100%;
+    height: 1600px;
+}
+
+/* "signed in as" on the maintainers-only rollup page, with the logout button */
+.rollup__session {
+    margin: 0.6em 0 0;
+    font-size: 0.85em;
+    color: var(--status-muted);
+}
+
+.rollup__session button {
+    margin-left: 0.6em;
+    font: inherit;
+    cursor: pointer;
 }
 
 .site-availability {

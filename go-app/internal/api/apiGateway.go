@@ -13,8 +13,10 @@ import (
 
 	"github.com/rs/zerolog/log"
 
+	"arc42-status/internal/auth"
 	"arc42-status/internal/database"
 	"arc42-status/internal/domain"
+	"arc42-status/internal/env"
 	"arc42-status/internal/fly"
 	"arc42-status/internal/probe"
 	"arc42-status/internal/types"
@@ -33,6 +35,7 @@ const TilesTmpl = "tiles.gohtml"
 const SiteDetailTmpl = "siteDetail.gohtml"
 const SiteTrafficTmpl = "siteTraffic.gohtml"
 const SiteAvailabilityTmpl = "siteAvailability.gohtml"
+const RollupPageTmpl = "rollupPage.gohtml"
 
 func init() {
 	log.Debug().Msg("apiGateway initialized ")
@@ -132,6 +135,34 @@ func siteTrafficHandler(w http.ResponseWriter, r *http.Request) {
 // siteTraffic.
 func siteAvailabilityHandler(w http.ResponseWriter, r *http.Request) {
 	servePropertyFragment(w, r, SiteAvailabilityTmpl)
+}
+
+// rollupPageHandler renders the maintainers-only rollup page (ADR-0022): the
+// rollup's unique counts beside the sum of its members' own dashboards, which
+// properties report into it since when, and the embedded dashboard.
+//
+// It runs behind auth.RequirePush, which has set the private headers and put
+// the visitor's GitHub login into the request context. Unlike every fragment
+// it sets no CORS headers: no other origin may read this page. It reads the
+// same cached collection run as every other handler.
+func rollupPageHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	domain.ArcStats = domain.Stats4AllSites()
+
+	go database.SaveInvocationParams(r.Host, r.RequestURI)
+
+	executeTemplate(w, filepath.Join(TemplatesDir, RollupPageTmpl), types.RollupPageData{
+		Rollup:            domain.ArcStats.Rollup,
+		LastUpdatedString: domain.ArcStats.LastUpdatedString,
+		Login:             auth.LoginFrom(r.Context()),
+		SiteBaseURL:       env.SiteBaseURL(env.GetEnv()),
+		ShareURL:          strings.TrimSpace(os.Getenv("PLAUSIBLE_ROLLUP_SHARE_URL")),
+	})
 }
 
 // servePropertyFragment renders one template for one property.
@@ -247,7 +278,7 @@ func logRequestHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		h.ServeHTTP(w, r)
-		log.Info().Msgf("%s %s %v", r.Method, r.URL, time.Since(start))
+		log.Info().Msgf("%s %s %v", r.Method, auth.RedactedURL(r.URL), time.Since(start))
 	})
 }
 
@@ -333,6 +364,18 @@ func StartAPIServer() {
 	mux.HandleFunc("/siteDetail", siteDetailHandler)
 	mux.HandleFunc("/siteTraffic", siteTrafficHandler)
 	mux.HandleFunc("/siteAvailability", siteAvailabilityHandler)
+
+	// the maintainers-only rollup page and its GitHub login (ADR-0022)
+	authCfg := auth.FromEnv(env.GetEnv())
+	if err := authCfg.Problem(); err != nil {
+		log.Warn().Msgf("maintainer login unavailable, /rollup answers 503: %v", err)
+	}
+	gate := auth.New(authCfg)
+	mux.Handle("/rollup", gate.RequirePush(http.HandlerFunc(rollupPageHandler)))
+	mux.HandleFunc("/auth/login", gate.Login)
+	mux.HandleFunc("/auth/callback", gate.Callback)
+	mux.HandleFunc("/auth/logout", gate.Logout)
+
 	mux.HandleFunc("/ping", pingHandler)
 	mux.HandleFunc("/api/probe", probeHandler)
 

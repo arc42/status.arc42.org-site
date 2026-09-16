@@ -1,0 +1,212 @@
+<!doctype html>
+<!-- golang template for the maintainers-only rollup page (ADR-0022) -->
+<!--
+  Served at /rollup behind auth.RequirePush. A complete document, not a
+  fragment: nothing about the rollup may be published on the static site, so
+  this is the one page the service renders itself. It is served from the
+  service's host, so the stylesheet and every link into the site are absolute
+  against .SiteBaseURL (cmd/rendercheck checks this).
+
+  The explanation is the former docs/_pages/rollup.md; the numbers are the
+  former rollup.gohtml fragment (ADR-0021).
+
+  Class contract for the stylesheet:
+    .site-page[data-site="rollup"]  band, tagline, links (neutral band)
+    .rollup__session                "signed in as" line with the logout button
+    .rollup                         the comparison, == #rollupFigures
+      .rollup-figures, .rollup-figures__key, .rollup__note,
+      .rollup__subhead, .rollup__roster > li, .rollup__since, .detail__foot
+    .site-plausible--rollup         the embed's size (no inline style: CSP)
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>All arc42 sites, counted once · arc42 status</title>
+    <link rel="stylesheet" href="{{ .SiteBaseURL }}/assets/css/main.css">
+</head>
+<body>
+<main class="page__content">
+
+<div class="site-page" data-site="rollup">
+    <div class="site-page__band">
+        <h1 class="site-page__name">All arc42 sites, counted once</h1>
+    </div>
+    <div class="site-page__body">
+        <p class="site-page__tagline">The rollup is one Plausible dashboard that every member site reports
+            into besides its own. A person who reads arc42.org and then the docs is two visitors in
+            the table on the home page, and one visitor here.</p>
+        <p class="site-page__links">
+            {{ if .ShareURL }}<a class="site-page__link" href="{{ .ShareURL }}">Open the rollup dashboard &#8599;</a>{{ end }}
+            <a class="site-page__link" href="{{ .SiteBaseURL }}/">&#8592; Back to the dashboard</a>
+        </p>
+        <form class="rollup__session" method="post" action="/auth/logout">
+            Signed in as <b>{{ .Login }}</b>, with push access to arc42/status.arc42.org-site.
+            <button type="submit">Sign out</button>
+        </form>
+    </div>
+</div>
+
+<h2 id="numbers">The numbers</h2>
+
+<div id="rollupFigures" class="rollup">
+
+    <table class="rollup-figures">
+        <caption class="visually-hidden">
+            The rollup dashboard compared with the sum of its member sites' own dashboards,
+            over 7 days, 30 days and 12 months. "n/a" means not measured, or not comparable.
+        </caption>
+        <thead>
+        <tr>
+            <th scope="col"><span class="visually-hidden">Measure</span></th>
+            {{ range .Rollup.Windows }}<th scope="col">{{ .Label }}</th>{{ end }}
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row">Visitors, member sites' dashboards added up</th>
+            {{ range .Rollup.Windows }}<td>{{ .MemberVisitors }}</td>{{ end }}
+        </tr>
+        <tr>
+            <th scope="row">Unique visitors in the rollup</th>
+            {{ range .Rollup.Windows }}<td>{{ .UniqueVisitors }}</td>{{ end }}
+        </tr>
+        <tr class="rollup-figures__key">
+            <th scope="row">Counted on more than one site</th>
+            {{ range .Rollup.Windows }}<td>{{ .MultiSite }}</td>{{ end }}
+        </tr>
+        <tr>
+            <th scope="row">Page views, member sites added up</th>
+            {{ range .Rollup.Windows }}<td>{{ .MemberPageViews }}</td>{{ end }}
+        </tr>
+        <tr>
+            <th scope="row">Page views in the rollup</th>
+            {{ range .Rollup.Windows }}<td>{{ .RollupPageViews }}</td>{{ end }}
+        </tr>
+        </tbody>
+    </table>
+
+    {{ range .Rollup.Windows }}{{ if not .Complete }}
+    <p class="rollup__note"><b>{{ .Label }}: not comparable yet.</b>
+        {{ range $i, $key := .Joiners }}{{ if $i }}, {{ end }}{{ $key }}{{ end }}
+        joined the rollup inside this window, so their own dashboards count visits the
+        rollup never received. The window becomes comparable once it lies entirely after
+        the latest join.</p>
+    {{ end }}{{ end }}
+
+    <h3 class="rollup__subhead">Reporting into the rollup</h3>
+    {{ if .Rollup.Members }}
+    <ul class="rollup__roster">
+        {{ range .Rollup.Members }}
+        <li><a href="{{ $.SiteBaseURL }}/site/{{ .Key }}/">{{ .Key }}</a> <span class="rollup__since">since {{ .Since }}</span></li>
+        {{ end }}
+    </ul>
+    {{ else }}
+    <p class="detail__empty">No property is declared as reporting into the rollup.</p>
+    {{ end }}
+
+    {{ if .Rollup.Pending }}
+    <h3 class="rollup__subhead">Joining: snippet changed, not deployed yet</h3>
+    <ul class="rollup__roster">
+        {{ range .Rollup.Pending }}<li><a href="{{ $.SiteBaseURL }}/site/{{ . }}/">{{ . }}</a></li>{{ end }}
+    </ul>
+    {{ end }}
+
+    {{ if .Rollup.Outside }}
+    <h3 class="rollup__subhead">Measured, but not in the rollup</h3>
+    <ul class="rollup__roster">
+        {{ range .Rollup.Outside }}<li><a href="{{ $.SiteBaseURL }}/site/{{ . }}/">{{ . }}</a></li>{{ end }}
+    </ul>
+    {{ end }}
+
+    <p class="detail__foot">Collected {{ .LastUpdatedString }}.</p>
+</div>
+
+<h2 id="how">How the rollup works</h2>
+
+<ul>
+    <li><b>Every member reports twice.</b> Its snippet names two Plausible sites, its own first:
+        <code>data-domain="docs.arc42.org,rollup.arc42.com"</code>. Each page view goes to both.
+        The member's own dashboard, and every figure on the home page, stay exactly as they were.</li>
+    <li><b>One person, one visitor, across sites.</b> Plausible sets no cookies. It recognises a
+        visitor by a hash of the IP address, the browser's user agent, the site the page view is
+        sent to, and a salt that changes every day. Every member sends to the same site,
+        <code>rollup.arc42.com</code>, so the same person gets the same hash on every member site that day.</li>
+    <li><b>One visit, across sites.</b> A visit ends after 30 minutes without a page view. Reading
+        arc42.org/overview and then three docs pages within that time is one visit with four page
+        views, in the rollup.</li>
+    <li><b>The old script, on purpose.</b> Plausible's newer per-site snippet cannot report into two
+        dashboards, so every member uses the legacy script (meta.arc42.org ADR-0005).</li>
+    <li><b>Cost.</b> Every page view on a member site is billed twice.</li>
+</ul>
+
+<h2 id="reading">Reading the rollup</h2>
+
+<table>
+    <thead>
+    <tr><th scope="col">Figure</th><th scope="col">Rollup compared with the members added up</th><th scope="col">What it tells you</th></tr>
+    </thead>
+    <tbody>
+    <tr><td>Page views</td><td>Equal</td><td>Every page view is sent to both. A gap means a snippet is missing somewhere, or a member joined inside the window.</td></tr>
+    <tr><td>Unique visitors</td><td>Lower</td><td>The realistic count of people. Members added up minus the rollup = people counted on more than one site.</td></tr>
+    <tr><td>Visits</td><td>Lower</td><td>Moving from arc42.org into the docs continues the visit instead of starting a second one.</td></tr>
+    <tr><td>Bounce rate</td><td>Lower</td><td>Clicking from <code>/overview</code> into the docs is no longer a bounce.</td></tr>
+    <tr><td>Visit duration, pages per visit</td><td>Higher</td><td>Time and pages on every member site add up within one visit.</td></tr>
+    <tr><td>Top sources</td><td>Different</td><td>Where the visit <i>started</i> (a search engine, LinkedIn, a bookmark). Moving to another member site inside a visit is not a source here, while a member's own dashboard lists arc42.org as a referrer.</td></tr>
+    <tr><td>Entry and exit pages</td><td>Different</td><td>First and last page of the whole visit, across sites. An exit on arc42.org/overview now means the reader really left.</td></tr>
+    <tr><td>Outbound link clicks</td><td>Include moves between members</td><td>A click from arc42.org to the docs is movement inside the family, not a departure. Filter those URLs out to see real exits.</td></tr>
+    </tbody>
+</table>
+
+<h2 id="traps">Traps</h2>
+
+<ol>
+    <li><b>Page lists show paths without host names.</b> <code>/</code> from every member is one row, and
+        arc42.de mirrors arc42.org's paths should it ever join. Filter by <i>Hostname</i> before
+        reading Top Pages, Entry Pages or Exit Pages. A useful check: <i>Hostname is docs.arc42.org</i>
+        should roughly match the docs dashboard's own figures.</li>
+    <li><b>Long windows count returning people again.</b> The daily salt means someone who comes
+        back on three days is three visitors in a 30-day window. That is true of every Plausible
+        dashboard, the members' included, so compare windows with each other, not with a head count.</li>
+    <li><b>Joins look like growth.</b> A member that starts reporting adds its traffic from that day.
+        The table above says "not comparable yet" for every window that reaches back before the
+        latest join, and lists each member's join date.</li>
+    <li><b>The rollup began on 2026-07-30.</b> Before that no page view reached it, so the 12-month
+        figures cover less than a year until 2027-07-30.</li>
+    <li><b>Some readers are never counted.</b> Ad blockers and Firefox's tracking protection block
+        Plausible. This affects the rollup and the members' dashboards alike.</li>
+</ol>
+
+<h2 id="questions">Three questions and where to look</h2>
+
+<ul>
+    <li><b>How many people use arc42's sites?</b> The rollup's <i>Unique visitors</i>, unfiltered.</li>
+    <li><b>Where do people who reach the trainings start?</b> Rollup dashboard, filter
+        <i>Hostname is trainings.arc42.org</i>, then <i>Entry Pages</i>.</li>
+    <li><b>How many use more than one site?</b> "Counted on more than one site" in the table above.</li>
+</ul>
+
+<p>Plausible does not record page sequences, so no report here can show "the ten most common
+    paths through arc42". What it can show honestly is where visits start and end, which sites
+    they touch, and how pages are read.</p>
+
+<h2 id="dashboard">The rollup dashboard</h2>
+
+{{ if .ShareURL }}
+<p class="site-page__dashlink">
+    Live from Plausible, privacy-friendly and cookie-free.
+    <a href="{{ .ShareURL }}">Open this dashboard on plausible.io &#8599;</a>
+</p>
+<iframe class="site-plausible site-plausible--rollup" plausible-embed
+        title="Plausible analytics dashboard for the arc42 rollup"
+        src="{{ .ShareURL }}&amp;embed=true&amp;theme=light"
+        scrolling="no" frameborder="0" loading="lazy"></iframe>
+<script async src="https://plausible.io/js/embed.host.js"></script>
+{{ else }}
+<p class="site-page__nodata">The dashboard link is not configured (PLAUSIBLE_ROLLUP_SHARE_URL).</p>
+{{ end }}
+
+</main>
+</body>
+</html>

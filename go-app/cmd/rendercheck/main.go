@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -59,6 +60,28 @@ func main() {
 		LastCheckedAgo: "3 min ago",
 	}
 	copy(stats.Stats4Site[:], rows)
+
+	// the rollup: its own figures, compared with fixture rows that carry
+	// display strings but no numbers - so the comparison falls to n/a, which is
+	// the branch whose explanatory notes stress the page layout most
+	stats.Rollup = types.BuildRollup(types.SiteStatsType{
+		Site: types.RollupSiteID, HasTraffic: true,
+		Visitors7d: "4.912", Visitors7dNr: 4912, PageViews7d: "15.380", PageViews7dNr: 15380,
+		Visitors30d: "20.004", Visitors30dNr: 20004, PageViews30d: "61.215", PageViews30dNr: 61215,
+		Visitors12m: types.NotAvailable, PageViews12m: types.NotAvailable,
+	}, rows, types.Arc42properties[:], time.Date(2026, 9, 14, 12, 0, 0, 0, time.UTC))
+
+	// the maintainers-only rollup page (ADR-0022): a complete document served
+	// from the service's host, so every link into the site must be absolute
+	const fixtureSiteBaseURL = "https://status.arc42.org"
+	rollupPath := filepath.Join(outDir, "rollupPage.html")
+	rollupHTML := render("internal/api/rollupPage.gohtml", rollupPath, types.RollupPageData{
+		Rollup:            stats.Rollup,
+		LastUpdatedString: stats.LastUpdatedString,
+		Login:             "octocat",
+		SiteBaseURL:       fixtureSiteBaseURL,
+		ShareURL:          "https://plausible.io/share/rollup.arc42.com?auth=fixture",
+	})
 
 	tablePath := filepath.Join(outDir, "table.html")
 	tableHTML := render("internal/api/arc42statistics.gohtml", tablePath, stats)
@@ -154,8 +177,11 @@ func main() {
 	fmt.Printf("rendered %s\n", availPath)
 	fmt.Printf("rendered %s\n", availNonePath)
 	fmt.Printf("rendered %s\n", availHostlessPath)
+	fmt.Printf("rendered %s\n", rollupPath)
 
-	if !checkTableColumns(tableHTML) {
+	tableOK := checkTableColumns(tableHTML)
+	linksOK := checkAbsoluteLinks(rollupHTML, fixtureSiteBaseURL)
+	if !tableOK || !linksOK {
 		os.Exit(1)
 	}
 }
@@ -339,7 +365,7 @@ func fixtureSet() []types.SiteStatsType {
 			}},
 
 		// brand-new property: measured, but everything is genuinely zero
-		{Site: "trainings.arc42.org", Host: "trainings.arc42.org", HasTraffic: true,
+		{Site: "trainings.arc42.org", Host: "trainings.arc42.org", HasTraffic: true, InTable: true,
 			Visitors7d: "0", PageViews7d: "0", Visitors30d: "0", PageViews30d: "0",
 			Visitors12m: "0", PageViews12m: "0", Repo: "https://github.com/arc42/trainings.arc42.org-site", Availability: availUp},
 
@@ -496,4 +522,38 @@ func rowWidth(row string, occupied []int) int {
 		}
 	}
 	return width
+}
+
+// ---------------------------------------------------------------------------
+// links of the rollup page
+// ---------------------------------------------------------------------------
+
+var linkAttrRe = regexp.MustCompile(`(?i)\b(href|src)="([^"]*)"`)
+
+// checkAbsoluteLinks reports every href and src of the rendered rollup page
+// that is root-relative. The page is served from the service's host, so such
+// a link would point into the service instead of the site.
+func checkAbsoluteLinks(html, siteBaseURL string) bool {
+	fmt.Println("\nlinks of the rendered rollup page")
+	fmt.Println("---------------------------------")
+
+	ok, stylesheet := true, false
+	for _, m := range linkAttrRe.FindAllStringSubmatch(html, -1) {
+		value := m[2]
+		if value == siteBaseURL+"/assets/css/main.css" {
+			stylesheet = true
+		}
+		if strings.HasPrefix(value, "/") {
+			fmt.Printf("  RELATIVE %s=%q\n", m[1], value)
+			ok = false
+		}
+	}
+	if !stylesheet {
+		fmt.Printf("  MISSING  stylesheet %s/assets/css/main.css\n", siteBaseURL)
+		ok = false
+	}
+	if ok {
+		fmt.Println("  every href and src is absolute, stylesheet present")
+	}
+	return ok
 }

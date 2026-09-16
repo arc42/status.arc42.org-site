@@ -42,3 +42,14 @@ func GetEnv() string {
 	})
 	return environment
 }
+
+// SiteBaseURL is where the Jekyll site of the given environment is served.
+// Pages the service renders itself (the rollup page, ADR-0022) are served from
+// the service's own host, so their stylesheet and their links into the site
+// are absolute against this.
+func SiteBaseURL(environment string) string {
+	if environment == "PROD" {
+		return "https://status.arc42.org"
+	}
+	return "http://localhost:4046"
+}

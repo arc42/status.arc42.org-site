@@ -43,6 +43,25 @@ The backend requires `go-app/set-api-keys.sh`, created from template:
 cp go-app/set-api-keys.sh.template go-app/set-api-keys.sh
 ```
 
+### Maintainer login (rollup page)
+
+`/rollup` on the service is for people with push access to
+`arc42/status.arc42.org-site` only (ADR-0022). To use it locally:
+
+1. Create a GitHub OAuth App (GitHub → Settings → Developer settings → OAuth Apps),
+   homepage `http://localhost:4046`, authorization callback URL
+   `http://localhost:8043/auth/callback`.
+2. Put its client ID and a new client secret into `go-app/set-api-keys.sh`, together with
+   `SESSION_KEY` (`openssl rand -base64 32`), `PUBLIC_BASE_URL=http://localhost:8043` and
+   `PLAUSIBLE_ROLLUP_SHARE_URL` (see `set-api-keys.sh.template`).
+3. `make backend`, then open http://localhost:8043/rollup.
+
+Production uses a second OAuth App with callback `https://arc42-stats.fly.dev/auth/callback`;
+its values are fly secrets (`make fly-secrets` lists them). Without the login variables
+`/rollup` answers 503. Locally the site's web fonts may not load on the page, because the
+Jekyll dev server sends no CORS headers for them. Set the fly secrets before merging to
+`main`, because that merge deploys the service.
+
 ### Database & Schema Management (Atlas)
 
 Database schemas for both local SQLite (`~/arc42-stats-dev.db`) and production TursoDB (`libsql://...`) are declaratively managed with Atlas ([ADR-0013](documentation/adrs/0013-use-atlas-for-declarative-database-schema-management.md)):

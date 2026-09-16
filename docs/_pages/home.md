@@ -44,12 +44,12 @@ header:
   <table class="stats-skeleton" aria-hidden="true">
     <tbody>
     {% comment %}
-      10 rows x 8 columns: two header rows, the seven sites the table carries
-      (types.Arc42properties, InTable), one totals row, and the
-      site / status / 3x(visitors, pageviews) columns the service returns --
-      the same shape, so the page barely moves when the real table lands.
+      11 rows x 8 columns: two header rows, the eight sites the table carries
+      (types.Arc42properties, InTable), the totals row, and the site / status /
+      3x(visitors, pageviews) columns the service returns -- the same shape, so
+      the page barely moves when the real table lands.
     {% endcomment %}
-    {% for row in (1..10) %}
+    {% for row in (1..11) %}
       <tr>
         {% for col in (1..8) %}
         <td class="{% if col == 1 %}skeleton-cell--site{% elsif col == 2 %}skeleton-cell--status{% else %}skeleton-cell--number{% endif %}"><span

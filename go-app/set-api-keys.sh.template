@@ -27,6 +27,25 @@ export SLACK_AUTH_TOKEN=<slack-bot-token>
 #   turso db tokens create arc42-statistics
 export TURSO_AUTH_TOKEN="<turso-auth-token>"
 
+# ---- maintainer login for the rollup page (ADR-0022) ----------------------
+# Without the first four, /rollup answers 503; everything else runs as usual.
+
+# GitHub OAuth App "arc42 status (local)", authorization callback URL
+#   http://localhost:8043/auth/callback
+export GITHUB_OAUTH_CLIENT_ID=<oauth-app-client-id>
+export GITHUB_OAUTH_CLIENT_SECRET=<oauth-app-client-secret>
+
+# Signs the login cookies. Generate with:  openssl rand -base64 32
+# Changing it signs every maintainer out.
+export SESSION_KEY=<openssl-rand-base64-32>
+
+# Where this service is reachable; the OAuth callback URL is built from it.
+export PUBLIC_BASE_URL="http://localhost:8043"
+
+# Plausible shared link for rollup.arc42.com, without &embed=... .
+# Secret: whoever holds it can read the rollup dashboard.
+export PLAUSIBLE_ROLLUP_SHARE_URL=<plausible-share-link>
+
 # DEV keeps the service on the development database and off the production
 # one. Anything starting with DEV, TEST or PROD is recognised; see
 # internal/env/environment.go.

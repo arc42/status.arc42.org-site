@@ -37,7 +37,7 @@ type Property struct {
 	// InTable says the property gets a row in the traffic table. A property
 	// can be measured and still stay out of the table: the table exists to
 	// be read down a column, and rows that are structurally incomparable
-	// (a CLI's landing page, a course-date feed) make that reading worse
+	// (a CLI's landing page, a repository with no site at all) make that reading worse
 	// rather than more complete. Their numbers live on their subpage.
 	InTable bool
 
@@ -72,6 +72,26 @@ type Property struct {
 	// permanent outage for a site that is not down but absent. Flip to
 	// false when the host goes live.
 	NoProbe bool
+
+	// RollupSince is the day this property started reporting into the shared
+	// rollup.arc42.com dashboard (meta.arc42.org ADR-0005, and ADR-0021 here),
+	// as "2006-01-02". Empty means it is not a member. A window reaching back
+	// before a member's RollupSince cannot compare the rollup with the
+	// members' own dashboards, and the maintainers-only /rollup page says so
+	// instead.
+	//
+	// It is the day the copies started to arrive, not the commit date:
+	// arc42.org, docs, faq and quality named rollup.arc42.com from 2023 on,
+	// but Plausible dropped those copies until the rollup site was created
+	// on 2026-07-30.
+	RollupSince string
+
+	// RollupPending marks a property whose snippet names the rollup in its
+	// repository but is not deployed yet. It is listed as joining and kept out
+	// of every sum. When it deploys, drop the flag and set RollupSince to the
+	// deploy date - left pending, its visitors reach the rollup but not the
+	// members' sum, and the comparison turns unavailable.
+	RollupPending bool
 }
 
 // Arc42properties is the family, in the order the dashboard shows it.
@@ -89,33 +109,42 @@ type Property struct {
 //	row 4  what runs the family: this dashboard, the CLI, the course dates
 //	row 5  meta - the brand and decision home, read by maintainers only
 var Arc42properties = [12]Property{
-	{Key: "arc42.org", Host: "arc42.org", Repo: "arc42.org-site", HasTraffic: true, InTable: true, IsHub: true, ExpectedContent: "arc42"},
+	{Key: "arc42.org", Host: "arc42.org", Repo: "arc42.org-site", HasTraffic: true, InTable: true, IsHub: true, ExpectedContent: "arc42", RollupSince: "2026-07-30"},
+	// Not in the rollup (ADR-0005 keeps the separate domain out; open decision
+	// 2026-09-14).
 	{Key: "arc42.de", Host: "arc42.de", Repo: "arc42.de-site", HasTraffic: true, InTable: true, IsHub: true, ExpectedContent: "arc42"},
 
 	// The template itself: a repository with no site of its own. It is the
 	// artefact the whole family exists to distribute, so it belongs on the
 	// dashboard even though it has no host and no traffic to report.
 	{Key: "arc42-template", Repo: "arc42-template"},
-	{Key: "docs.arc42.org", Host: "docs.arc42.org", Repo: "docs.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", ProbePath: "/home/"},
-	{Key: "quality.arc42.org", Host: "quality.arc42.org", Repo: "quality.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
+	{Key: "docs.arc42.org", Host: "docs.arc42.org", Repo: "docs.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", ProbePath: "/home/", RollupSince: "2026-07-30"},
+	{Key: "quality.arc42.org", Host: "quality.arc42.org", Repo: "quality.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", RollupSince: "2026-07-30"},
 
-	{Key: "faq.arc42.org", Host: "faq.arc42.org", Repo: "faq.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", ProbePath: "/home/"},
-	{Key: "canvas.arc42.org", Host: "canvas.arc42.org", Repo: "canvas.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
+	{Key: "faq.arc42.org", Host: "faq.arc42.org", Repo: "faq.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", ProbePath: "/home/", RollupSince: "2026-07-30"},
+	// canvas rejoined the rollup with commit 4606d0e; its first page view
+	// reached rollup.arc42.com on 2026-08-30 (Stats API v2, checked 2026-09-14).
+	// examples and trainings below: snippet edited 2026-09-14, not deployed
+	// yet. Replace RollupPending with RollupSince: "<deploy date>".
+	{Key: "canvas.arc42.org", Host: "canvas.arc42.org", Repo: "canvas.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", RollupSince: "2026-08-30"},
 
 	// Plausible property wired up 2026-08-09 (share link supplied by owner,
 	// verified live on the plausible.io dashboard) - see the plausible_embed
 	// entry in docs/_data/arc42_sites.yml. HasTraffic now queries it like
 	// every other satellite.
-	{Key: "examples.arc42.org", Host: "examples.arc42.org", Repo: "examples.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
+	{Key: "examples.arc42.org", Host: "examples.arc42.org", Repo: "examples.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", RollupPending: true},
 
 	{Key: "status.arc42.org", Host: "status.arc42.org", Repo: "status.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
 
+	// Back in the traffic table (owner decision, 2026-09-15), although a
+	// course-date feed does not compare cleanly with the documentation sites.
+	{Key: "trainings.arc42.org", Host: "trainings.arc42.org", Repo: "trainings.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", RollupPending: true},
+
 	// Measured, but deliberately out of the traffic table (owner decision,
-	// 2026-08-05). A tool's landing page and a course-date feed do not
-	// compare with the documentation sites in the same column; their numbers
-	// are reported on their own subpages instead.
+	// 2026-08-05). A tool's landing page does not compare with the
+	// documentation sites in the same column; its numbers are reported on
+	// its own subpage instead.
 	{Key: "pdfminion.arc42.org", Host: "pdfminion.arc42.org", Repo: "PDFminion", HasTraffic: true, ExpectedContent: "minion"},
-	{Key: "trainings.arc42.org", Host: "trainings.arc42.org", Repo: "trainings.arc42.org-site", HasTraffic: true, ExpectedContent: "arc42"},
 
 	// No Plausible site at all: the brand and decision home is read by
 	// maintainers, not by an audience, so it was never registered. Asking
@@ -455,6 +484,11 @@ type Arc42Statistics struct {
 
 	// Totals: sum of all the statistics over all sites
 	Totals TotalsForAllSites
+
+	// Rollup: the shared rollup dashboard's own counts, compared with its
+	// members' (ADR-0021). Not a total: a person on two sites counts once.
+	// Rendered only on the maintainers-only /rollup page (ADR-0022).
+	Rollup RollupStats
 
 	Availability FamilyAvailability
 }

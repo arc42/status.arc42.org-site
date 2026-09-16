@@ -12,9 +12,12 @@
   It also carries fewer rows than the dashboard has tiles. Only properties
   marked InTable appear here (types.Arc42properties): a column is read downwards,
   and rows that do not compare with each other - a CLI's landing page, a
-  course-date feed, a repository with no site at all - make that reading worse
-  rather than more complete. Their numbers are on their own subpages. The totals
-  row sums exactly the rows above it, so the reader can check it by adding up.
+  repository with no site at all - make that reading worse rather than more
+  complete. Their numbers are on their own subpages. The totals row sums
+  exactly the rows above it, so the reader can check it by adding up.
+
+  The rollup's unique count is not shown here: it is for maintainers only, on
+  the service's /rollup page (ADR-0022).
 -->
 {{ with .Availability }}
 <!-- The verdict is rendered by the service, not by Jekyll: only the

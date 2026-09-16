@@ -95,6 +95,15 @@ doctor: ## Check the local dev setup and report what is missing
 	else \
 		printf "  [fail] %s missing — cp %s %s and fill it in\n" "$(SECRETS)" "$(TEMPLATE)" "$(SECRETS)"; \
 	fi
+	@if [ -f $(SECRETS) ]; then \
+		for var in GITHUB_OAUTH_CLIENT_ID GITHUB_OAUTH_CLIENT_SECRET SESSION_KEY PUBLIC_BASE_URL PLAUSIBLE_ROLLUP_SHARE_URL; do \
+			if grep -Eq "^export $$var=\"?[^\"<]+" $(SECRETS); then \
+				printf "  [ok]   %s set\n" "$$var"; \
+			else \
+				printf "  [warn] %s not set — maintainer login (/rollup) incomplete, see README\n" "$$var"; \
+			fi; \
+		done; \
+	fi
 	@if [ -f $(SITE_DIR)/_config.dev.yml ]; then \
 		printf "  [ok]   %s/_config.dev.yml present (site talks to localhost:$(API_PORT))\n" "$(SITE_DIR)"; \
 	else \
