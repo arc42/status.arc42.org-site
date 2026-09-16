@@ -24,7 +24,7 @@ func TestFromEnvComplete(t *testing.T) {
 	if c.PublicBaseURL != "http://localhost:8043" {
 		t.Errorf("PublicBaseURL = %q, want the trailing slash trimmed", c.PublicBaseURL)
 	}
-	if c.SiteBaseURL != "http://localhost:4270" {
+	if c.SiteBaseURL != "http://localhost:4046" {
 		t.Errorf("SiteBaseURL = %q", c.SiteBaseURL)
 	}
 	if c.SecureCookies {

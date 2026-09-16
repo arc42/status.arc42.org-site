@@ -96,7 +96,7 @@ The page is served from `arc42-stats.fly.dev`, so every link into the site is ab
 | Environment | `SiteBaseURL` |
 |---|---|
 | PROD | `https://status.arc42.org` |
-| DEV, TEST | `http://localhost:4270` |
+| DEV, TEST | `http://localhost:4046` |
 
 Used for the stylesheet (`/assets/css/main.css`, which imports `arc42-status-style.css`;
 its fonts load from `/assets/fonts/` on the same host), `/site/<key>/` roster links, and
@@ -171,7 +171,7 @@ they do not depend on one personal account):
 | App | Homepage | Authorization callback URL |
 |---|---|---|
 | arc42 status (production) | `https://status.arc42.org` | `https://arc42-stats.fly.dev/auth/callback` |
-| arc42 status (local) | `http://localhost:4270` | `http://localhost:8043/auth/callback` |
+| arc42 status (local) | `http://localhost:4046` | `http://localhost:8043/auth/callback` |
 
 `make doctor` reports each missing variable as `[warn]`, not `[fail]`.
 

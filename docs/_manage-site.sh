@@ -19,7 +19,7 @@ echo "============================================================"
 echo
 echo "Please select wether to ${GREEN}develop ${RESET} or ${RED} build ${RESET} the site:"
 echo
-echo "${GREEN}(d)evelop ${RESET} starts a jekyll server on port 0.0.0.0:4000,"
+echo "${GREEN}(d)evelop ${RESET} starts a jekyll server on port 0.0.0.0:4046,"
 echo "which performs incremental builds and listens for file changes."
 echo
 echo "${GREEN}(b)build ${RESET} build the required docker image."

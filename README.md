@@ -21,12 +21,21 @@ This site runs as two processes during local development:
 
 ```bash
 make backend    # terminal 1: run the Go statistics service on :8043
-make site       # terminal 2: run the Jekyll dev server on :4270
+make site       # terminal 2: run the Jekyll dev server on :4046
 make doctor     # verify setup health (Docker, Go, flyctl, Atlas, secrets, ports)
 make help       # show all available make targets
 ```
 
-`make site` loads `docs/_config.dev.yml`, pointing the static site to the local backend. The deployed site uses `_config.yml` (pointing to Fly.io).
+`make site` (aliased as `make dev`) loads `docs/_config.dev.yml`, pointing the static site to the local backend. The deployed site uses `_config.yml` (pointing to Fly.io).
+
+The Jekyll dev server serves on **4046**, not Jekyll's default 4000, so it can
+run alongside the other arc42 sites' dev servers without a clash — see
+`raw/port-assignment.md` in meta.arc42.org for the full assignment. Jekyll binds
+4046 inside the container as well as on the host, so its "Server address:"
+startup banner names the real port. Three places must stay in step: `SITE_PORT`
+in the `Makefile`, the mapping plus `--port` in `docs/docker-compose.yml`, and
+`EXPOSE`/`CMD` in `docs/Dockerfile`. The Go backend keeps **8043** — that is
+this repo's own second port, not part of the site assignment.
 
 The backend requires `go-app/set-api-keys.sh`, created from template:
 
@@ -40,7 +49,7 @@ cp go-app/set-api-keys.sh.template go-app/set-api-keys.sh
 `arc42/status.arc42.org-site` only (ADR-0022). To use it locally:
 
 1. Create a GitHub OAuth App (GitHub → Settings → Developer settings → OAuth Apps),
-   homepage `http://localhost:4270`, authorization callback URL
+   homepage `http://localhost:4046`, authorization callback URL
    `http://localhost:8043/auth/callback`.
 2. Put its client ID and a new client secret into `go-app/set-api-keys.sh`, together with
    `SESSION_KEY` (`openssl rand -base64 32`), `PUBLIC_BASE_URL=http://localhost:8043` and

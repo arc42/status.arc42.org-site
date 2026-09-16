@@ -5,6 +5,24 @@
 # instead of the deployed one on fly.io. GitHub Pages only ever reads
 # _config.yml, so production is unaffected.
 
+# Compose derives the project name from the directory holding this file. Here
+# that directory is docs/, so the container came out as "docs-jekyll-1" --
+# which says nothing about which site it serves, and would collide in a
+# listing with every sibling arc42 repo, since each keeps its Jekyll site
+# under docs/ too.
+#
+# The sibling repos put their compose file at the repo root, so Compose names
+# them after the repository: arc42org-site-jekyll-1, docsarc42org-site-jekyll-1,
+# canvasarc42org-site-jekyll-1, and so on (dots are stripped -- a project name
+# may only hold lowercase letters, digits, dash and underscore). Setting the
+# name explicitly puts this repo in that same series without moving the file:
+#
+#     statusarc42org-site-jekyll-1
+#
+# This is the only place it is set: the Makefile's COMPOSE variable passes no
+# -p, so every target inherits it.
+name: statusarc42org-site
+
 services:
   jekyll:
     build: .
@@ -17,8 +35,13 @@ services:
       - .:/site
       - jekyll_cache:/site/.jekyll-cache
       - sass_cache:/site/.sass-cache
+    # 4046 is this site's fixed dev port (see raw/port-assignment.md in
+    # meta.arc42.org); SITE_PORT in the Makefile must match. --port below
+    # hands the same number to Jekyll: its "Server address:" banner reports
+    # the port it was told to bind, so a host-side-only mapping would leave
+    # the banner naming the wrong port.
     ports:
-      - '4270:4270'
+      - '4046:4046'
     # No --incremental: full rebuild on change. Incremental silently
     # leaves stale/relocated output when permalinks or front matter change.
     #
@@ -26,7 +49,7 @@ services:
     # before a more-indented continuation line, and `sh -c` then reads it as a
     # second command -- which starts jekyll without the --config flags and
     # silently drops the dev override.
-    command: sh -c "bundle exec jekyll serve --host 0.0.0.0 --port 4270 --watch --config _config.yml,_config.dev.yml $${POLLING}"
+    command: sh -c "bundle exec jekyll serve --host 0.0.0.0 --port 4046 --watch --config _config.yml,_config.dev.yml $${POLLING}"
 
 volumes:
   jekyll_cache:

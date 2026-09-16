@@ -51,5 +51,5 @@ func SiteBaseURL(environment string) string {
 	if environment == "PROD" {
 		return "https://status.arc42.org"
 	}
-	return "http://localhost:4270"
+	return "http://localhost:4046"
 }

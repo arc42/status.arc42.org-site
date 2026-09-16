@@ -89,6 +89,12 @@ exclude:
   - tmp
   # design/plan documents carrying non-Liquid template syntax, not site content
   - superpowers/
+  # The Pages workflow installs gems into docs/vendor/bundle, inside Jekyll's
+  # own source directory, so without this Jekyll tries to build the gems'
+  # scaffold content and dies on jekyll-3.9.3's site_template post, whose
+  # front matter carries an ERB tag where a date belongs. Local builds run in
+  # the container and never create vendor/, which is why this only ever broke CI.
+  - vendor
  
 keep_files:
   - sitemap.xml
