@@ -121,14 +121,37 @@ table already behaves:
 | No rows | "no visit in this window reached the registration page" |
 | Window predates the join | rows shown, with the not-whole label above them |
 
-## Risk to retire first
+## Risk retired (probed 2026-09-17)
 
-`has_done` and `has_not_done` arrived in plausible/analytics **v3.0.0**. Whether
-arc42's account serves them cannot be determined from the repository or from
-the public docs — only by asking the API. **Task 1 of the implementation is a
-throwaway probe** that sends the query above and reports the status code and
-body. If it is refused, the feature stops there and the fallback is documented
-recipes for the Plausible UI, which was the third option the owner weighed.
+`has_done` arrived in plausible/analytics **v3.0.0**, and whether arc42's
+account served it could only be settled by asking. It was asked: the query
+above returned **HTTP 200**, so the operator works and this design stands. The
+same probe confirmed the filtered path is exactly `/registration/` — Plausible
+strips the `?kurs=…` query string, so one filter covers every course.
+
+## What the data looks like today, and what follows from it
+
+The probe also measured the sample, and it is very small. All-time in the
+rollup, `/registration/` has **3 page views from 2 visitors**, and each of the
+three dimensions returns a single row: entry hostname `arc42.org`, entry page
+`/`, source `Google` — 2 visitors in each.
+
+That is not a defect. `trainings.arc42.org` joined the rollup on 2026-09-15, so
+the rollup has known about the registration page for two days. The figures will
+fill out over the coming weeks without anyone touching the code.
+
+It does bind the design, though. A page that prints three tables of one row
+each, under a 30-day heading, invites the reader to believe a month was
+measured when two days were. Therefore:
+
+- The default window is **all time in the rollup**, not 30 days. A 30-day label
+  over two days of membership is the misreading to avoid.
+- Every table states the sample it rests on — visitors and visits behind it —
+  and the section names trainings' join date, so a single-row table reads as
+  "two visits so far", never as "everyone arrives via Google".
+- Below a threshold of **20 visits**, the section leads with a plain sentence
+  saying the sample is too small to generalise from, and the tables follow it.
+  This is the same instinct as the comparison table's "not comparable yet".
 
 ## Code shape
 
