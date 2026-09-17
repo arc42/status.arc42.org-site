@@ -124,21 +124,25 @@ var Arc42properties = [12]Property{
 	{Key: "faq.arc42.org", Host: "faq.arc42.org", Repo: "faq.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", ProbePath: "/home/", RollupSince: "2026-07-30"},
 	// canvas rejoined the rollup with commit 4606d0e; its first page view
 	// reached rollup.arc42.com on 2026-08-30 (Stats API v2, checked 2026-09-14).
-	// examples and trainings below: snippet edited 2026-09-14, not deployed
-	// yet. Replace RollupPending with RollupSince: "<deploy date>".
+	// examples and trainings joined on 2026-09-15. Both dates come from the
+	// commit that put rollup.arc42.com into the snippet the site actually
+	// serves (examples 4ef4058, trainings a429902), cross-checked against the
+	// live pages. examples carried the line once before, from 2026-08-07, but
+	// aca911b took it out again on 2026-08-09 ("not wired up here"), so
+	// 2026-09-15 is the first day its reporting ran without a gap.
 	{Key: "canvas.arc42.org", Host: "canvas.arc42.org", Repo: "canvas.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", RollupSince: "2026-08-30"},
 
 	// Plausible property wired up 2026-08-09 (share link supplied by owner,
 	// verified live on the plausible.io dashboard) - see the plausible_embed
 	// entry in docs/_data/arc42_sites.yml. HasTraffic now queries it like
 	// every other satellite.
-	{Key: "examples.arc42.org", Host: "examples.arc42.org", Repo: "examples.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", RollupPending: true},
+	{Key: "examples.arc42.org", Host: "examples.arc42.org", Repo: "examples.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", RollupSince: "2026-09-15"},
 
 	{Key: "status.arc42.org", Host: "status.arc42.org", Repo: "status.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42"},
 
 	// Back in the traffic table (owner decision, 2026-09-15), although a
 	// course-date feed does not compare cleanly with the documentation sites.
-	{Key: "trainings.arc42.org", Host: "trainings.arc42.org", Repo: "trainings.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", RollupPending: true},
+	{Key: "trainings.arc42.org", Host: "trainings.arc42.org", Repo: "trainings.arc42.org-site", HasTraffic: true, InTable: true, ExpectedContent: "arc42", RollupSince: "2026-09-15"},
 
 	// Measured, but deliberately out of the traffic table (owner decision,
 	// 2026-08-05). A tool's landing page does not compare with the

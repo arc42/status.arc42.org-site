@@ -27,7 +27,31 @@
     <link rel="stylesheet" href="{{ .SiteBaseURL }}/assets/css/main.css">
 </head>
 <body>
-<main class="page__content">
+
+{{/* The site's masthead and footer, reproduced from docs/_layouts/default.html.
+     This page is served by the service, so it cannot include the Jekyll
+     partials; the markup is copied instead, with every asset absolute against
+     .SiteBaseURL. The nesting below #main is the theme's `single` layout -
+     without it the text runs to the window edge, because .page__content alone
+     carries no width. */}}
+<div class="masthead">
+    <div class="masthead__inner-wrap">
+        <div class="masthead__menu">
+            <nav id="site-nav" class="greedy-nav">
+                <a class="site-logo" href="{{ .SiteBaseURL }}/">
+                    <img src="{{ .SiteBaseURL }}/assets/images/brand/arc42-logo-white.svg" alt="arc42 &mdash; status home" width="150" height="42">
+                </a>
+                <span class="masthead-badge">maintainers only</span>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<div class="initial-content">
+<div id="main" role="main">
+<article class="page">
+<div class="page__inner-wrap">
+<section class="page__content">
 
 <div class="site-page" data-site="rollup">
     <div class="site-page__band">
@@ -207,6 +231,39 @@
 <p class="site-page__nodata">The dashboard link is not configured (PLAUSIBLE_ROLLUP_SHARE_URL).</p>
 {{ end }}
 
-</main>
+</section>
+</div>
+</article>
+</div>
+</div>
+
+{{/* The family footer, from docs/_includes/footer.html. Its "Maintainers"
+     link is left out here on purpose: on this page it would point at itself,
+     and it would have to be relative (the rollup lives on the service, not on
+     .SiteBaseURL), which is exactly what cmd/rendercheck forbids. */}}
+<div id="footer" class="page__footer">
+    <footer>
+        <div class="footer-inner">
+            <p class="footer-icons">
+                <a href="https://www.innoq.com" target="_blank" rel="noopener noreferrer nofollow">
+                    <img class="supported-by-innoq" src="{{ .SiteBaseURL }}/assets/images/brand/supported-by-innoq.svg" alt="Supported by INNOQ" width="110" height="24">
+                </a>
+            </p>
+
+            <nav class="footer-links" aria-label="Site">
+                <a href="https://arc42.org">arc42.org</a>
+                <a href="https://docs.arc42.org">Documentation</a>
+                <a href="https://arc42.org/imprint/">Imprint + Privacy</a>
+                <a href="https://github.com/arc42/status.arc42.org-site" target="_blank" rel="noopener noreferrer nofollow">GitHub</a>
+            </nav>
+
+            <p class="footer-maintainer">
+                Created by <a target="_blank" rel="noopener noreferrer nofollow" href="https://gernotstarke.de">Gernot Starke</a>,
+                licensed under <a target="_blank" rel="noopener noreferrer nofollow" href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.
+                Supported by <a href="https://kroener-starke.ch/projekte/" target="_blank" rel="noopener noreferrer">Kröner &amp; Starke</a>.
+            </p>
+        </div>
+    </footer>
+</div>
 </body>
 </html>
