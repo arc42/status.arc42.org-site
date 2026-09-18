@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const appVersion = "1.5.0"
+const appVersion = "1.6.0"
 
 // gitCommit is injected at build time:
 //
@@ -22,6 +22,9 @@ const appVersion = "1.5.0"
 var gitCommit = "dev"
 
 // version history
+// 1.6.0: the rollup page reports where the visits that reach the trainings
+//        registration begin - entry host, entry page and source (ADR-0023),
+//        via Plausible's Stats API v2.
 // 1.5.0: the rollup is for maintainers only (ADR-0022). /rollup is a complete
 //        page behind a GitHub login (push access to arc42/status.arc42.org-site);
 //        the public /rollup/ page, the table's "Unique across sites" row and the

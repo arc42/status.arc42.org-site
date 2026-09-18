@@ -1,7 +1,7 @@
 # Registration origins — design
 
 Date: 2026-09-16
-Status: draft, awaiting owner review
+Status: implemented (2026-09-18, ADR-0023)
 Supersedes nothing. Implements the "journeys page" left open by ADR-0021.
 
 ## The question
@@ -155,21 +155,41 @@ measured when two days were. Therefore:
 
 ## Code shape
 
-- `internal/plausible/queryV2.go` — new. A small typed client: build request,
-  set the bearer header, POST, decode `results`/`meta`, map errors. It knows
-  nothing about registrations.
-- `internal/plausible/registrationOrigins.go` — new. Builds the three queries,
-  calls the client, returns a typed result per dimension.
-- `internal/types` — the result types, and the window's not-whole flag derived
-  from the existing `RollupSince` of `trainings.arc42.org` rather than a
-  second hard-coded date.
-- `internal/api/rollupPage.gohtml` — the new section, using the page's existing
-  class vocabulary; no new stylesheet, since the rollup page loads the site's.
-- `cmd/rendercheck` — fixture rows for the new section, so the absolute-link
-  and rendering checks cover it.
+- `internal/statsv2` — new package, not `internal/plausible`. Package
+  `plausible`'s pre-existing `init()` calls `os.Exit(13)` when
+  `PLAUSIBLE_API_KEY` is unset, so any test placed there would make
+  `go test ./...` require a live secret; the v2 code needs nothing else from
+  the v1 package, so it stands apart.
+  - `queryV2.go` — a small typed client for the Stats API v2
+    (`V2Query`, `V2Row`, `V2Pagination`, `RunV2Query`): builds the request, sets
+    the bearer header, POSTs, decodes `results`, maps errors. It knows nothing
+    about registrations.
+  - `registrationOrigins.go` — `RegistrationOriginsFor(joinedOn string)` builds
+    the three queries against site `rollup.arc42.com`, filter
+    `[["has_done", ["is", "event:page", ["/registration/"]]]]`, date_range
+    `"all"`, dimensions `visit:entry_page_hostname`, `visit:entry_page`,
+    `visit:source`; calls the client; returns a typed result per dimension. An
+    empty `PLAUSIBLE_API_KEY` sends no request and returns nil `Cuts`, so the
+    section is omitted.
+- `internal/types` — `OriginRow`, `OriginCut`, `RegistrationOrigins`, and the
+  constant `SmallSampleVisits = 20`; fields on `Arc42Statistics` and
+  `RollupPageData`.
+- `internal/domain/domain.go` — the three queries run in the same cached
+  collection pass as the rollup figures, not per request; the join date comes
+  from `trainings.arc42.org`'s `RollupSince` in the roster
+  (`"2026-09-15"`) rather than a second hard-coded date.
+- `internal/api/rollupPage.gohtml` — the section "Where registrations start",
+  placed after "The numbers"; omitted entirely when there are no cuts; the
+  small-sample sentence below 20 visits; a failed cut and an empty cut read
+  differently, using the page's existing class vocabulary.
+- `cmd/rendercheck` — a fixture that mirrors production (one row per
+  dimension), plus a second variant, `rollupPage-noregistrations.html`, that
+  exercises every cut present but empty: no visit in the rollup has reached
+  the registration page yet.
 
-The collection cadence is the existing one: these queries run in the same
-cached collection run as the rollup figures, not per request.
+Measured on 2026-09-17: `has_done` returned HTTP 200; `/registration/` had 3
+page views from 2 visitors all-time in the rollup, and each cut returned one
+row (`arc42.org`, `/`, `Google`).
 
 ## Testing
 

@@ -5,7 +5,9 @@ Date: 2026-09-14
 ## Status
 
 Accepted. The public page `/rollup/` and the table's "Unique across sites" row are
-superseded by ADR-0022: the rollup is shown to maintainers only.
+superseded by ADR-0022: the rollup is shown to maintainers only. The "journeys page"
+left open below, for the question of where registrations start, is taken up by
+ADR-0023.
 
 ## Context
 
