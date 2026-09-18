@@ -533,3 +533,36 @@ type IssuesAndBugs struct {
 	NrOfIssues int
 	NrOfBugs   int
 }
+
+// OriginRow is one row of a registration-origins table: a dimension value
+// with the visitors and visits behind it.
+type OriginRow struct {
+	Label    string
+	Visitors int
+	Visits   int
+}
+
+// OriginCut is one way of cutting the same visits - by entry hostname, entry
+// page or source. Failed is separate from an empty Rows: "the query failed"
+// and "no visit matched" are different statements (ADR-0002).
+type OriginCut struct {
+	Title         string
+	Note          string
+	Rows          []OriginRow
+	Failed        bool
+	FailureReason string
+}
+
+// RegistrationOrigins is the whole section. SmallSample is set when fewer
+// than SmallSampleVisits visits stand behind it, and makes the page say so
+// before showing any table.
+type RegistrationOrigins struct {
+	Cuts        []OriginCut
+	TotalVisits int
+	SmallSample bool
+	JoinedOn    string
+}
+
+// SmallSampleVisits is the line below which the section refuses to let a
+// one-row table read as a finding.
+const SmallSampleVisits = 20
