@@ -66,7 +66,7 @@ and a nested filter tree.
 {
   "site_id": "rollup.arc42.com",
   "metrics": ["visitors", "visits"],
-  "date_range": "30d",
+  "date_range": "all",
   "dimensions": ["visit:entry_page_hostname"],
   "filters": [["has_done", ["is", "event:page", ["/registration/"]]]],
   "order_by": [["visitors", "desc"]],
@@ -88,7 +88,7 @@ Response rows map positionally: `results[].dimensions` follows the query's
 ## What is shown
 
 A new section on `/rollup`, below "The numbers", headed **Where registrations
-start**. For one window (30 days by default) three short tables, one per
+start**. For one window (all time in the rollup) three short tables, one per
 dimension above, each showing the dimension value with visitors and visits,
 highest first, limited to the top rows.
 
