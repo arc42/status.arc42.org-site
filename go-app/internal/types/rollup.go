@@ -56,8 +56,9 @@ type RollupStats struct {
 
 // RollupPageData is what the maintainers-only /rollup page renders (ADR-0022).
 type RollupPageData struct {
-	Rollup            RollupStats
-	LastUpdatedString string
+	Rollup              RollupStats
+	RegistrationOrigins RegistrationOrigins
+	LastUpdatedString   string
 
 	Login       string // GitHub login of the signed-in maintainer
 	SiteBaseURL string // env.SiteBaseURL: the page is served from the service's host

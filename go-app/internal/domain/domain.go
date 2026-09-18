@@ -5,6 +5,7 @@ import (
 	"arc42-status/internal/database"
 	"arc42-status/internal/github"
 	"arc42-status/internal/plausible"
+	"arc42-status/internal/statsv2"
 	"arc42-status/internal/types"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/text/language"
@@ -168,7 +169,23 @@ func LoadStats4AllSites() types.Arc42Statistics {
 	// two member sites is one visitor there, two in the totals
 	a42s.Rollup = types.BuildRollup(rollupUnique, a42s.Stats4Site[:], types.Arc42properties[:], time.Now().UTC())
 
+	// registration origins run in the same cached collection pass as the
+	// rollup figures above, not per page request (ADR-0022 follow-up).
+	a42s.RegistrationOrigins = statsv2.RegistrationOriginsFor(trainingsJoinedRollup())
+
 	return a42s
+}
+
+// trainingsJoinedRollup returns the day trainings.arc42.org started reporting
+// into the rollup, taken from the declared roster so that one edit there keeps
+// the page honest.
+func trainingsJoinedRollup() string {
+	for _, p := range types.Arc42properties {
+		if p.Key == "trainings.arc42.org" {
+			return p.RollupSince
+		}
+	}
+	return ""
 }
 
 // getRollupStatistics fetches the rollup dashboard's visitors and page views.

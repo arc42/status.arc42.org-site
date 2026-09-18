@@ -502,6 +502,9 @@ type Arc42Statistics struct {
 	// Rendered only on the maintainers-only /rollup page (ADR-0022).
 	Rollup RollupStats
 
+	// RegistrationOrigins: where the visits that reach the registration page came from.
+	RegistrationOrigins RegistrationOrigins
+
 	Availability FamilyAvailability
 }
 

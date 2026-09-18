@@ -158,11 +158,12 @@ func rollupPageHandler(w http.ResponseWriter, r *http.Request) {
 	go database.SaveInvocationParams(r.Host, r.RequestURI)
 
 	executeTemplate(w, filepath.Join(TemplatesDir, RollupPageTmpl), types.RollupPageData{
-		Rollup:            domain.ArcStats.Rollup,
-		LastUpdatedString: domain.ArcStats.LastUpdatedString,
-		Login:             auth.LoginFrom(r.Context()),
-		SiteBaseURL:       env.SiteBaseURL(env.GetEnv()),
-		ShareURL:          strings.TrimSpace(os.Getenv("PLAUSIBLE_ROLLUP_SHARE_URL")),
+		Rollup:              domain.ArcStats.Rollup,
+		RegistrationOrigins: domain.ArcStats.RegistrationOrigins,
+		LastUpdatedString:   domain.ArcStats.LastUpdatedString,
+		Login:               auth.LoginFrom(r.Context()),
+		SiteBaseURL:         env.SiteBaseURL(env.GetEnv()),
+		ShareURL:            strings.TrimSpace(os.Getenv("PLAUSIBLE_ROLLUP_SHARE_URL")),
 	})
 }
 
