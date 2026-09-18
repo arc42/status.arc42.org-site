@@ -147,6 +147,47 @@
     <p class="detail__foot">Collected {{ .LastUpdatedString }}.</p>
 </div>
 
+{{ if .RegistrationOrigins.Cuts }}
+<h2 id="registrations">Where registrations start</h2>
+
+{{ with .RegistrationOrigins }}
+<p>Of the visits that opened <code>/registration/</code> on trainings.arc42.org,
+    this is where the visit began. Only the rollup can answer this: in the
+    trainings dashboard alone, a reader arriving from the docs looks like a new
+    visit with a referrer, not one visit that started there.
+    {{ if .JoinedOn }}trainings.arc42.org has been reporting into the rollup
+    since {{ .JoinedOn }}; nothing before that day is counted here.{{ end }}</p>
+
+{{ if .SmallSample }}
+<p class="rollup__note"><b>Too small to generalise from.</b>
+    {{ .TotalVisits }} visit{{ if ne .TotalVisits 1 }}s{{ end }} stand behind
+    the tables below. They are shown because they are what was measured, not
+    because they show a pattern.</p>
+{{ end }}
+
+{{ range .Cuts }}
+<h3 class="rollup__subhead">{{ .Title }}</h3>
+{{ if .Failed }}
+<p class="site-page__nodata">This query failed: {{ .FailureReason }}</p>
+{{ else if not .Rows }}
+<p class="site-page__nodata">No visit in the rollup has reached the registration page yet.</p>
+{{ else }}
+{{ if .Note }}<p class="rollup__note">{{ .Note }}</p>{{ end }}
+<table class="rollup-figures">
+    <thead>
+    <tr><th scope="col">{{ .Title }}</th><th scope="col">Visitors</th><th scope="col">Visits</th></tr>
+    </thead>
+    <tbody>
+    {{ range .Rows }}
+    <tr><th scope="row">{{ .Label }}</th><td>{{ .Visitors }}</td><td>{{ .Visits }}</td></tr>
+    {{ end }}
+    </tbody>
+</table>
+{{ end }}
+{{ end }}
+{{ end }}
+{{ end }}
+
 <h2 id="how">How the rollup works</h2>
 
 <ul>

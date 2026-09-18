@@ -79,11 +79,12 @@ func main() {
 	const fixtureSiteBaseURL = "https://status.arc42.org"
 	rollupPath := filepath.Join(outDir, "rollupPage.html")
 	rollupHTML := render("internal/api/rollupPage.gohtml", rollupPath, types.RollupPageData{
-		Rollup:            stats.Rollup,
-		LastUpdatedString: stats.LastUpdatedString,
-		Login:             "octocat",
-		SiteBaseURL:       fixtureSiteBaseURL,
-		ShareURL:          "https://plausible.io/share/rollup.arc42.com?auth=fixture",
+		Rollup:              stats.Rollup,
+		RegistrationOrigins: fixtureRegistrationOrigins(),
+		LastUpdatedString:   stats.LastUpdatedString,
+		Login:               "octocat",
+		SiteBaseURL:         fixtureSiteBaseURL,
+		ShareURL:            "https://plausible.io/share/rollup.arc42.com?auth=fixture",
 	})
 
 	tablePath := filepath.Join(outDir, "table.html")
@@ -221,6 +222,37 @@ func fixtureRows() []types.SiteStatsType {
 		os.Exit(1)
 	}
 	return rows
+}
+
+// fixtureRegistrationOrigins exercises every branch of the "Where
+// registrations start" section: a small sample, a join date, one cut with
+// rows and a note, one cut with no rows at all, and one cut whose query
+// failed.
+func fixtureRegistrationOrigins() types.RegistrationOrigins {
+	return types.RegistrationOrigins{
+		TotalVisits: 2,
+		SmallSample: true,
+		JoinedOn:    "2026-09-15",
+		Cuts: []types.OriginCut{
+			{
+				Title: "Entry hostname",
+				Note:  "Hostnames only; arc42.de would mirror arc42.org's paths should it ever join.",
+				Rows: []types.OriginRow{
+					{Label: "arc42.org", Visitors: 2, Visits: 2},
+					{Label: "docs.arc42.org", Visitors: 1, Visits: 1},
+				},
+			},
+			{
+				Title: "Entry page",
+				Rows:  nil,
+			},
+			{
+				Title:         "Source",
+				Failed:        true,
+				FailureReason: "Plausible API returned 502",
+			},
+		},
+	}
 }
 
 // fixtureDays is a 30-cell strip with every cell state present.
