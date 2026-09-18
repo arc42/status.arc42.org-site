@@ -1,4 +1,8 @@
-package plausible
+// Package statsv2 sends queries to Plausible's Stats API v2. It is kept
+// apart from package plausible, whose init() exits the process when
+// PLAUSIBLE_API_KEY is unset, so tests in this package run without a
+// secret.
+package statsv2
 
 import (
 	"bytes"
@@ -10,8 +14,9 @@ import (
 )
 
 // StatsV2Endpoint is Plausible's query API. The vendored go-plausible client
-// speaks v1 only, which has no entry_page, exit_page or hostname dimension -
-// the three this report is made of - so these queries are sent directly.
+// in package plausible speaks v1 only, which has no entry_page, exit_page or
+// hostname dimension - the three this report is made of - so these queries
+// are sent directly.
 const StatsV2Endpoint = "https://plausible.io/api/v2/query"
 
 // V2Pagination limits a query's result rows.

@@ -1,4 +1,4 @@
-package plausible
+package statsv2
 
 import (
 	"io"
