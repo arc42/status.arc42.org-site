@@ -53,6 +53,12 @@ func registrationOriginsFrom(endpoint, token, joinedOn string) types.Registratio
 	// page is meaningless - see the spec.
 	filter := []any{[]any{"has_done", []any{"is", "event:page", []string{registrationPath}}}}
 
+	// anyOK tracks whether at least one cut actually returned data. Without
+	// it, three failed cuts would leave TotalVisits at its zero value and
+	// SmallSample would read that zero as "small" - a zero standing in for
+	// unknown, which the spec forbids.
+	anyOK := false
+
 	for _, spec := range originCuts {
 		cut := types.OriginCut{Title: spec.title, Note: spec.note}
 
@@ -72,6 +78,8 @@ func registrationOriginsFrom(endpoint, token, joinedOn string) types.Registratio
 			out.Cuts = append(out.Cuts, cut)
 			continue
 		}
+
+		anyOK = true
 
 		visits := 0
 		for _, r := range rows {
@@ -97,6 +105,10 @@ func registrationOriginsFrom(endpoint, token, joinedOn string) types.Registratio
 		out.Cuts = append(out.Cuts, cut)
 	}
 
-	out.SmallSample = out.TotalVisits < types.SmallSampleVisits
+	// SmallSample only ever qualifies a total that came from real data. When
+	// every cut failed, TotalVisits is 0 for lack of any answer, not because
+	// the traffic was small - so it must not read as "too small to
+	// generalise from".
+	out.SmallSample = anyOK && out.TotalVisits < types.SmallSampleVisits
 	return out
 }

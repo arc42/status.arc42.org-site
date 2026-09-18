@@ -124,6 +124,16 @@ func LoadStats4AllSites() types.Arc42Statistics {
 	wg.Add(1)
 	go getRollupStatistics(&rollupUnique, &wg)
 
+	// registration origins run in the same cached collection pass as the
+	// rollup figures, not per page request (ADR-0023). It depends only on the
+	// static roster, so it starts here alongside the other goroutines rather
+	// than after wg.Wait() - otherwise every cache miss, the public home page
+	// included, would wait out three sequential Plausible round trips (up to
+	// 3 x 20s) on top of everything else.
+	var regOrigins types.RegistrationOrigins
+	wg.Add(1)
+	go getRegistrationOrigins(trainingsJoinedRollup(), &regOrigins, &wg)
+
 	// retrieve repo statistics
 	// currently:  number of open bugs and issues from GitHub
 	for index, property := range types.Arc42properties {
@@ -169,9 +179,9 @@ func LoadStats4AllSites() types.Arc42Statistics {
 	// two member sites is one visitor there, two in the totals
 	a42s.Rollup = types.BuildRollup(rollupUnique, a42s.Stats4Site[:], types.Arc42properties[:], time.Now().UTC())
 
-	// registration origins run in the same cached collection pass as the
-	// rollup figures above, not per page request (ADR-0022 follow-up).
-	a42s.RegistrationOrigins = statsv2.RegistrationOriginsFor(trainingsJoinedRollup())
+	// registration origins were collected concurrently above (ADR-0023); wire
+	// the result in beside the rollup figures it is shown next to.
+	a42s.RegistrationOrigins = regOrigins
 
 	return a42s
 }
@@ -199,6 +209,16 @@ func getRollupStatistics(unique *types.SiteStatsType, wg *sync.WaitGroup) {
 	unique.HasTraffic = true
 
 	plausible.StatsForSite(types.RollupSiteID, unique)
+}
+
+// getRegistrationOrigins fetches the three "where did the visit begin" cuts
+// for the registration page. It is not a property either - it depends only on
+// the static roster (trainings.arc42.org's join date), not on anything the
+// other goroutines produce. This func is called as Goroutine.
+func getRegistrationOrigins(joinedOn string, out *types.RegistrationOrigins, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	*out = statsv2.RegistrationOriginsFor(joinedOn)
 }
 
 // calculateTotals sums the traffic over the rows the table actually shows, and

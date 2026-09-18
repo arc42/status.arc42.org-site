@@ -102,6 +102,20 @@ func main() {
 		ShareURL:            "https://plausible.io/share/rollup.arc42.com?auth=fixture",
 	})
 
+	// the rollup page a third time, with all three registration-origins cuts
+	// failed: the case Important-1 fixed - no zero stands in for unknown, so
+	// TotalVisits is 0 and SmallSample is false, and neither "Too small to
+	// generalise from" nor "0 visits" may appear anywhere in the section.
+	rollupAllFailedPath := filepath.Join(outDir, "rollupPage-allfailed.html")
+	rollupAllFailedHTML := render("internal/api/rollupPage.gohtml", rollupAllFailedPath, types.RollupPageData{
+		Rollup:              stats.Rollup,
+		RegistrationOrigins: fixtureRegistrationOriginsAllFailed(),
+		LastUpdatedString:   stats.LastUpdatedString,
+		Login:               "octocat",
+		SiteBaseURL:         fixtureSiteBaseURL,
+		ShareURL:            "https://plausible.io/share/rollup.arc42.com?auth=fixture",
+	})
+
 	tablePath := filepath.Join(outDir, "table.html")
 	tableHTML := render("internal/api/arc42statistics.gohtml", tablePath, stats)
 
@@ -198,11 +212,14 @@ func main() {
 	fmt.Printf("rendered %s\n", availHostlessPath)
 	fmt.Printf("rendered %s\n", rollupPath)
 	fmt.Printf("rendered %s\n", rollupNoRegPath)
+	fmt.Printf("rendered %s\n", rollupAllFailedPath)
 
 	tableOK := checkTableColumns(tableHTML)
 	linksOK := checkAbsoluteLinks(rollupHTML, fixtureSiteBaseURL)
 	linksOK = checkAbsoluteLinks(rollupNoRegHTML, fixtureSiteBaseURL) && linksOK
-	if !tableOK || !linksOK {
+	linksOK = checkAbsoluteLinks(rollupAllFailedHTML, fixtureSiteBaseURL) && linksOK
+	noZeroOK := checkNoZeroForUnknown(rollupAllFailedHTML)
+	if !tableOK || !linksOK || !noZeroOK {
 		os.Exit(1)
 	}
 }
@@ -296,6 +313,39 @@ func fixtureRegistrationOriginsEmpty() types.RegistrationOrigins {
 				Note:  "Paths carry no host name here: \"/\" is the front page of whichever member site the visit started on.",
 			},
 			{Title: "Where they came from before arc42"},
+		},
+	}
+}
+
+// fixtureRegistrationOriginsAllFailed is the rollupPage-allfailed.html
+// variant: every one of production's three cuts failed. This is the case
+// Important-1 of the final review fixed - registrationOriginsFrom must not
+// let TotalVisits' zero value read as "small sample" when there is no data
+// at all, only silence. Realistic FailureReasons, same titles and notes as
+// production, following the same second-rendered-variant precedent as
+// fixtureRegistrationOriginsEmpty below.
+func fixtureRegistrationOriginsAllFailed() types.RegistrationOrigins {
+	return types.RegistrationOrigins{
+		TotalVisits: 0,
+		SmallSample: false,
+		JoinedOn:    "2026-09-15",
+		Cuts: []types.OriginCut{
+			{
+				Title:         "Which arc42 site they came in through",
+				Failed:        true,
+				FailureReason: "plausible v2: HTTP 500",
+			},
+			{
+				Title:         "Which page they came in through",
+				Note:          "Paths carry no host name here: \"/\" is the front page of whichever member site the visit started on.",
+				Failed:        true,
+				FailureReason: "plausible v2: HTTP 500",
+			},
+			{
+				Title:         "Where they came from before arc42",
+				Failed:        true,
+				FailureReason: "plausible v2: HTTP 400: unknown operator has_done",
+			},
 		},
 	}
 }
@@ -634,6 +684,29 @@ func checkAbsoluteLinks(html, siteBaseURL string) bool {
 	}
 	if ok {
 		fmt.Println("  every href and src is absolute, stylesheet present")
+	}
+	return ok
+}
+
+// checkNoZeroForUnknown guards Important-1 of the final review: when every
+// registration-origins cut failed, TotalVisits is 0 for lack of an answer,
+// not because the traffic was small, so the page must never say "Too small
+// to generalise from" or report "0 visits" as if that were a measurement.
+func checkNoZeroForUnknown(html string) bool {
+	fmt.Println("\nno zero for unknown (rollupPage-allfailed.html)")
+	fmt.Println("------------------------------------------------")
+
+	ok := true
+	if strings.Contains(html, "Too small to generalise from") {
+		fmt.Println(`  FOUND banned phrase "Too small to generalise from"`)
+		ok = false
+	}
+	if strings.Contains(html, "0 visits") {
+		fmt.Println(`  FOUND banned phrase "0 visits"`)
+		ok = false
+	}
+	if ok {
+		fmt.Println(`  neither "Too small to generalise from" nor "0 visits" appears`)
 	}
 	return ok
 }

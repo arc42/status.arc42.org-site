@@ -193,13 +193,26 @@ row (`arc42.org`, `/`, `Google`).
 
 ## Testing
 
-- The query builder: exact JSON for each of the three dimensions, asserted
-  against the literal bodies in this document.
+- The query builder: the exact set of dimensions sent - one query per
+  dimension, matching the literal bodies in this document - and metrics
+  `["visitors","visits"]` in that order.
 - The decoder: a recorded response mapped to typed rows, including the
-  positional dimension/metric mapping and an empty `results` array.
-- Error paths: non-200, malformed body, refused `has_done`.
-- The not-whole rule: a window starting before 2026-09-15 is flagged; one
-  starting after is not.
+  positional dimension/metric mapping (checked with asymmetric metrics, so
+  visitors and visits cannot be swapped unnoticed), an empty `results` array,
+  and a response with no `results` key at all - the latter is an error, not
+  an empty result.
+- Error paths: non-200, malformed body, refused `has_done`, the token never
+  appearing in an error.
+- A cut that fails while its siblings succeed: the surviving cuts keep their
+  rows and drive TotalVisits; the failed cut carries no rows and stays
+  separate from an empty result.
+- No zero for unknown: when every cut fails, TotalVisits is 0 for lack of an
+  answer, and SmallSample must not fire on it - "too small to generalise
+  from" only ever qualifies a total that came from real data.
+- The not-whole rule has no test of its own: the window is fixed at all time
+  (see "Precondition, already met" above), so there is no window boundary
+  left to flag - the join-date sentence shown beside the tables carries that
+  statement instead.
 - No test calls the live API.
 
 ## Out of scope

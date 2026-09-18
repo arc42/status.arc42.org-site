@@ -44,9 +44,13 @@ type V2Row struct {
 	Metrics    []int    `json:"metrics"`
 }
 
+// v2Response.Results is a pointer so a response with no "results" key at all
+// (nil) can be told apart from an explicit "results": [] (a non-nil, empty
+// slice) - the former is a malformed response and must error, the latter is
+// an honest empty result.
 type v2Response struct {
-	Results []V2Row `json:"results"`
-	Error   string  `json:"error"`
+	Results *[]V2Row `json:"results"`
+	Error   string   `json:"error"`
 }
 
 // RunV2Query posts one query and returns its rows. An empty result set is a
@@ -95,5 +99,9 @@ func RunV2Query(endpoint, token string, q V2Query) ([]V2Row, error) {
 		return nil, fmt.Errorf("plausible v2: HTTP %d", resp.StatusCode)
 	}
 
-	return parsed.Results, nil
+	if parsed.Results == nil {
+		return nil, fmt.Errorf("plausible v2: response had no results")
+	}
+
+	return *parsed.Results, nil
 }

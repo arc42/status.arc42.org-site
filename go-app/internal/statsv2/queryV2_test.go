@@ -76,3 +76,24 @@ func TestRunV2QueryEmptyResults(t *testing.T) {
 		t.Errorf("rows = %+v, want none", rows)
 	}
 }
+
+// TestRunV2QueryMissingResultsKey: a 200 that is valid JSON but carries no
+// "results" key at all (e.g. "{}") must not read as an empty result set - it
+// is a malformed response and must error.
+func TestRunV2QueryMissingResultsKey(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{}`))
+	}))
+	defer srv.Close()
+
+	_, err := RunV2Query(srv.URL, "s3cret", V2Query{SiteID: "x", Metrics: []string{"visitors"}, DateRange: "all"})
+	if err == nil {
+		t.Fatal("want an error when the response has no results key, got nil")
+	}
+	if !strings.Contains(err.Error(), "no results") {
+		t.Errorf("error should say the response had no results, got %q", err)
+	}
+	if strings.Contains(err.Error(), "s3cret") {
+		t.Fatal("the token must never appear in an error")
+	}
+}
