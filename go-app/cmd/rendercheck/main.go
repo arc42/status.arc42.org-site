@@ -87,6 +87,21 @@ func main() {
 		ShareURL:            "https://plausible.io/share/rollup.arc42.com?auth=fixture",
 	})
 
+	// the rollup page again, with every registration-origins cut present but
+	// empty: no visit in the rollup has reached the registration page yet.
+	// A second full rendered variant, following the tiles-allclear.html /
+	// siteAvailability-unmonitored.html precedent below, rather than a
+	// one-off field flip inside the main fixture.
+	rollupNoRegPath := filepath.Join(outDir, "rollupPage-noregistrations.html")
+	rollupNoRegHTML := render("internal/api/rollupPage.gohtml", rollupNoRegPath, types.RollupPageData{
+		Rollup:              stats.Rollup,
+		RegistrationOrigins: fixtureRegistrationOriginsEmpty(),
+		LastUpdatedString:   stats.LastUpdatedString,
+		Login:               "octocat",
+		SiteBaseURL:         fixtureSiteBaseURL,
+		ShareURL:            "https://plausible.io/share/rollup.arc42.com?auth=fixture",
+	})
+
 	tablePath := filepath.Join(outDir, "table.html")
 	tableHTML := render("internal/api/arc42statistics.gohtml", tablePath, stats)
 
@@ -182,9 +197,11 @@ func main() {
 	fmt.Printf("rendered %s\n", availNonePath)
 	fmt.Printf("rendered %s\n", availHostlessPath)
 	fmt.Printf("rendered %s\n", rollupPath)
+	fmt.Printf("rendered %s\n", rollupNoRegPath)
 
 	tableOK := checkTableColumns(tableHTML)
 	linksOK := checkAbsoluteLinks(rollupHTML, fixtureSiteBaseURL)
+	linksOK = checkAbsoluteLinks(rollupNoRegHTML, fixtureSiteBaseURL) && linksOK
 	if !tableOK || !linksOK {
 		os.Exit(1)
 	}
@@ -225,9 +242,13 @@ func fixtureRows() []types.SiteStatsType {
 }
 
 // fixtureRegistrationOrigins exercises every branch of the "Where
-// registrations start" section: a small sample, a join date, one cut with
-// rows and a note, one cut with no rows at all, and one cut whose query
-// failed.
+// registrations start" section, mirroring production
+// (internal/statsv2/registrationOrigins.go's originCuts) exactly: same three
+// titles, same order, same entry-page Note - so rendercheck renders the one
+// case the spec singles out, a table of entry-page rows sitting under the
+// host-less-path warning. A small sample, a join date, one cut with rows and
+// production's own note, a second cut with rows and no note, and a third cut
+// whose query failed.
 func fixtureRegistrationOrigins() types.RegistrationOrigins {
 	return types.RegistrationOrigins{
 		TotalVisits: 2,
@@ -235,22 +256,46 @@ func fixtureRegistrationOrigins() types.RegistrationOrigins {
 		JoinedOn:    "2026-09-15",
 		Cuts: []types.OriginCut{
 			{
-				Title: "Entry hostname",
-				Note:  "Hostnames only; arc42.de would mirror arc42.org's paths should it ever join.",
+				Title: "Which arc42 site they came in through",
 				Rows: []types.OriginRow{
 					{Label: "arc42.org", Visitors: 2, Visits: 2},
-					{Label: "docs.arc42.org", Visitors: 1, Visits: 1},
 				},
 			},
 			{
-				Title: "Entry page",
-				Rows:  nil,
+				Title: "Which page they came in through",
+				Note:  "Paths carry no host name here: \"/\" is the front page of whichever member site the visit started on.",
+				Rows: []types.OriginRow{
+					{Label: "/", Visitors: 2, Visits: 2},
+				},
 			},
 			{
-				Title:         "Source",
+				Title:         "Where they came from before arc42",
 				Failed:        true,
-				FailureReason: "Plausible API returned 502",
+				FailureReason: "plausible v2: HTTP 400: invalid dimension visit:source",
 			},
+		},
+	}
+}
+
+// fixtureRegistrationOriginsEmpty is the rollupPage-noregistrations.html
+// variant: the section is configured and every cut ran, but no visit in the
+// rollup has reached the registration page yet - the "no rows, not failed"
+// branch, for all three of production's cuts at once. Follows the same
+// second-rendered-variant precedent as tiles-allclear.html and
+// siteAvailability-unmonitored.html below, rather than overloading the main
+// fixture with a state it cannot hold alongside the rows-bearing cuts.
+func fixtureRegistrationOriginsEmpty() types.RegistrationOrigins {
+	return types.RegistrationOrigins{
+		TotalVisits: 0,
+		SmallSample: true,
+		JoinedOn:    "2026-09-15",
+		Cuts: []types.OriginCut{
+			{Title: "Which arc42 site they came in through"},
+			{
+				Title: "Which page they came in through",
+				Note:  "Paths carry no host name here: \"/\" is the front page of whichever member site the visit started on.",
+			},
+			{Title: "Where they came from before arc42"},
 		},
 	}
 }
