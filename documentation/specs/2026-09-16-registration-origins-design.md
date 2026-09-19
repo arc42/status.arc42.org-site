@@ -92,6 +92,11 @@ start**. For one window (all time in the rollup) three short tables, one per
 dimension above, each showing the dimension value with visitors and visits,
 highest first, limited to the top rows.
 
+Since ADR-0024 (2026-09-19) the section holds one block per course site. This
+spec describes the English block; the German block reports arc42.de's
+`/anmeldung/` from arc42.de's own dashboard over the last 12 months, with two
+cuts (entry page and source), because arc42.de is not in the rollup.
+
 Above them, one sentence naming the filtered page and the window, so no figure
 is readable without knowing what it counts.
 
