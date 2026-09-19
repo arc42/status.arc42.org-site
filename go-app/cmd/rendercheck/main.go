@@ -258,95 +258,118 @@ func fixtureRows() []types.SiteStatsType {
 	return rows
 }
 
-// fixtureRegistrationOrigins exercises every branch of the "Where
-// registrations start" section, mirroring production
-// (internal/statsv2/registrationOrigins.go's originCuts) exactly: same three
-// titles, same order, same entry-page Note - so rendercheck renders the one
-// case the spec singles out, a table of entry-page rows sitting under the
-// host-less-path warning. A small sample, a join date, one cut with rows and
-// production's own note, a second cut with rows and no note, and a third cut
-// whose query failed.
-func fixtureRegistrationOrigins() types.RegistrationOrigins {
+// The registration-origins fixtures mirror production
+// (internal/statsv2/registrationOrigins.go's trainingsTarget and
+// germanTarget) exactly: same headings, same cut titles in the same order,
+// same notes. That way rendercheck renders what ships - in particular a table
+// of entry-page rows under the host-less-path warning for the rollup block,
+// and the not-in-the-rollup wording for arc42.de.
+const (
+	fixtureTrainingsEntryNote = "Paths carry no host name here: \"/\" is the front page of whichever member site the visit started on."
+	fixtureGermanSourceNote   = "arc42.de is not in the rollup, so a reader who comes over from another arc42 site starts a new visit here, and that site is listed as the source."
+)
+
+// fixtureTrainingsBlock is the English-courses block shell, cuts left to the caller.
+func fixtureTrainingsBlock(cuts []types.OriginCut, totalVisits int, smallSample bool) types.RegistrationOrigins {
 	return types.RegistrationOrigins{
-		TotalVisits: 2,
-		SmallSample: true,
-		JoinedOn:    "2026-09-15",
-		Cuts: []types.OriginCut{
+		Heading: "English courses: trainings.arc42.org", Site: "trainings.arc42.org", Page: "/registration/",
+		Window: "all time in the rollup", InRollup: true, JoinedOn: "2026-09-15",
+		Cuts: cuts, TotalVisits: totalVisits, SmallSample: smallSample,
+	}
+}
+
+// fixtureGermanBlock is the German-courses block shell, cuts left to the caller.
+func fixtureGermanBlock(cuts []types.OriginCut, totalVisits int, smallSample bool) types.RegistrationOrigins {
+	return types.RegistrationOrigins{
+		Heading: "German courses: arc42.de", Site: "arc42.de", Page: "/anmeldung/",
+		Window: "the last 12 months",
+		Cuts:   cuts, TotalVisits: totalVisits, SmallSample: smallSample,
+	}
+}
+
+// fixtureRegistrationOrigins exercises every branch of the "Where
+// registrations start" section across both blocks: the rollup block is a small
+// sample with a join date, one cut with rows and production's note, one with
+// rows and no note, and one whose query failed; the arc42.de block is a large
+// sample (figures from the 2026-09-19 probe) with rows under its source note.
+func fixtureRegistrationOrigins() []types.RegistrationOrigins {
+	return []types.RegistrationOrigins{
+		fixtureTrainingsBlock([]types.OriginCut{
 			{
 				Title: "Which arc42 site they came in through",
-				Rows: []types.OriginRow{
-					{Label: "arc42.org", Visitors: 2, Visits: 2},
-				},
+				Rows:  []types.OriginRow{{Label: "arc42.org", Visitors: 2, Visits: 2}},
 			},
 			{
 				Title: "Which page they came in through",
-				Note:  "Paths carry no host name here: \"/\" is the front page of whichever member site the visit started on.",
-				Rows: []types.OriginRow{
-					{Label: "/", Visitors: 2, Visits: 2},
-				},
+				Note:  fixtureTrainingsEntryNote,
+				Rows:  []types.OriginRow{{Label: "/", Visitors: 2, Visits: 2}},
 			},
 			{
 				Title:         "Where they came from before arc42",
 				Failed:        true,
 				FailureReason: "plausible v2: HTTP 400: invalid dimension visit:source",
 			},
-		},
+		}, 2, true),
+		fixtureGermanBlock([]types.OriginCut{
+			{
+				Title: "Which arc42.de page they came in through",
+				Rows: []types.OriginRow{
+					{Label: "/termine/", Visitors: 64, Visits: 67},
+					{Label: "/", Visitors: 32, Visits: 32},
+					{Label: "/info-req4arc/", Visitors: 26, Visits: 26},
+				},
+			},
+			{
+				Title: "Where they came from before arc42.de",
+				Note:  fixtureGermanSourceNote,
+				Rows: []types.OriginRow{
+					{Label: "Direct / None", Visitors: 84, Visits: 87},
+					{Label: "Google", Visitors: 24, Visits: 24},
+					{Label: "arc42.org", Visitors: 23, Visits: 23},
+					{Label: "isaqb.org", Visitors: 20, Visits: 21},
+				},
+			},
+		}, 155, false),
 	}
 }
 
 // fixtureRegistrationOriginsEmpty is the rollupPage-noregistrations.html
-// variant: the section is configured and every cut ran, but no visit in the
-// rollup has reached the registration page yet - the "no rows, not failed"
-// branch, for all three of production's cuts at once. Follows the same
-// second-rendered-variant precedent as tiles-allclear.html and
-// siteAvailability-unmonitored.html below, rather than overloading the main
-// fixture with a state it cannot hold alongside the rows-bearing cuts.
-func fixtureRegistrationOriginsEmpty() types.RegistrationOrigins {
-	return types.RegistrationOrigins{
-		TotalVisits: 0,
-		SmallSample: true,
-		JoinedOn:    "2026-09-15",
-		Cuts: []types.OriginCut{
+// variant: the section is configured and every cut ran, but no visit reached
+// either registration page - the "no rows, not failed" branch, for every cut
+// of both blocks at once. Follows the same second-rendered-variant precedent
+// as tiles-allclear.html and siteAvailability-unmonitored.html below, rather
+// than overloading the main fixture with a state it cannot hold alongside the
+// rows-bearing cuts.
+func fixtureRegistrationOriginsEmpty() []types.RegistrationOrigins {
+	return []types.RegistrationOrigins{
+		fixtureTrainingsBlock([]types.OriginCut{
 			{Title: "Which arc42 site they came in through"},
-			{
-				Title: "Which page they came in through",
-				Note:  "Paths carry no host name here: \"/\" is the front page of whichever member site the visit started on.",
-			},
+			{Title: "Which page they came in through", Note: fixtureTrainingsEntryNote},
 			{Title: "Where they came from before arc42"},
-		},
+		}, 0, true),
+		fixtureGermanBlock([]types.OriginCut{
+			{Title: "Which arc42.de page they came in through"},
+			{Title: "Where they came from before arc42.de", Note: fixtureGermanSourceNote},
+		}, 0, true),
 	}
 }
 
 // fixtureRegistrationOriginsAllFailed is the rollupPage-allfailed.html
-// variant: every one of production's three cuts failed. This is the case
-// Important-1 of the final review fixed - registrationOriginsFrom must not
+// variant: every cut of both blocks failed. registrationOriginsFrom must not
 // let TotalVisits' zero value read as "small sample" when there is no data
-// at all, only silence. Realistic FailureReasons, same titles and notes as
-// production, following the same second-rendered-variant precedent as
-// fixtureRegistrationOriginsEmpty below.
-func fixtureRegistrationOriginsAllFailed() types.RegistrationOrigins {
-	return types.RegistrationOrigins{
-		TotalVisits: 0,
-		SmallSample: false,
-		JoinedOn:    "2026-09-15",
-		Cuts: []types.OriginCut{
-			{
-				Title:         "Which arc42 site they came in through",
-				Failed:        true,
-				FailureReason: "plausible v2: HTTP 500",
-			},
-			{
-				Title:         "Which page they came in through",
-				Note:          "Paths carry no host name here: \"/\" is the front page of whichever member site the visit started on.",
-				Failed:        true,
-				FailureReason: "plausible v2: HTTP 500",
-			},
-			{
-				Title:         "Where they came from before arc42",
-				Failed:        true,
-				FailureReason: "plausible v2: HTTP 400: unknown operator has_done",
-			},
-		},
+// at all, only silence - so SmallSample is false and neither "Too small to
+// generalise from" nor "0 visits" may appear.
+func fixtureRegistrationOriginsAllFailed() []types.RegistrationOrigins {
+	return []types.RegistrationOrigins{
+		fixtureTrainingsBlock([]types.OriginCut{
+			{Title: "Which arc42 site they came in through", Failed: true, FailureReason: "plausible v2: HTTP 500"},
+			{Title: "Which page they came in through", Note: fixtureTrainingsEntryNote, Failed: true, FailureReason: "plausible v2: HTTP 500"},
+			{Title: "Where they came from before arc42", Failed: true, FailureReason: "plausible v2: HTTP 400: unknown operator has_done"},
+		}, 0, false),
+		fixtureGermanBlock([]types.OriginCut{
+			{Title: "Which arc42.de page they came in through", Failed: true, FailureReason: "plausible v2: HTTP 401: invalid api key"},
+			{Title: "Where they came from before arc42.de", Note: fixtureGermanSourceNote, Failed: true, FailureReason: "plausible v2: HTTP 401: invalid api key"},
+		}, 0, false),
 	}
 }
 

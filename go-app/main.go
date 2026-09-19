@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const appVersion = "1.6.0"
+const appVersion = "1.7.0"
 
 // gitCommit is injected at build time:
 //
@@ -22,6 +22,9 @@ const appVersion = "1.6.0"
 var gitCommit = "dev"
 
 // version history
+// 1.7.0: "Where registrations start" covers the German courses too: a second
+//        block for arc42.de's /anmeldung/, from its own dashboard over twelve
+//        months, since arc42.de is not in the rollup (ADR-0024).
 // 1.6.0: the rollup page reports where the visits that reach the trainings
 //        registration begin - entry host, entry page and source (ADR-0023),
 //        via Plausible's Stats API v2.

@@ -130,7 +130,7 @@ func LoadStats4AllSites() types.Arc42Statistics {
 	// than after wg.Wait() - otherwise every cache miss, the public home page
 	// included, would wait out three sequential Plausible round trips (up to
 	// 3 x 20s) on top of everything else.
-	var regOrigins types.RegistrationOrigins
+	var regOrigins []types.RegistrationOrigins
 	wg.Add(1)
 	go getRegistrationOrigins(trainingsJoinedRollup(), &regOrigins, &wg)
 
@@ -211,11 +211,12 @@ func getRollupStatistics(unique *types.SiteStatsType, wg *sync.WaitGroup) {
 	plausible.StatsForSite(types.RollupSiteID, unique)
 }
 
-// getRegistrationOrigins fetches the three "where did the visit begin" cuts
-// for the registration page. It is not a property either - it depends only on
-// the static roster (trainings.arc42.org's join date), not on anything the
-// other goroutines produce. This func is called as Goroutine.
-func getRegistrationOrigins(joinedOn string, out *types.RegistrationOrigins, wg *sync.WaitGroup) {
+// getRegistrationOrigins fetches, for each course site, the "where did the
+// visit begin" cuts for its registration page (ADR-0023, ADR-0024). It is not
+// a property either - it depends only on the static roster (trainings.arc42.org's
+// join date), not on anything the other goroutines produce. This func is
+// called as Goroutine.
+func getRegistrationOrigins(joinedOn string, out *[]types.RegistrationOrigins, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	*out = statsv2.RegistrationOriginsFor(joinedOn)

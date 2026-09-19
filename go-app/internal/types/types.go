@@ -502,8 +502,9 @@ type Arc42Statistics struct {
 	// Rendered only on the maintainers-only /rollup page (ADR-0022).
 	Rollup RollupStats
 
-	// RegistrationOrigins: where the visits that reach the registration page came from.
-	RegistrationOrigins RegistrationOrigins
+	// RegistrationOrigins: where the visits that reach a course registration
+	// page came from, one block per course site (ADR-0023, ADR-0024).
+	RegistrationOrigins []RegistrationOrigins
 
 	Availability FamilyAvailability
 }
@@ -556,14 +557,25 @@ type OriginCut struct {
 	FailureReason string
 }
 
-// RegistrationOrigins is the whole section. SmallSample is set when fewer
-// than SmallSampleVisits visits stand behind it, and makes the page say so
-// before showing any table.
+// RegistrationOrigins is one course site's block of the section. SmallSample
+// is set when fewer than SmallSampleVisits visits stand behind it, and makes
+// the page say so before showing any table.
 type RegistrationOrigins struct {
+	Heading string // e.g. "English courses: trainings.arc42.org"
+	Site    string // the host the registration page lives on
+	Page    string // the registration page's path, query string stripped
+	Window  string // the period the figures cover, in words
+
+	// InRollup: the figures come from the shared rollup, where a visit that
+	// crossed arc42 sites is one visit. Otherwise they come from the site's own
+	// dashboard, where an arrival from another arc42 site starts a new visit
+	// and names that site as its source.
+	InRollup bool
+	JoinedOn string // the day the site started reporting into the rollup; "" when not in it
+
 	Cuts        []OriginCut
 	TotalVisits int
 	SmallSample bool
-	JoinedOn    string
 }
 
 // SmallSampleVisits is the line below which the section refuses to let a

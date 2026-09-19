@@ -1,7 +1,7 @@
 # Registration origins — design
 
 Date: 2026-09-16
-Status: implemented (2026-09-18, ADR-0023)
+Status: implemented (2026-09-18, ADR-0023); extended to the German courses on arc42.de by ADR-0024 (2026-09-19)
 Supersedes nothing. Implements the "journeys page" left open by ADR-0021.
 
 ## The question
@@ -119,7 +119,7 @@ table already behaves:
 | API returns non-200 | section shows the failure and the status code |
 | `has_done` unsupported by the account's plan | section shows that the query was refused, with the API's message — **see risk below** |
 | No rows | "no visit in this window reached the registration page" |
-| Window predates the join | rows shown, with the not-whole label above them |
+| Every cut failed | each cut shows its failure; no visit count and no small-sample sentence, because a zero is never shown for unknown |
 
 ## Risk retired (probed 2026-09-17)
 

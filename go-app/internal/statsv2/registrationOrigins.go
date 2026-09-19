@@ -2,20 +2,12 @@ package statsv2
 
 import (
 	"os"
+	"sync"
 
 	"arc42-status/internal/types"
 
 	"github.com/rs/zerolog/log"
 )
-
-// registrationPath is the page whose visits this report is about. Plausible
-// strips the query string, so this single path covers every ?kurs=... link.
-const registrationPath = "/registration/"
-
-// rollupSiteID is the shared dashboard. The question can only be answered
-// here: in the trainings site's own dashboard a visit arriving from the docs
-// looks like a fresh visit with a referrer, not one visit that began there.
-const rollupSiteID = "rollup.arc42.com"
 
 type originCutSpec struct {
 	dimension string
@@ -23,56 +15,135 @@ type originCutSpec struct {
 	note      string
 }
 
-var originCuts = []originCutSpec{
-	{"visit:entry_page_hostname", "Which arc42 site they came in through", ""},
-	{"visit:entry_page", "Which page they came in through",
-		"Paths carry no host name here: \"/\" is the front page of whichever member site the visit started on."},
-	{"visit:source", "Where they came from before arc42", ""},
+// registrationTarget is one course site's registration page and the
+// dashboard that can say where its visits began.
+type registrationTarget struct {
+	heading string
+	site    string
+	page    string // Plausible strips the query string, so one path covers every ?kurs=... link
+	window  string
+
+	siteID    string
+	dateRange any
+	inRollup  bool
+	joinedOn  string
+	cuts      []originCutSpec
 }
 
-// RegistrationOriginsFor answers: of the visits that opened the registration
-// page, where did the visit begin? joinedOn is the day trainings started
-// reporting into the rollup; windows reaching back further under-report, and
-// the page says so.
-func RegistrationOriginsFor(joinedOn string) types.RegistrationOrigins {
-	return registrationOriginsFrom(StatsV2Endpoint, os.Getenv("PLAUSIBLE_API_KEY"), joinedOn)
+// trainingsTarget: the English courses. Their question is answered in the
+// shared rollup: in the trainings site's own dashboard a visit arriving from
+// the docs looks like a fresh visit with a referrer, not one visit that began
+// there (ADR-0023). joinedOn is the day trainings started reporting into the
+// rollup; the window is all time in the rollup, which begins then.
+func trainingsTarget(joinedOn string) registrationTarget {
+	return registrationTarget{
+		heading:   "English courses: trainings.arc42.org",
+		site:      "trainings.arc42.org",
+		page:      "/registration/",
+		window:    "all time in the rollup",
+		siteID:    "rollup.arc42.com",
+		dateRange: "all",
+		inRollup:  true,
+		joinedOn:  joinedOn,
+		cuts: []originCutSpec{
+			{"visit:entry_page_hostname", "Which arc42 site they came in through", ""},
+			{"visit:entry_page", "Which page they came in through",
+				"Paths carry no host name here: \"/\" is the front page of whichever member site the visit started on."},
+			{"visit:source", "Where they came from before arc42", ""},
+		},
+	}
 }
 
-func registrationOriginsFrom(endpoint, token, joinedOn string) types.RegistrationOrigins {
-	out := types.RegistrationOrigins{JoinedOn: joinedOn}
+// germanTarget: the German courses, which register on arc42.de. arc42.de
+// reports only to its own dashboard (meta.arc42.org ADR-0005), so its block
+// asks that dashboard. Every visit there enters on arc42.de, so there is no
+// entry-hostname cut; an arrival from another arc42 site shows up as a source
+// instead. That dashboard holds years of history, so the window is twelve
+// months rather than all time (ADR-0024).
+func germanTarget() registrationTarget {
+	return registrationTarget{
+		heading:   "German courses: arc42.de",
+		site:      "arc42.de",
+		page:      "/anmeldung/",
+		window:    "the last 12 months",
+		siteID:    "arc42.de",
+		dateRange: "12mo",
+		cuts: []originCutSpec{
+			{"visit:entry_page", "Which arc42.de page they came in through", ""},
+			{"visit:source", "Where they came from before arc42.de",
+				"arc42.de is not in the rollup, so a reader who comes over from another arc42 site starts a new visit here, and that site is listed as the source."},
+		},
+	}
+}
 
-	// R3: with no token there is nothing to ask - and nothing to leak. Send
-	// no request at all, and leave the section without cuts so the page can
-	// omit it.
+// RegistrationOriginsFor answers, for every course site: of the visits that
+// opened the registration page, where did the visit begin? trainingsJoinedOn
+// is the day trainings.arc42.org started reporting into the rollup. With no
+// API key it returns nil, and the page omits the section.
+func RegistrationOriginsFor(trainingsJoinedOn string) []types.RegistrationOrigins {
+	return registrationOriginsAll(StatsV2Endpoint, os.Getenv("PLAUSIBLE_API_KEY"), trainingsJoinedOn)
+}
+
+func registrationOriginsAll(endpoint, token, trainingsJoinedOn string) []types.RegistrationOrigins {
+	// With no token there is nothing to ask - and nothing to leak. Send no
+	// request at all, so the page can omit the section.
 	if token == "" {
-		return out
+		return nil
+	}
+
+	targets := []registrationTarget{trainingsTarget(trainingsJoinedOn), germanTarget()}
+
+	// The blocks are independent, so they are asked concurrently: the German
+	// block must not lengthen the collection pass it runs in. Each goroutine
+	// writes only its own slot.
+	out := make([]types.RegistrationOrigins, len(targets))
+	var wg sync.WaitGroup
+	for i, t := range targets {
+		wg.Add(1)
+		go func(i int, t registrationTarget) {
+			defer wg.Done()
+			out[i] = registrationOriginsFrom(endpoint, token, t)
+		}(i, t)
+	}
+	wg.Wait()
+	return out
+}
+
+func registrationOriginsFrom(endpoint, token string, t registrationTarget) types.RegistrationOrigins {
+	out := types.RegistrationOrigins{
+		Heading:  t.heading,
+		Site:     t.site,
+		Page:     t.page,
+		Window:   t.window,
+		InRollup: t.inRollup,
+		JoinedOn: t.joinedOn,
 	}
 
 	// Selects whole visits that contained a registration page view. An
 	// event-level filter would select the page views themselves, whose entry
 	// page is meaningless - see the spec.
-	filter := []any{[]any{"has_done", []any{"is", "event:page", []string{registrationPath}}}}
+	filter := []any{[]any{"has_done", []any{"is", "event:page", []string{t.page}}}}
 
 	// anyOK tracks whether at least one cut actually returned data. Without
-	// it, three failed cuts would leave TotalVisits at its zero value and
+	// it, failed cuts would leave TotalVisits at its zero value and
 	// SmallSample would read that zero as "small" - a zero standing in for
 	// unknown, which the spec forbids.
 	anyOK := false
 
-	for _, spec := range originCuts {
+	for _, spec := range t.cuts {
 		cut := types.OriginCut{Title: spec.title, Note: spec.note}
 
 		rows, err := RunV2Query(endpoint, token, V2Query{
-			SiteID:     rollupSiteID,
+			SiteID:     t.siteID,
 			Metrics:    []string{"visitors", "visits"},
-			DateRange:  "all",
+			DateRange:  t.dateRange,
 			Dimensions: []string{spec.dimension},
 			Filters:    filter,
 			OrderBy:    []any{[]any{"visitors", "desc"}},
 			Pagination: &V2Pagination{Limit: 25},
 		})
 		if err != nil {
-			log.Warn().Msgf("registration origins (%s): %v", spec.dimension, err)
+			log.Warn().Msgf("registration origins (%s, %s): %v", t.site, spec.dimension, err)
 			cut.Failed = true
 			cut.FailureReason = err.Error()
 			out.Cuts = append(out.Cuts, cut)
@@ -98,7 +169,7 @@ func registrationOriginsFrom(endpoint, token, joinedOn string) types.Registratio
 			cut.Rows = append(cut.Rows, types.OriginRow{Label: label, Visitors: visitors, Visits: v})
 		}
 		// Every cut counts the same visits, so the total is one cut's worth,
-		// never the sum of all three.
+		// never the sum of the cuts.
 		if visits > out.TotalVisits {
 			out.TotalVisits = visits
 		}

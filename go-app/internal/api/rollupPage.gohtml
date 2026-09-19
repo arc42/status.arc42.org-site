@@ -147,16 +147,29 @@
     <p class="detail__foot">Collected {{ .LastUpdatedString }}.</p>
 </div>
 
-{{ if .RegistrationOrigins.Cuts }}
+{{ if .RegistrationOrigins }}
 <h2 id="registrations">Where registrations start</h2>
 
-{{ with .RegistrationOrigins }}
-<p>Of the visits that opened <code>/registration/</code> on trainings.arc42.org,
-    this is where the visit began. Only the rollup can answer this: in the
-    trainings dashboard alone, a reader arriving from the docs looks like a new
-    visit with a referrer, not one visit that started there.
-    {{ if .JoinedOn }}trainings.arc42.org has been reporting into the rollup
-    since {{ .JoinedOn }}; nothing before that day is counted here.{{ end }}</p>
+<p>For each course site: of the visits that opened its registration page,
+    where did the visit begin? Plausible records no page sequences, so this
+    shows where visits started, not the path they took.</p>
+
+{{ range .RegistrationOrigins }}
+{{ $block := . }}
+<h3 class="rollup__subhead">{{ .Heading }}</h3>
+
+{{ if .InRollup }}
+<p>Of the visits that opened <code>{{ .Page }}</code> on {{ .Site }}, this is
+    where the visit began. Only the rollup can answer this: in {{ .Site }}'s own
+    dashboard, a reader arriving from the docs looks like a new visit with a
+    referrer, not one visit that started there.
+    {{ if .JoinedOn }}{{ .Site }} has been reporting into the rollup since
+    {{ .JoinedOn }}; nothing before that day is counted here.{{ end }}</p>
+{{ else }}
+<p>Of the visits that opened <code>{{ .Page }}</code> on {{ .Site }} over
+    {{ .Window }}, this is where they began on {{ .Site }}. These figures come
+    from {{ .Site }}'s own dashboard, because {{ .Site }} is not in the rollup.</p>
+{{ end }}
 
 {{ if .SmallSample }}
 <p class="rollup__note"><b>Too small to generalise from.</b>
@@ -166,11 +179,11 @@
 {{ end }}
 
 {{ range .Cuts }}
-<h3 class="rollup__subhead">{{ .Title }}</h3>
+<h4 class="rollup__subhead">{{ .Title }}</h4>
 {{ if .Failed }}
 <p class="site-page__nodata">This query failed: {{ .FailureReason }}</p>
 {{ else if not .Rows }}
-<p class="site-page__nodata">No visit in the rollup has reached the registration page yet.</p>
+<p class="site-page__nodata">{{ if $block.InRollup }}No visit in the rollup has reached the registration page yet.{{ else }}No visit reached the registration page in {{ $block.Window }}.{{ end }}</p>
 {{ else }}
 {{ if .Note }}<p class="rollup__note">{{ .Note }}</p>{{ end }}
 <table class="rollup-figures">
@@ -247,8 +260,9 @@
 
 <ul>
     <li><b>How many people use arc42's sites?</b> The rollup's <i>Unique visitors</i>, unfiltered.</li>
-    <li><b>Where do people who reach the trainings start?</b> See
-        <a href="#registrations">Where registrations start</a>, below.</li>
+    <li><b>Where do people who register for a course start?</b> See
+        <a href="#registrations">Where registrations start</a>, below, for the
+        English and the German courses.</li>
     <li><b>How many use more than one site?</b> "Counted on more than one site" in the table above.</li>
 </ul>
 
