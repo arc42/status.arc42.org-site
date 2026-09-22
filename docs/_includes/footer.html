@@ -25,6 +25,14 @@
 
   Styles: _sass/_arc42-family.scss (.supported-by-innoq is declared in
   assets/css/arc42-status-style.css and is not re-declared there).
+
+  The build line names which release of THIS SITE you are looking at:
+  site.version from _config.yml (bumped by hand), plus the commit and deploy
+  date from _data/build.yml, which .github/workflows/pages.yml writes at
+  deploy time and .gitignore keeps out of the repository. A local build has
+  no build.yml, so it prints the version alone rather than claiming a deploy
+  that never happened. The statistics service's own version is a different
+  number and stays in its table footer.
 {%- endcomment -%}
 
 <div class="footer-inner">
@@ -47,4 +55,16 @@
     licensed under <a target="_blank" rel="noopener noreferrer nofollow" href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.
     Supported by <a href="https://kroener-starke.ch/projekte/" target="_blank" rel="noopener noreferrer">Kröner &amp; Starke</a>.
   </p>
+
+  {%- if site.version %}
+  <p class="footer-build">
+    Site v{{ site.version }}
+    {%- if site.data.build.sha %} &middot; build
+      <a href="https://github.com/{{ site.repository }}/commit/{{ site.data.build.sha }}"
+         target="_blank" rel="noopener noreferrer nofollow">{{ site.data.build.sha | slice: 0, 7 }}</a>
+    {%- endif %}
+    {%- if site.data.build.deployed %} &middot; deployed {{ site.data.build.deployed | date: "%-d %B %Y" }}
+    {%- endif %}
+  </p>
+  {%- endif %}
 </div>

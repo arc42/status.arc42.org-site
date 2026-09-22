@@ -248,6 +248,24 @@ $arc42-rainbow: linear-gradient(90deg, #c22b47, #ffc95c, #2e9e67, #5fb49c, #1675
   }
 }
 
+// Which release of this site you are looking at: the hand-bumped site.version,
+// and the commit and deploy date CI wrote into _data/build.yml. A notch
+// smaller than .footer-maintainer, because it is provenance rather than
+// content - there for the maintainer who needs to know what shipped.
+.footer-build {
+  flex-basis: 100%;
+  margin: 0;
+  padding-top: 0.2rem;
+  font-size: 0.72rem;
+  color: $muted-text-color;
+
+  a {
+    color: $muted-text-color;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
 @media (max-width: 800px) {
   .footer-inner {
     padding: 1.25rem 1rem;

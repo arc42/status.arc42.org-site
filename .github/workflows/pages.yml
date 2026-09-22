@@ -45,6 +45,17 @@ jobs:
         id: pages
         uses: actions/configure-pages@v5
 
+      # What the footer reports as this site's build. The commit is the one
+      # being deployed, the date is when it was deployed; the release number
+      # beside them is site.version in _config.yml. The file is gitignored:
+      # only a deploy writes it, so a local build never claims to be one.
+      - name: Record the build
+        run: |
+          printf 'sha: %s\ndeployed: %s\n' \
+            "${{ github.sha }}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            > docs/_data/build.yml
+          cat docs/_data/build.yml
+
       - name: Build with Jekyll
         run: |
           cd docs

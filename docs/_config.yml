@@ -32,6 +32,14 @@ baseurl         : ""  # the subpath of your site, e.g. "/blog"
 # so the deployed site always talks to fly.io.
 stats_api       : "https://arc42-stats.fly.dev"
 repository      : "arc42/status.arc42.org-site" # GitHub username/repo-name
+
+# This site's release number, rendered in the footer. The history behind it is
+# in README.md ("Version history"); raise this by hand when a release goes out.
+# The Go statistics service carries its own, independent number (main.go's
+# appVersion). The commit and deploy date beside this one in the footer come
+# from CI (_data/build.yml, written by .github/workflows/pages.yml) and
+# identify the exact build.
+version         : "2.2.4"
 teaser          :  # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 
 # The family's square logo. _includes/seo.html uses it as the schema.org

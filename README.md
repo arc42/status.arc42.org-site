@@ -97,6 +97,20 @@ make test     # Run Go unit tests
 make lint     # Run golangci-lint over the Go code
 ```
 
+## Version history
+
+The site carries a semantic version, shown in its footer beside the commit and
+date of the deploy that built it. It lives in `version` in `docs/_config.yml`
+and is raised by hand. The Go statistics service versions itself separately —
+that history is in `go-app/main.go`.
+
+| Version   | What it marks                                                       |
+|-----------|---------------------------------------------------------------------|
+| **2.2.4** | Current release.                                                     |
+| 2.x       | Reworked user interface, and the backend rewritten.                  |
+| 1.5.x     | The Go statistics service, running on fly.io.                        |
+| 1.0.0     | The static site on its own — no backend at all, before fly.io.       |
+
 ## Technologies used
 
 ![Plausible Analytics Badge](https://img.shields.io/badge/Plausible%20Analytics-5850EC?logo=plausibleanalytics&logoColor=fff&style=plastic)

@@ -11,3 +11,9 @@ build
 .idea/runConfigurations/go_run_main_go.xml
 .idea
 .crush
+
+# Written by .github/workflows/pages.yml at deploy time and read by the
+# footer. It records the commit and date of a deploy, so it belongs to the
+# deploy and never to the repository - a committed copy would be stale the
+# moment it landed.
+docs/_data/build.yml
