@@ -2,6 +2,10 @@
 name: Build and Deploy Jekyll Site
 
 "on":
+  # Redeploy on demand (`gh workflow run pages.yml`). Since Pages builds from
+  # this workflow rather than from the branch, this is the only way to publish
+  # the site again without changing a file under docs/.
+  workflow_dispatch:
   push:
     branches:
       - main
